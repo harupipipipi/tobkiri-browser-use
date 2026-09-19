@@ -1,0 +1,69 @@
+{
+  "version": "0.1.0",
+  "browser": "Chrome/144.0.7559.96",
+  "platform": "Linux",
+  "headed": true,
+  "mode": "Direct CDP + production page-ops.mjs; NOT installed-extension E2E",
+  "policyModified": false,
+  "focusEmulation": false,
+  "navigation": "Allowed in-memory about:blank documents only",
+  "checks": [
+    {
+      "name": "Real foreground/hidden tabs: no focus emulation or background-throttling overrides",
+      "passed": true
+    },
+    {
+      "name": "Production isolated-world snapshot and sensitive-input redaction",
+      "passed": true
+    },
+    {
+      "name": "Concurrent foreground text input and hidden-tab typing/clicking; foreground focus retained",
+      "passed": true
+    },
+    {
+      "name": "Input/click events are trusted browser events",
+      "passed": true
+    },
+    {
+      "name": "Hidden-tab screenshot without foreground activation",
+      "passed": true
+    },
+    {
+      "name": "Stale-ref rejection and open-shadow-root interaction",
+      "passed": true
+    },
+    {
+      "name": "Checkbox state and native select operation",
+      "passed": true
+    },
+    {
+      "name": "Empty text replacement clears input",
+      "passed": true
+    },
+    {
+      "name": "Page Enter key and production wait predicate",
+      "passed": true
+    },
+    {
+      "name": "Offscreen element targeting and deterministic hidden-tab DOM scrolling",
+      "passed": true
+    },
+    {
+      "name": "Coordinate dragging on a hidden tab without changing human focus",
+      "passed": true
+    },
+    {
+      "name": "Full-page screenshot of background document",
+      "passed": true
+    }
+  ],
+  "passed": 12,
+  "failed": 0,
+  "unverified": [
+    "Actual chrome.debugger extension transport",
+    "Extension installation and popup runtime under MV3",
+    "Navigation to real websites",
+    "macOS / Windows",
+    "Production MCP clients"
+  ]
+}

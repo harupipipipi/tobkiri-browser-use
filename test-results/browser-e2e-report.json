@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "status": "environment-blocked",
+  "passed": 0,
+  "failed": 0,
+  "skipped": 1,
+  "reason": "Managed Chromium policy blocks all extension installations. The policy was not modified. Run this test in an extension-enabled local browser."
+}
