@@ -96,5 +96,95 @@ export function pageOp(op, a={}) {
     if(a.text!==undefined)return {matched:(document.body?.innerText||'').includes(a.text)};
     let el;try{el=document.querySelector(a.selector);}catch{fail('INVALID_SELECTOR','Invalid CSS selector.');}return {matched:!!el&&visible(el)};
   }
+  // Trusted-input delivery probe: capture-phase listeners in this isolated world observe
+  // CDP-dispatched events if (and only if) the host actually delivers them to the page.
+  if(op==='armInput') {
+    const prev=globalThis.__tbkInput;
+    if(prev)for(const t of prev.types)document.removeEventListener(t,prev.h,true);
+    const seen={};const h=e=>{seen[e.type]=1;};const types=a.types||[];
+    for(const t of types)document.addEventListener(t,h,true);
+    globalThis.__tbkInput={seen,h,types};
+    return {armed:true};
+  }
+  if(op==='inputProbe')return {seen:globalThis.__tbkInput?.seen||{}};
+  // Visual action indicators: DOM overlays showing where an action landed. They live inside the
+  // page (so they appear in screenshots and to the user viewing the tab), use pointer-events:none,
+  // and remove themselves. This is not an OS cursor — just an in-page ripple/highlight.
+  function mark(x,y){
+    const host=document.documentElement||document.body;if(!host)return;
+    const d=document.createElement('div');
+    d.style.cssText=`position:fixed;left:${Math.round(x)-14}px;top:${Math.round(y)-14}px;width:28px;height:28px;border:3px solid #2f81f7;border-radius:50%;z-index:2147483647;pointer-events:none;box-sizing:border-box;background:rgba(47,129,247,.15)`;
+    host.appendChild(d);
+    try{d.animate([{transform:'scale(.4)',opacity:'1'},{transform:'scale(1)',opacity:'1',offset:.25},{transform:'scale(1.6)',opacity:'0'}],{duration:1800,easing:'ease-out'}).onfinish=()=>d.remove();}catch{setTimeout(()=>d.remove(),1900);}
+  }
+  function flash(el){
+    const r=el.getBoundingClientRect();if(!r.width&&!r.height)return;
+    const host=document.documentElement||document.body;if(!host)return;
+    const d=document.createElement('div');
+    d.style.cssText=`position:fixed;left:${Math.round(r.left)-3}px;top:${Math.round(r.top)-3}px;width:${Math.round(r.width)+6}px;height:${Math.round(r.height)+6}px;border:2px solid #d2a8ff;border-radius:4px;z-index:2147483647;pointer-events:none;box-sizing:border-box;background:rgba(210,168,255,.14)`;
+    host.appendChild(d);
+    try{d.animate([{opacity:'1'},{opacity:'1',offset:.5},{opacity:'0'}],{duration:1800,easing:'ease-out'}).onfinish=()=>d.remove();}catch{setTimeout(()=>d.remove(),1900);}
+  }
+  if(op==='mark'){mark(a.x,a.y);return {marked:true};}
+  // DOM-level fallbacks, used ONLY after the input probe proves the host dropped the trusted
+  // events. These emit isTrusted:false events and cannot run browser default actions such as
+  // focus traversal; callers must surface `trusted:false` rather than hiding the distinction.
+  if(op==='domClick') {
+    let hit=document.elementFromPoint(a.x,a.y);
+    for(let i=0;i<10&&hit?.shadowRoot;i++){const next=hit.shadowRoot.elementFromPoint(a.x,a.y);if(!next||next===hit)break;hit=next;}
+    if(!hit)return {applied:false};
+    const hr=hit.getBoundingClientRect();mark(hr.left+hr.width/2,hr.top+hr.height/2);flash(hit);
+    const PE=globalThis.PointerEvent||MouseEvent;
+    const init={bubbles:true,cancelable:true,composed:true,clientX:a.x,clientY:a.y,button:0};
+    for(const t of['pointerover','pointerdown','mousedown','pointerup','mouseup'])hit.dispatchEvent(t.startsWith('pointer')?new PE(t,init):new MouseEvent(t,init));
+    hit.click();
+    return {applied:true,tag:hit.tagName.toLowerCase()};
+  }
+  if(op==='domType') {
+    const el=target();
+    if(el.disabled||el.readOnly)fail('DISABLED','Target is disabled.');
+    if(el instanceof HTMLInputElement||el instanceof HTMLTextAreaElement){
+      let s,e;try{s=el.selectionStart??el.value.length;e=el.selectionEnd??s;}catch{s=e=el.value.length;}
+      const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
+      const setter=Object.getOwnPropertyDescriptor(proto,'value')?.set;
+      const next=el.value.slice(0,s)+a.text+el.value.slice(e);
+      if(setter)setter.call(el,next);else el.value=next;
+      try{el.setSelectionRange(s+a.text.length,s+a.text.length);}catch{}
+      el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:a.text}));
+      flash(el);
+      return {applied:true};
+    }
+    if(el.isContentEditable){
+      let done=false;try{done=document.execCommand('insertText',false,a.text);}catch{}
+      if(!done){
+        const sel=getSelection();
+        if(sel.rangeCount&&el.contains(sel.anchorNode)){const r=sel.getRangeAt(0);r.deleteContents();const n=document.createTextNode(a.text);r.insertNode(n);r.setStartAfter(n);r.collapse(true);sel.removeAllRanges();sel.addRange(r);}
+        else el.append(a.text);
+        el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:a.text}));
+      }
+      flash(el);
+      return {applied:true};
+    }
+    fail('NOT_EDITABLE','Target is not editable.');
+  }
+  if(op==='domKey') {
+    const el=document.activeElement&&document.activeElement!==document.body?document.activeElement:document.body;
+    const init={key:a.key,code:a.code||'',bubbles:true,cancelable:true,composed:true,altKey:!!(a.modifiers&1),ctrlKey:!!(a.modifiers&2),metaKey:!!(a.modifiers&4),shiftKey:!!(a.modifiers&8)};
+    const keydownOk=el.dispatchEvent(new KeyboardEvent('keydown',init));
+    el.dispatchEvent(new KeyboardEvent('keyup',init));
+    let inserted=false,submitted=false;
+    const ed=el.closest?.('input,textarea,[contenteditable="true"]');
+    if(keydownOk&&ed&&!ed.disabled&&!ed.readOnly){
+      // Enter is handled before the generic text branch: it must newline in multi-line
+      // fields or submit the owning form, never insert a stray '\r'.
+      if(a.key==='Enter'){
+        if(ed.isContentEditable||ed instanceof HTMLTextAreaElement){try{inserted=document.execCommand('insertText',false,'\n');}catch{}}
+        else if(ed instanceof HTMLInputElement&&ed.form){ed.form.requestSubmit();submitted=true;}
+      }
+      else if(a.text){try{inserted=document.execCommand('insertText',false,a.text);}catch{}}
+    }
+    flash(el);
+    return {applied:true,inserted,submitted};
+  }
   fail('UNKNOWN_PAGE_OPERATION','Unsupported page operation.');
 }

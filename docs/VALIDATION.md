@@ -1,8 +1,19 @@
-# Validation record — 0.2.0
+# Validation record — 0.2.4
 
 ## What was actually run
 
 **Date:** 2026-09-19 Japan time (0.1.0 baseline). **Build/test platform:** Linux, Node.js 22.16.0, Chromium 144.0.7559.96, Xvfb for headed browser tests. The 0.2.0 additions passed the Node suite on the author's machine; installed-extension verification is noted below.
+
+### 0.2.1–0.2.4 changes — verified on Windows + Vivaldi installed extension, 2026-09-19
+
+Driven end-to-end through the real MCP bridge and the real unpacked extension on Windows, Vivaldi (Chromium-based), with hidden background tabs. `npm test`: 34 passing, 0 failing.
+
+- **Fixed — fresh-hidden-tab wedge.** `browser_workspace_create`/`browser_tab_open` with a URL previously wedged 3/3 on this host (`PARTIAL_TAB_CREATION: CDP_TIMEOUT`, grant revoked). The create path now waits for the new tab to leave the loading state, `chrome.debugger.attach` and the idempotent init commands are bounded and retried once on a fresh session, and `Page.navigate` retries once after re-attach. Verified: URL-at-creation now succeeds repeatedly on the same host.
+- **Fixed — false success on dropped trusted input.** On this host, `Input.*` dispatch on hidden tabs sometimes acknowledges while no DOM input event arrives (previously `inserted:true`/`clicked:true` with no effect). Capture-phase listeners are now armed in the isolated world before dispatch and checked afterwards (`armInput`/`inputProbe` page ops). When the probe proves zero events arrived, click/type/press fall back to DOM-level application (`elementFromPoint().click()`, native value setter + `input` event, synthetic `KeyboardEvent`/`execCommand('insertText')`) — proven non-delivery means this cannot double-apply. Such results report `trusted:false`/`via:'dom-*'` honestly because fallback events are `isTrusted:false` and cannot run browser default actions (e.g. Tab focus traversal). If the fallback also fails, the original `INPUT_NOT_APPLIED` still propagates; the grant survives either way. `browser_drag` has no meaningful DOM equivalent and still returns `INPUT_NOT_APPLIED`. Verified on this host end-to-end: `browser_type` fell back (`via:'dom-type'`) and the text was confirmed in the DOM; `browser_press` Enter fell back (`via:'dom-key'`, `submitted:true`) and the form POST actually navigated the hidden tab to the httpbin response echoing the typed value; `browser_check`/`browser_click` fell back (`via:'dom-click'`) and checkbox/radio state was confirmed applied. When trusted input did arrive, results returned normally with no `trusted:false` marker. Delivery on this host is flaky — both outcomes were observed within one session.
+- **Fixed — screenshot timeout revoked the grant.** `Page.captureScreenshot` no longer revokes on an unacknowledged read-only capture; a timeout now returns `SCREENSHOT_UNAVAILABLE` and keeps the grant. On this host a hidden-tab viewport capture did complete, so the timeout path itself was not re-triggered here. `fromSurface:false` is rejected by this host ("Only screenshots from surface are allowed"), so no alternate capture mode exists.
+- Remaining host limitation: hidden-tab input delivery on Windows Vivaldi is inconsistent (keyboard/`insertText` traffic is more likely to be dropped than mouse). Tools now report delivery truthfully and fall back to DOM-level application where meaningful; `trusted:false` marks those results because sites that gate on `isTrusted` may still ignore them. `Emulation.setFocusEmulationEnabled` was tested on this host and does NOT restore input delivery — it is deliberately not enabled (it would only make `document.hasFocus()` lie). Hidden-tab `Page.captureScreenshot` is likewise flaky; the tool now retries once on a fresh debugger session before returning `SCREENSHOT_UNAVAILABLE`.
+- Visual feedback: successful clicks draw a self-removing ripple ring at the CSS-pixel point; DOM fallbacks additionally flash a highlight box on the target element. These are in-page overlays (visible to the user and in screenshots), not an OS cursor.
+- Dev reload: the popup footer has a "⟳ 更新" button that calls `chrome.runtime.reload()` (response is delivered before the SW dies). Additionally the background SW hashes its own source files on each alarm poll and self-reloads once an unpacked copy's files stay changed across two polls — a packed install can never see a hash change, so this is a no-op outside development.
 
 ### 0.2.0 changes
 
@@ -52,6 +63,6 @@ Additional review addressed accidental collapse of a group containing an ungrant
 
 ## Unverified / not claimed
 
-Actual extension installation and native popup/runtime behavior; managed-policy variations; service-worker suspend/restart over long real sessions; Chrome on macOS or Windows (0.2.0 was hand-verified on macOS Vivaldi only); Edge/Brave; production MCP clients such as Tobkiri; real websites beyond the single jspaint.app check above; external navigation and login flows; popups/native UI; full iframe handling; stress/load/security audit.
+Actual extension installation and native popup/runtime behavior; managed-policy variations; service-worker suspend/restart over long real sessions; Chrome on macOS or Windows (0.2.0 was hand-verified on macOS Vivaldi only; 0.2.1 was verified on Windows Vivaldi as noted above); Edge/Brave; real websites beyond the single jspaint.app check and the Windows session above; external navigation and login flows; popups/native UI; full iframe handling; stress/load/security audit.
 
 A successful local acceptance test in the user's chosen browser is still required. Start on a test page, not a financial account, checkout or irreversible action.

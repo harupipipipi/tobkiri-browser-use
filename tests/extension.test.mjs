@@ -11,6 +11,7 @@ import {request} from '../src/config.mjs';
 const event=()=>{const listeners=[];return {listeners,addListener:fn=>listeners.push(fn),emit:(...args)=>listeners.forEach(fn=>fn(...args))};};
 function fakeChrome(config) {
  const tabs=new Map([[1,{id:1,windowId:1,url:'https://human.example/',title:'PRIVATE HUMAN TAB',active:true,incognito:false,groupId:-1,autoDiscardable:true}]]),groups=new Map(),debuggers=new Set(),cdpCalls=[],activationCalls=[];
+ const flags={dropInput:false,domFails:false};
  let nextTab=2,nextGroup=1;
  const store=initial=>{const values=structuredClone(initial);return {async setAccessLevel(){},async get(keys){return Object.fromEntries((Array.isArray(keys)?keys:[keys]).filter(k=>k in values).map(k=>[k,structuredClone(values[k])]));},async set(v){Object.assign(values,structuredClone(v));}};};
  const chrome={
@@ -45,13 +46,18 @@ function fakeChrome(config) {
      else if(x.includes(')("viewport",'))value={width:1200,height:800};
      else if(x.includes(')("wait",'))value={matched:false};
      else if(x.includes(')("scroll",'))value={method:'dom-scroll',before:{x:0,y:0},after:{x:0,y:100}};
+     else if(x.includes(')("armInput",'))value={armed:true};
+     else if(x.includes(')("inputProbe",'))value={seen:flags.dropInput?{}:{pointerdown:1,mousedown:1,mouseup:1,click:1,keydown:1,keypress:1,keyup:1,beforeinput:1,input:1}};
+     else if(x.includes(')("domClick",'))value={applied:!flags.domFails,tag:'button'};
+     else if(x.includes(')("domType",')){if(flags.domFails)return {exceptionDetails:{text:'NOT_EDITABLE: Target is not editable.'}};value={applied:true};}
+     else if(x.includes(')("domKey",'))value={applied:!flags.domFails,inserted:!flags.domFails};
      return {result:{type:'object',value}};
     }
     return {};
    }
   }
  };
- return {chrome,tabs,groups,debuggers,cdpCalls,activationCalls};
+ return {chrome,tabs,groups,debuggers,cdpCalls,activationCalls,flags};
 }
 test('extension permission and dispatch integration (MOCK native Chrome APIs)',async t=>{
  const probe=net.createServer();probe.listen(0,'127.0.0.1');await once(probe,'listening');const port=probe.address().port;await new Promise(r=>probe.close(r));
@@ -77,6 +83,20 @@ test('extension permission and dispatch integration (MOCK native Chrome APIs)',a
  await t.test('eval evaluates in the MAIN world (no isolated contextId)',async()=>{const r=await tool('browser_eval',{tabId:w.tabId,expression:'window.answer=42'});assert.equal(r.type,'object');const call=fake.cdpCalls.filter(c=>c.method==='Runtime.evaluate').at(-1);assert.equal(call.params.expression,'window.answer=42');assert.equal(call.params.contextId,undefined,'main-world eval must not pass an isolated-world contextId');assert.equal(call.params.returnByValue,true);});
  await t.test('cdp passes method and params through to the granted tab',async()=>{await tool('browser_cdp',{tabId:w.tabId,method:'Page.captureScreenshot',params:{format:'jpeg'}});assert.ok(fake.cdpCalls.some(c=>c.method==='Page.captureScreenshot'&&c.params.format==='jpeg'));});
  await t.test('eval and cdp enforce grants, pause and active-tab protection',async()=>{await assert.rejects(tool('browser_eval',{tabId:1,expression:'1'}),/NOT_GRANTED/);await assert.rejects(tool('browser_cdp',{tabId:1,method:'Page.reload'}),/NOT_GRANTED/);await assert.rejects(tool('browser_eval',{tabId:w.tabId,expression:'1'},second),/NOT_GRANTED/);fake.tabs.get(w.tabId).active=true;await assert.rejects(tool('browser_eval',{tabId:w.tabId,expression:'1'}),/HUMAN_ACTIVE_TAB/);await assert.rejects(tool('browser_cdp',{tabId:w.tabId,method:'Page.reload'}),/HUMAN_ACTIVE_TAB/);fake.tabs.get(w.tabId).active=false;});
+ await t.test('undelivered trusted input falls back to DOM ops, keeps the grant, and stays honest',async()=>{
+  fake.flags.dropInput=true;
+  try{
+    const c=await tool('browser_click',{tabId:w.tabId,selector:'button'});assert.equal(c.clicked,true);assert.equal(c.trusted,false);
+    const ty=await tool('browser_type',{tabId:w.tabId,selector:'input',text:'x'});assert.equal(ty.inserted,true);assert.equal(ty.trusted,false);
+    const p=await tool('browser_press',{tabId:w.tabId,key:'Enter'});assert.equal(p.pressed,true);assert.equal(p.trusted,false);
+    await assert.rejects(tool('browser_drag',{tabId:w.tabId,points:[{x:1,y:1},{x:20,y:20}]}),/INPUT_NOT_APPLIED/,'drag has no DOM fallback');
+    assert.ok((await tool('browser_tabs')).tabs.some(t=>t.tabId===w.tabId&&!t.revoked),'grant must survive undelivered input');
+    fake.flags.domFails=true;
+    await assert.rejects(tool('browser_click',{tabId:w.tabId,selector:'button'}),/INPUT_NOT_APPLIED/,'failed DOM click must not claim success');
+    await assert.rejects(tool('browser_type',{tabId:w.tabId,selector:'input',text:'x'}),/NOT_EDITABLE/,'page-op failure surfaces truthfully');
+    assert.ok((await tool('browser_tabs')).tabs.some(t=>t.tabId===w.tabId&&!t.revoked),'grant survives failed DOM fallback');
+  }finally{fake.flags.dropInput=false;fake.flags.domFails=false;}
+ });
  await t.test('group collapse also protects ungranted human tabs manually added to group',async()=>{fake.tabs.get(1).groupId=w.groupId;await assert.rejects(tool('browser_workspace_update',{workspaceId:w.workspaceId,collapsed:true}),/HUMAN_ACTIVE_TAB/);fake.tabs.get(1).groupId=-1;await tool('browser_workspace_update',{workspaceId:w.workspaceId,name:'Renamed',color:'yellow'});assert.equal(fake.groups.get(w.groupId).title,'🔎 Renamed');});
  await t.test('content pages cannot impersonate popup permission changes',async()=>{const result=await new Promise(resolve=>chrome.runtime.onMessage.listeners[0]({type:'settings',protectActive:false},{id:chrome.runtime.id,url:'https://evil.example/'},resolve));assert.ok(result.error);assert.equal((await tool('browser_status')).protectActive,true);});
  await t.test('a canceled queued wait stops after user pauses',async()=>{const p=tool('browser_wait',{tabId:w.tabId,text:'never appears',timeoutMs:3000}).catch(e=>e);await new Promise(r=>setTimeout(r,50));await ui({type:'settings',enabled:false});assert.match((await p).message,/PAUSED|CANCELED/);await ui({type:'settings',enabled:true});});

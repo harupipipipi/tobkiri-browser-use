@@ -5,6 +5,7 @@ function notify(message){$('message').textContent=message;$('message').hidden=!m
 async function act(fn){if(busy)return;busy=true;try{notify('');await fn();await refresh();}catch(e){notify(e.message);}finally{busy=false;}}
 async function refresh(){
   const s=await send({type:'status'});state=s;
+  $('ver').textContent=s.version||'';
   $('dot').className='dot '+(s.connected?(s.config.enabled?'online':'paused'):'');
   $('connection-label').textContent=s.connected?(s.config.enabled?'接続中・バックグラウンドで待機':'一時停止中'):'ブリッジ未接続';
   $('connection-detail').textContent=s.connected?`${s.clients.length} MCPクライアント · ${s.tabs.length} 許可済みタブ`:(s.lastError || 'ペアリングコードでローカル接続');
@@ -35,5 +36,6 @@ $('toggle').onclick=()=>act(()=>send({type:'settings',enabled:!state.config.enab
 $('protect').onchange=()=>act(()=>send({type:'settings',protectActive:$('protect').checked}));
 $('allow-create').onchange=()=>act(()=>send({type:'settings',allowCreate:$('allow-create').checked}));
 $('grant').onclick=()=>act(()=>send({type:'grant-current',owner:$('client').value}));
+$('reload').onclick=()=>act(async()=>{await send({type:'dev-reload'});notify('再読み込みしました');});
 $('disconnect').onclick=()=>act(()=>send({type:'disconnect'}));
 void refresh().catch(e=>notify(e.message));setInterval(()=>{if(!busy)void refresh().catch(()=>{});},1500);

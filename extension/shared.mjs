@@ -1,5 +1,5 @@
 /** Shared wire contract. No runtime dependencies; usable in Node and MV3. */
-export const VERSION = '0.2.0';
+export const VERSION = '0.2.6';
 export const COLORS = ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
 const str = (description, maxLength = 2000) => ({type:'string', description, minLength:1, maxLength});
 const num = (description, minimum = 0, maximum = 100000) => ({type:'number', description, minimum, maximum});

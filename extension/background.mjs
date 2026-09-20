@@ -77,17 +77,45 @@ async function releaseWorkspace(id) {for(const [tabId,g]of Object.entries(grants
 async function attach(tabId,ctx,mutating=true) {
   await guard(tabId,ctx,mutating);
   if(attached.has(tabId))return;
-  try{await chrome.debugger.attach({tabId},'1.3');}catch(e){throw new AppError('DEBUGGER_UNAVAILABLE',`Cannot attach (another debugger, restricted page or policy). ${e.message}`);}
-  attached.add(tabId);
-  try {
-    await raw(tabId,'Page.enable',{},ctx,mutating);
-    await raw(tabId,'Runtime.enable',{},ctx,mutating);
-    // Prevent the page from opening an OS file picker. Uploading files is intentionally not an API in v0.1.
-    await raw(tabId,'Page.setInterceptFileChooserDialog',{enabled:true},ctx,mutating);
-  } catch(e){await detach(tabId);throw e;}
+  let err;
+  // Some hosts wedge the debugger channel when attaching to a just-created hidden tab.
+  // The init commands below are idempotent, so detach-and-retry once before giving up.
+  for(let attempt=0;attempt<2;attempt++){
+    if(attempt)await sleep(700);
+    checkpoint(ctx);
+    let attachTimer,abandoned=false;
+    const attachCall=chrome.debugger.attach({tabId},'1.3');
+    // If attach resolves after we already gave up on it, undo the late attach instead of
+    // leaving a zombie debugger session behind.
+    attachCall.then(()=>{if(abandoned){attached.delete(tabId);intentionalDetach.add(tabId);chrome.debugger.detach({tabId}).catch(()=>{}).finally(()=>setTimeout(()=>intentionalDetach.delete(tabId),1000));}}).catch(()=>{});
+    try{await Promise.race([attachCall,new Promise((_,reject)=>{attachTimer=setTimeout(()=>reject(new AppError('CDP_TIMEOUT','Debugger attach did not acknowledge.')),Math.max(1,Math.min(8000,ctx.deadline-Date.now())));})]);}
+    catch(e){
+      clearTimeout(attachTimer);err=e;
+      if(e.code!=='CDP_TIMEOUT')throw new AppError('DEBUGGER_UNAVAILABLE',`Cannot attach (another debugger, restricted page or policy). ${e.message}`);
+      abandoned=true;await detach(tabId);record('attach-retry',tabId,'attach-timeout');continue;
+    }
+    clearTimeout(attachTimer);attached.add(tabId);
+    try {
+      await raw(tabId,'Page.enable',{},ctx,mutating,{revokeOnTimeout:false});
+      await raw(tabId,'Runtime.enable',{},ctx,mutating,{revokeOnTimeout:false});
+      // Prevent the page from opening an OS file picker. Uploading files is intentionally not an API in v0.1.
+      await raw(tabId,'Page.setInterceptFileChooserDialog',{enabled:true},ctx,mutating,{revokeOnTimeout:false});
+      return;
+    } catch(e){
+      err=e;await detach(tabId);
+      if(e.code!=='CDP_TIMEOUT')throw e;
+      record('attach-retry',tabId,'retry');
+    }
+  }
+  if(grants[tabId]){grants[tabId].revoked=true;await persist();}
+  record('cdp-timeout',tabId,'revoked');
+  throw err;
 }
-async function raw(tabId,method,params,ctx,mutating=true) {
+async function raw(tabId,method,params,ctx,mutating=true,opts) {
   await guard(tabId,ctx,mutating);
+  // revokeOnTimeout=false is for commands that are idempotent or read-only: an unacknowledged
+  // response leaves nothing uncertain, so the grant can survive a retry.
+  const revokeOnTimeout=!opts||opts.revokeOnTimeout!==false;
   let timer;
   try {
     return await Promise.race([
@@ -95,7 +123,7 @@ async function raw(tabId,method,params,ctx,mutating=true) {
       new Promise((_,reject)=>{timer=setTimeout(()=>reject(new AppError('CDP_TIMEOUT','Browser command did not acknowledge. Grant revoked; inspect the tab and explicitly re-grant it before retrying.')),Math.max(1,Math.min(12000,ctx.deadline-Date.now())));})
     ]);
   } catch(e) {
-    if(e.code==='CDP_TIMEOUT'){if(grants[tabId])grants[tabId].revoked=true;await detach(tabId);record('cdp-timeout',tabId,'revoked');}
+    if(e.code==='CDP_TIMEOUT'){if(revokeOnTimeout&&grants[tabId])grants[tabId].revoked=true;await detach(tabId);record('cdp-timeout',tabId,revokeOnTimeout?'revoked':'timeout');}
     throw e;
   } finally {clearTimeout(timer);}
 }
@@ -118,6 +146,20 @@ async function listTabs(owner,workspaceId) {
   const result=[];for(const [id,g]of Object.entries(grants))if(g.owner===owner&&(!workspaceId||g.workspaceId===workspaceId)){try{result.push(await tabInfo(id));}catch{delete grants[id];}}
   return result;
 }
+async function waitTabReady(tabId,ctx) {
+  // Some hosts lazily start the renderer of a fresh background tab; attaching too early wedges
+  // the debugger channel. Wait for the tab to report a non-loading, non-discarded state first.
+  const until=Date.now()+5000;
+  for(;;){
+    checkpoint(ctx);
+    const t=await chrome.tabs.get(tabId).catch(()=>null);
+    if(!t)throw new AppError('TAB_GONE','Tab was closed.');
+    if(!t.discarded&&t.status!=='loading')break;
+    if(Date.now()>=until)break;
+    await sleep(150);
+  }
+  await sleep(500);
+}
 async function newTab(owner,workspaceId,url,ctx) {
   checkpoint(ctx);
   if(!config.allowCreate)throw new AppError('CREATE_NOT_ALLOWED','User must enable new AI tabs in the extension.');
@@ -134,13 +176,23 @@ async function newTab(owner,workspaceId,url,ctx) {
     await chrome.tabGroups.update(w.groupId,{title:`🔎 ${w.name}`,color:w.color});
     await chrome.tabs.update(tab.id,{autoDiscardable:false});
     await persist();
-    if(url!=='about:blank')await navigate(tab.id,url,ctx,15000);
+    if(url!=='about:blank'){await waitTabReady(tab.id,ctx);await navigate(tab.id,url,ctx,15000);}
     return await tabInfo(tab.id);
   } catch(e) {await persist();throw new AppError('PARTIAL_TAB_CREATION',`${e.message} A background tab may remain; inspect browser_tabs before retrying.`);}
 }
 async function navigate(tabId,url,ctx,timeoutMs=15000) {
   safeUrl(url);await attach(tabId,ctx);
-  const nav=await raw(tabId,'Page.navigate',{url},ctx);
+  let nav;
+  try {
+    nav=await raw(tabId,'Page.navigate',{url},ctx,{revokeOnTimeout:false});
+  } catch(e) {
+    if(e.code!=='CDP_TIMEOUT')throw e;
+    // The command may or may not have applied; re-issuing the same GET navigation is harmless.
+    // Re-attach once on a fresh debugger session before giving up.
+    record('navigate-retry',tabId,'retry');
+    await waitTabReady(tabId,ctx);await attach(tabId,ctx);
+    nav=await raw(tabId,'Page.navigate',{url},ctx);
+  }
   if(nav.errorText)throw new AppError('NAVIGATION_FAILED',nav.errorText);
   worlds.delete(tabId);const until=Date.now()+timeoutMs;
   while(Date.now()<until) {
@@ -164,8 +216,29 @@ async function point(tabId,a,ctx) {
   if(x<0||y<0||x>=v.width||y>=v.height)throw new AppError('OUTSIDE_VIEWPORT','Coordinates must be inside the screenshot viewport in CSS pixels.');
   return {x,y};
 }
+// Some hosts silently drop trusted input on hidden tabs while still acknowledging the CDP
+// command. Arm capture-phase listeners in the isolated world before dispatch, then verify
+// delivery afterwards so callers never receive a false success.
+async function expectInput(tabId,ctx,types) {
+  await page(tabId,'armInput',{types},ctx);
+  return async()=>{
+    await sleep(120);
+    let probe;
+    try{probe=await page(tabId,'inputProbe',{},ctx);}
+    catch(e){if(!/context|navigat|frame|document/i.test(e.message))throw e;return;}
+    if(!types.some(t=>probe?.seen?.[t]))throw new AppError('INPUT_NOT_APPLIED','No input events were observed in the page (some hosts drop or defer input on hidden tabs). Do not assume the action applied; verify page state before retrying. The grant is intact.');
+  };
+}
+// The probe proves the trusted events never reached the page, so a DOM-level retry cannot
+// double-apply; it is a different mechanism, not a blind retry of an uncertain command.
+async function domFallback(tabId,op,args,ctx,originalError) {
+  const r=await page(tabId,op,args,ctx);
+  if(r&&!r.applied&&op==='domClick')throw originalError;
+  return r||{};
+}
 async function click(tabId,p,a,ctx) {
   const button=a.button||'left',buttons={left:1,right:2,middle:4}[button];
+  const verify=await expectInput(tabId,ctx,['pointerdown','mousedown','pointerup','mouseup','click']);
   await raw(tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'none'},ctx);
   const count=a.clickCount||1;
   for(let n=1;n<=count;n++){
@@ -173,6 +246,14 @@ async function click(tabId,p,a,ctx) {
     try{await raw(tabId,'Input.dispatchMouseEvent',{type:'mouseReleased',...p,button,buttons:0,clickCount:n},ctx);}
     catch(e){await detach(tabId);throw e;}
   }
+  try{await verify();}
+  catch(e){
+    if(e.code!=='INPUT_NOT_APPLIED')throw e;
+    const r=await domFallback(tabId,'domClick',{x:p.x,y:p.y},ctx,e);
+    return {trusted:false,via:'dom-click',tag:r.tag};
+  }
+  try{await page(tabId,'mark',{x:p.x,y:p.y},ctx);}catch{}
+  return {};
 }
 async function press(tabId,key,ctx) {
   const parts=key.split('+');let last=parts.pop();let modifiers=0;
@@ -184,8 +265,15 @@ async function press(tabId,key,ctx) {
   const text=modifiers&7?undefined:(known?.[2]??(!known?last:undefined));
   const params={key:last==='Space'?' ':last,code:known?.[0]||( /[a-z]/i.test(last)?`Key${last.toUpperCase()}`:''),windowsVirtualKeyCode:known?.[1]||last.toUpperCase().charCodeAt(0),modifiers};
   if((modifiers&6)&&last.toLowerCase()==='a')params.commands=['selectAll'];
+  const verify=await expectInput(tabId,ctx,['keydown','keypress','keyup','beforeinput','input']);
   await raw(tabId,'Input.dispatchKeyEvent',{...params,type:text?'keyDown':'rawKeyDown',...(text?{text,unmodifiedText:text}:{})},ctx);
   try{await raw(tabId,'Input.dispatchKeyEvent',{...params,type:'keyUp'},ctx);}catch(e){await detach(tabId);throw e;}
+  try{await verify();return {};}
+  catch(e){
+    if(e.code!=='INPUT_NOT_APPLIED')throw e;
+    const r=await domFallback(tabId,'domKey',{key:last,code:params.code,modifiers,text},ctx,e);
+    return {trusted:false,via:'dom-key',inserted:r.inserted,submitted:r.submitted};
+  }
 }
 async function dispatch(name,a,ctx) {
   const owner=ctx.owner;
@@ -217,17 +305,26 @@ async function dispatch(name,a,ctx) {
   const readOnly=['browser_snapshot','browser_screenshot','browser_wait'].includes(name);
   await attach(a.tabId,ctx,!readOnly);
   if(name==='browser_snapshot')return await page(a.tabId,'snapshot',a,ctx,false);
-  if(name==='browser_click'){await click(a.tabId,await point(a.tabId,a,ctx),a,ctx);return {clicked:true,tabId:a.tabId};}
-  if(name==='browser_type'){await page(a.tabId,'focus',{...a,edit:true,replace:a.replace!==false},ctx);await raw(a.tabId,'Input.insertText',{text:a.text},ctx);return {inserted:true,characters:a.text.length};}
-  if(name==='browser_press'){if(a.ref||a.selector)await page(a.tabId,'focus',a,ctx);await press(a.tabId,a.key,ctx);return {pressed:true};}
+  if(name==='browser_click'){const r=await click(a.tabId,await point(a.tabId,a,ctx),a,ctx);return {clicked:true,tabId:a.tabId,...r};}
+  if(name==='browser_type'){
+    await page(a.tabId,'focus',{...a,edit:true,replace:a.replace!==false},ctx);
+    if(!a.text)return {inserted:true,characters:0};
+    const verify=await expectInput(a.tabId,ctx,['beforeinput','input','textInput']);
+    await raw(a.tabId,'Input.insertText',{text:a.text},ctx);
+    try{await verify();return {inserted:true,characters:a.text.length};}
+    catch(e){if(e.code!=='INPUT_NOT_APPLIED')throw e;await domFallback(a.tabId,'domType',{...a,text:a.text},ctx,e);return {inserted:true,characters:a.text.length,trusted:false,via:'dom-type'};}
+  }
+  if(name==='browser_press'){if(a.ref||a.selector)await page(a.tabId,'focus',a,ctx);const r=await press(a.tabId,a.key,ctx);return {pressed:true,...r};}
   if(name==='browser_scroll')return await page(a.tabId,'scroll',a,ctx);
   if(name==='browser_drag'){
     const v=await page(a.tabId,'viewport',{},ctx);if(a.points.some(p=>p.x>=v.width||p.y>=v.height))throw new AppError('OUTSIDE_VIEWPORT','Drag path exceeds viewport.');
+    const verify=await expectInput(a.tabId,ctx,['pointerdown','mousedown','pointermove','mousemove','pointerup','mouseup']);
     const p=a.points[0];await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',buttons:1,clickCount:1},ctx);
     try{
       for(const p of a.points.slice(1)){await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'left',buttons:1},ctx);await sleep((a.durationMs??300)/(a.points.length-1));}
       await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseReleased',...a.points.at(-1),button:'left',buttons:0,clickCount:1},ctx);
-    }catch(e){await detach(a.tabId);throw e;}return {dragged:true};
+    }catch(e){await detach(a.tabId);throw e;}
+    await verify();return {dragged:true};
   }
   if(name==='browser_screenshot') {
     const format=a.format||'png';const params={format,fromSurface:true,captureBeyondViewport:!!a.fullPage};let clipped=false;
@@ -235,7 +332,18 @@ async function dispatch(name,a,ctx) {
     if(a.fullPage){const m=await raw(a.tabId,'Page.getLayoutMetrics',{},ctx,false),size=m.cssContentSize||m.contentSize;width=Math.max(1,Math.min(Math.ceil(size.width),8192));height=Math.max(1,Math.min(Math.ceil(size.height),16384,Math.floor(16000000/width)));clipped=width<size.width||height<size.height;params.clip={x:0,y:0,width,height,scale:1};}
     else if(width*height>16000000)throw new AppError('IMAGE_TOO_LARGE','Viewport exceeds the screenshot size limit.');
     if(format==='jpeg')params.quality=85;
-    const shot=await raw(a.tabId,'Page.captureScreenshot',params,ctx,false);
+    let shot;
+    for(let attempt=0;attempt<2;attempt++){
+      if(attempt){await sleep(800);checkpoint(ctx);await attach(a.tabId,ctx,false);}
+      try {
+        // Read-only capture: an unacknowledged reply leaves nothing uncertain, so keep the grant.
+        shot=await raw(a.tabId,'Page.captureScreenshot',params,ctx,false,{revokeOnTimeout:false});break;
+      } catch(e) {
+        if(e.code==='CDP_TIMEOUT'&&attempt===0)continue;
+        if(e.code==='CDP_TIMEOUT')throw new AppError('SCREENSHOT_UNAVAILABLE','This host did not acknowledge hidden-tab capture; the grant is intact. Capture while the tab is foreground, or use browser_snapshot.');
+        throw e;
+      }
+    }
     if(shot.data.length>22000000)throw new AppError('IMAGE_TOO_LARGE','Try JPEG or viewport-only.');
     const pixels=imageSize(shot.data,format);
     return {tabId:a.tabId,coordinateSystem:'Actions use CSS VIEWPORT pixels, not raw image pixels. For full-page images, also subtract current viewport scroll offsets.',width,height,imagePixels:pixels,viewport:v,cssPerImagePixel:{x:width/pixels.width,y:height/pixels.height},fullPage:!!a.fullPage,clipped,image:{data:shot.data,mimeType:`image/${format}`}};
@@ -249,7 +357,7 @@ async function dispatch(name,a,ctx) {
     const r=result.result||{};return {type:r.type,subtype:r.subtype,className:r.className,value:r.value,unserializableValue:r.unserializableValue,description:r.description};
   }
   if(name==='browser_cdp')return await raw(a.tabId,a.method,a.params||{},ctx);
-  if(name==='browser_check'){const s=await page(a.tabId,'checkState',a,ctx);if(s.type==='radio'&&!a.checked)throw new AppError('RADIO_UNCHECK','Select another radio button instead.');if(s.checked!==a.checked)await click(a.tabId,await page(a.tabId,'point',a,ctx),{},ctx);const after=await page(a.tabId,'checkState',a,ctx);if(after.checked!==a.checked)throw new AppError('CHECK_NOT_APPLIED','The page did not keep the requested state. Inspect the element; do not blindly repeat the click.');return {checked:after.checked,changed:s.checked!==a.checked};}
+  if(name==='browser_check'){const s=await page(a.tabId,'checkState',a,ctx);if(s.type==='radio'&&!a.checked)throw new AppError('RADIO_UNCHECK','Select another radio button instead.');let r;if(s.checked!==a.checked)r=await click(a.tabId,await page(a.tabId,'point',a,ctx),{},ctx);const after=await page(a.tabId,'checkState',a,ctx);if(after.checked!==a.checked)throw new AppError('CHECK_NOT_APPLIED','The page did not keep the requested state. Inspect the element; do not blindly repeat the click.');return {checked:after.checked,changed:s.checked!==a.checked,...r};}
   throw new AppError('UNKNOWN_TOOL','Not implemented.');
 }
 async function runCommand(message,cid) {
@@ -284,14 +392,31 @@ chrome.debugger.onEvent.addListener((source,method,params)=>{
 });
 chrome.tabGroups.onRemoved.addListener(group=>{for(const w of Object.values(workspaces))if(w.groupId===group.id)w.groupId=null;void persist();});
 chrome.tabs.onRemoved.addListener(tabId=>{delete grants[tabId];attached.delete(tabId);worlds.delete(tabId);void persist();});
-chrome.alarms.onAlarm.addListener(()=>void loop());
+// Dev convenience: an unpacked extension's files can change on disk while a packed install's
+// cannot, so a content-hash change means the sources were edited — reload once it stays stable
+// across two alarm polls (~60s) to avoid reloading into a half-written file.
+const devFiles=['manifest.json','background.mjs','page-ops.mjs','shared.mjs','popup.mjs','popup.html'];
+let devHash='',devPending='',devStable=0;
+async function devHotReload() {
+  try{
+    const parts=[];
+    for(const f of devFiles)parts.push(await (await fetch(chrome.runtime.getURL(f),{cache:'no-store'})).text());
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(parts.join('\n')));
+    const h=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    if(!devHash){devHash=h;return;}
+    if(h===devHash){devPending='';devStable=0;return;}
+    if(h!==devPending){devPending=h;devStable=0;return;}
+    if(++devStable>=1){record('dev-reload',0,'ok');chrome.runtime.reload();}
+  }catch{}
+}
+chrome.alarms.onAlarm.addListener(()=>{void devHotReload();void loop();});
 chrome.runtime.onStartup.addListener(()=>void loop());
 chrome.runtime.onInstalled.addListener(()=>void loop());
 chrome.runtime.onMessage.addListener((message,sender,respond)=>{
   if(sender.id!==chrome.runtime.id || sender.url?.split('?')[0]!==chrome.runtime.getURL('popup.html')){respond({error:'Only the extension popup may change grants/settings.'});return false;}
   (async()=>{
     await boot;
-    if(message.type==='status')return {config:{enabled:config.enabled,allowCreate:config.allowCreate,protectActive:config.protectActive,paired:!!config.token},connected,lastError,clients,workspaces:Object.entries(workspaces).map(([id,w])=>({id,...w})),tabs:await Promise.all(Object.keys(grants).map(id=>tabInfo(id).catch(()=>null))).then(a=>a.filter(Boolean)),audit};
+    if(message.type==='status')return {version:VERSION,config:{enabled:config.enabled,allowCreate:config.allowCreate,protectActive:config.protectActive,paired:!!config.token},connected,lastError,clients,workspaces:Object.entries(workspaces).map(([id,w])=>({id,...w})),tabs:await Promise.all(Object.keys(grants).map(id=>tabInfo(id).catch(()=>null))).then(a=>a.filter(Boolean)),audit};
     if(message.type==='pair'){
       const m=/^tbt1\.(\d{4,5})\.([a-f0-9]{64})$/.exec(message.code?.trim()||'');
       if(!m||+m[1]<1024||+m[1]>65535)throw new Error('Invalid pairing code. Run npm run setup.');
@@ -313,6 +438,7 @@ chrome.runtime.onMessage.addListener((message,sender,respond)=>{
       await persist();return {ok:true};
     }
     if(message.type==='workspace-release'){epoch++;await releaseWorkspace(message.workspaceId);return {ok:true};}
+    if(message.type==='dev-reload'){setTimeout(()=>chrome.runtime.reload(),150);return {ok:true};}
     if(message.type==='grant-current'){
       const client=clients.find(c=>c.id===message.owner);if(!client)throw new Error('Start an MCP client first.');
       const [tab]=await chrome.tabs.query({active:true,lastFocusedWindow:true});if(!tab)throw new Error('No active tab.');safeUrl(tab.url);if(tab.incognito)throw new Error('Incognito blocked.');
@@ -324,4 +450,4 @@ chrome.runtime.onMessage.addListener((message,sender,respond)=>{
     throw new Error('Unknown popup request.');
   })().then(result=>respond({result}),e=>respond({error:e.message}));return true;
 });
-void loop();
+void devHotReload();void loop();
