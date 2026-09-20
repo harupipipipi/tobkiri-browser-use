@@ -6,3 +6,5 @@ config.json
 bridge.log
 .DS_Store
 coverage/
+dataset/
+test-results/
