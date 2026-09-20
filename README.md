@@ -179,3 +179,7 @@ MCPクライアント
 long-pollは15秒ごとにしか操作しないという意味ではありません。待機中にコマンドが届けば即座に応答します。15秒は空の待機応答の上限で、MV3の停止・再接続処理と合わせて扱っています。MCPは2025-11-25等のstdio基本機能のみを実装し、tools/initialize/ping/cancellationを扱います。MCP Streamable HTTP、resources、prompts、tasks、OAuthサーバーは提供しません。
 
 既存OSSでは `hangwin/mcp-chrome` が近い設計です。本プロジェクトはそのコードのコピーではなく、タブ別許可と人間の前面操作を優先する小さい独立実装です。参照した仕様は [REFERENCES.md](docs/REFERENCES.md)。
+
+## AIデザインデータセット
+
+AI生成スライド/サイト/デザインを公開ソースから継続収集するスクリプト群(`scripts/fetch-asset.mjs`, `batch-fetch.mjs`, `browser-shots.mjs`, `collect.mjs`)と、成果物がAI製かを判定するスキル(`.devin/skills/ai-design-detector/`)を同梱しています。隠しタブのスクリーンショット収集にはこの拡張自身を使います。詳しくは [DATASET.md](docs/DATASET.md)。
