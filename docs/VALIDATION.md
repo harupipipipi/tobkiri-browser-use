@@ -1,4 +1,29 @@
-# Validation record — 0.2.7
+# Validation record — 0.2.9
+
+## 0.2.8–0.2.9 changes — mock suite + LIVE verification on Windows Vivaldi (2026-09-21)
+
+Driven through the real MCP bridge and the hot-reloaded unpacked extension on the
+author's Windows Vivaldi session, with hidden background tabs.
+
+- **Fixed — hidden-tab screenshots had no working path on this host.** `browser_screenshot`
+  now escalates: plain `Page.captureScreenshot` → `captureBeyondViewport` with a viewport
+  clip → `Page.startScreencast` frame capture → **`Page.printToPDF`**. Per-call CDP timeouts
+  are bounded (~4s each) so the whole chain fits inside the command deadline.
+- **Live-verified on this host (Vivaldi):** plain capture, `captureBeyondViewport`,
+  `Page.setWebLifecycleState:active`+capture, and screencast (acknowledged but zero frames
+  delivered) ALL time out on hidden tabs — the host never rasterizes background tabs.
+  `fromSurface:false` is rejected outright ("Only screenshots from surface are allowed").
+  **`Page.printToPDF` succeeded** on a hidden tab — the print pipeline rasterizes
+  offscreen without a compositor surface. When only the PDF path works, the tool returns
+  `{via:'printToPDF', pdf:{data, mimeType:'application/pdf'}}` instead of `image`.
+- **Added — `browser_pdf`.** Explicit print-to-PDF capture (`printBackground`/`landscape`/
+  `scale` params); same guard stack, read-only, bounded to ~22MB.
+- Screencast fallback no longer leaks an unhandled rejected waiter when
+  `startScreencast` itself fails; `stopScreencast`/`frameAck` cleanup is best-effort.
+- Mock suite: 39 passing / 0 failing (screenshot escalation chain, PDF fallback, and
+  `browser_pdf` are covered; the mock cannot reproduce "ack-but-no-frames" timing).
+
+## 0.2.7
 
 ## 0.2.7 changes — Node mock-suite only, NOT verified on a real host (2026-09-21)
 

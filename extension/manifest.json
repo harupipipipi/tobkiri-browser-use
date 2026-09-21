@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tobkiri Tabs — Background MCP",
-  "version": "0.2.7",
+  "version": "0.2.9",
   "description": "Give AI its own tab groups. Keep your front tab and OS mouse to yourself.",
   "minimum_chrome_version": "120",
   "permissions": ["debugger", "tabs", "tabGroups", "storage", "alarms"],

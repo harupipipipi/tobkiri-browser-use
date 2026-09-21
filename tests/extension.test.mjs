@@ -9,6 +9,8 @@ import {randomBytes} from 'node:crypto';
 import {startBridge} from '../src/bridge.mjs';
 import {request} from '../src/config.mjs';
 const event=()=>{const listeners=[];return {listeners,addListener:fn=>listeners.push(fn),emit:(...args)=>listeners.forEach(fn=>fn(...args))};};
+const PNG_B64='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+const PDF_B64=Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n').toString('base64');
 function fakeChrome(config) {
  const tabs=new Map([[1,{id:1,windowId:1,url:'https://human.example/',title:'PRIVATE HUMAN TAB',active:true,incognito:false,groupId:-1,autoDiscardable:true}]]),groups=new Map(),debuggers=new Set(),cdpCalls=[],activationCalls=[];
  const flags={dropInput:false,domFails:false,navFails:false};
@@ -38,6 +40,20 @@ function fakeChrome(config) {
     if(method==='Page.getFrameTree')return {frameTree:{frame:{id:`frame-${tabId}`,loaderId:'mock-loader'}}};
     if(method==='Page.createIsolatedWorld')return {executionContextId:1};
     if(method==='Page.navigate'){if(flags.navFails)return {errorText:'net::ERR_FAILED'};tabs.get(tabId).url=p.url;chrome.debugger.onEvent.emit({tabId},'Page.frameNavigated',{frame:{id:`frame-${tabId}`}});return {frameId:`frame-${tabId}`,loaderId:'mock-loader'};}
+    if(method==='Page.getLayoutMetrics')return {cssContentSize:{width:1200,height:2000}};
+    if(method==='Page.captureScreenshot'){
+     if(flags.screenshotHangs||flags.screenshotAllHangs||flags.screenshotOnce){flags.screenshotOnce=false;throw Object.assign(new Error('Browser command did not acknowledge.'),{code:'CDP_TIMEOUT'});}
+     return {data:PNG_B64};
+    }
+    if(method==='Page.startScreencast'){
+     if(flags.screenshotAllHangs)throw Object.assign(new Error('Browser command did not acknowledge.'),{code:'CDP_TIMEOUT'});
+     setTimeout(()=>chrome.debugger.onEvent.emit({tabId},'Page.screencastFrame',{sessionId:1,data:PNG_B64}),0);return {};
+    }
+    if(method==='Page.stopScreencast'||method==='Page.screencastFrameAck')return {};
+    if(method==='Page.printToPDF'){
+     if(flags.pdfFails)throw Object.assign(new Error('Browser command did not acknowledge.'),{code:'CDP_TIMEOUT'});
+     return {data:PDF_B64};
+    }
     if(method==='Runtime.evaluate'){
      const x=p.expression;let value={};
      if(x.includes(')("ready",'))value={readyState:'complete',url:tabs.get(tabId).url};
@@ -82,6 +98,43 @@ test('extension permission and dispatch integration (MOCK native Chrome APIs)',a
  await t.test('scroll uses DOM, not hidden-tab mouseWheel commands',async()=>{const r=await tool('browser_scroll',{tabId:w.tabId,deltaY:100});assert.equal(r.method,'dom-scroll');assert.ok(!fake.cdpCalls.some(c=>c.params.type==='mouseWheel'));});
  await t.test('eval evaluates in the MAIN world (no isolated contextId)',async()=>{const r=await tool('browser_eval',{tabId:w.tabId,expression:'window.answer=42'});assert.equal(r.type,'object');const call=fake.cdpCalls.filter(c=>c.method==='Runtime.evaluate').at(-1);assert.equal(call.params.expression,'window.answer=42');assert.equal(call.params.contextId,undefined,'main-world eval must not pass an isolated-world contextId');assert.equal(call.params.returnByValue,true);});
  await t.test('cdp passes method and params through to the granted tab',async()=>{await tool('browser_cdp',{tabId:w.tabId,method:'Page.captureScreenshot',params:{format:'jpeg'}});assert.ok(fake.cdpCalls.some(c=>c.method==='Page.captureScreenshot'&&c.params.format==='jpeg'));});
+ await t.test('screenshot escalates hidden-tab capture: plain -> beyondViewport -> screencast',async()=>{
+  const r1=await tool('browser_screenshot',{tabId:w.tabId,format:'png'});
+  assert.equal(r1.image.mimeType,'image/png');
+  assert.ok(fake.cdpCalls.some(c=>c.method==='Page.captureScreenshot'&&!c.params.captureBeyondViewport));
+  fake.flags.screenshotOnce=true;
+  const r2=await tool('browser_screenshot',{tabId:w.tabId});
+  assert.equal(r2.image.mimeType,'image/png');
+  const caps=fake.cdpCalls.filter(c=>c.method==='Page.captureScreenshot');
+  assert.ok(caps.some(c=>c.params.captureBeyondViewport===true&&c.params.clip),'retry must force captureBeyondViewport with a viewport clip');
+  fake.flags.screenshotHangs=true;
+  const r3=await tool('browser_screenshot',{tabId:w.tabId});
+  fake.flags.screenshotHangs=false;
+  assert.equal(r3.image.mimeType,'image/png');
+  assert.ok(fake.cdpCalls.some(c=>c.method==='Page.startScreencast'));
+  assert.ok(fake.cdpCalls.some(c=>c.method==='Page.screencastFrameAck'));
+  assert.ok(fake.cdpCalls.some(c=>c.method==='Page.stopScreencast'));
+ });
+ await t.test('screenshot falls back to printToPDF when the host cannot rasterize hidden tabs',async()=>{
+  fake.flags.screenshotAllHangs=true;
+  try{
+   const r=await tool('browser_screenshot',{tabId:w.tabId});
+   assert.equal(r.image,undefined);
+   assert.equal(r.via,'printToPDF');
+   assert.equal(r.pdf.mimeType,'application/pdf');
+   assert.equal(r.pdf.data,PDF_B64);
+   assert.ok(fake.cdpCalls.some(c=>c.method==='Page.printToPDF'));
+  }finally{fake.flags.screenshotAllHangs=false;}
+  fake.flags.screenshotAllHangs=true;fake.flags.pdfFails=true;
+  try{await assert.rejects(tool('browser_screenshot',{tabId:w.tabId}),/SCREENSHOT_UNAVAILABLE/);}
+  finally{fake.flags.screenshotAllHangs=false;fake.flags.pdfFails=false;}
+ });
+ await t.test('browser_pdf returns base64 pdf and stays granted/read-only',async()=>{
+  const r=await tool('browser_pdf',{tabId:w.tabId});
+  assert.equal(r.pdf.mimeType,'application/pdf');
+  assert.equal(r.pdf.data,PDF_B64);
+  assert.equal(fake.tabs.get(w.tabId).active,false);
+ });
  await t.test('eval and cdp enforce grants, pause and active-tab protection',async()=>{await assert.rejects(tool('browser_eval',{tabId:1,expression:'1'}),/NOT_GRANTED/);await assert.rejects(tool('browser_cdp',{tabId:1,method:'Page.reload'}),/NOT_GRANTED/);await assert.rejects(tool('browser_eval',{tabId:w.tabId,expression:'1'},second),/NOT_GRANTED/);fake.tabs.get(w.tabId).active=true;await assert.rejects(tool('browser_eval',{tabId:w.tabId,expression:'1'}),/HUMAN_ACTIVE_TAB/);await assert.rejects(tool('browser_cdp',{tabId:w.tabId,method:'Page.reload'}),/HUMAN_ACTIVE_TAB/);fake.tabs.get(w.tabId).active=false;});
  await t.test('undelivered trusted input falls back to DOM ops, keeps the grant, and stays honest',async()=>{
   fake.flags.dropInput=true;

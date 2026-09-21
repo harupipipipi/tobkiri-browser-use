@@ -4,7 +4,7 @@ import {imageSize} from './image-size.mjs';
 
 let config={enabled:false,allowCreate:false,protectActive:true,port:17653,token:''};
 let workspaces={},grants={},audit=[],clients=[],connected=false,lastError='',connectionId=null;
-let epoch=0,loopRunning=false,reconnectTimer=null;const attached=new Set(),worlds=new Map(),locks=new Map(),canceled=new Set(),intentionalDetach=new Set();
+let epoch=0,loopRunning=false,reconnectTimer=null;const attached=new Set(),worlds=new Map(),locks=new Map(),canceled=new Set(),intentionalDetach=new Set(),screencastWaiters=new Map();
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const boot=(async()=>{
   await chrome.storage.local.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'});
@@ -116,11 +116,12 @@ async function raw(tabId,method,params,ctx,mutating=true,opts) {
   // revokeOnTimeout=false is for commands that are idempotent or read-only: an unacknowledged
   // response leaves nothing uncertain, so the grant can survive a retry.
   const revokeOnTimeout=!opts||opts.revokeOnTimeout!==false;
+  const capMs=opts&&opts.timeoutMs||12000;
   let timer;
   try {
     return await Promise.race([
       chrome.debugger.sendCommand({tabId},method,params),
-      new Promise((_,reject)=>{timer=setTimeout(()=>reject(new AppError('CDP_TIMEOUT','Browser command did not acknowledge. Grant revoked; inspect the tab and explicitly re-grant it before retrying.')),Math.max(1,Math.min(12000,ctx.deadline-Date.now())));})
+      new Promise((_,reject)=>{timer=setTimeout(()=>reject(new AppError('CDP_TIMEOUT','Browser command did not acknowledge. Grant revoked; inspect the tab and explicitly re-grant it before retrying.')),Math.max(1,Math.min(capMs,ctx.deadline-Date.now())));})
     ]);
   } catch(e) {
     if(e.code==='CDP_TIMEOUT'){if(revokeOnTimeout&&grants[tabId])grants[tabId].revoked=true;await detach(tabId);record('cdp-timeout',tabId,revokeOnTimeout?'revoked':'timeout');}
@@ -362,16 +363,47 @@ async function dispatch(name,a,ctx) {
     if(a.fullPage){const m=await raw(a.tabId,'Page.getLayoutMetrics',{},ctx,false),size=m.cssContentSize||m.contentSize;width=Math.max(1,Math.min(Math.ceil(size.width),8192));height=Math.max(1,Math.min(Math.ceil(size.height),16384,Math.floor(16000000/width)));clipped=width<size.width||height<size.height;params.clip={x:0,y:0,width,height,scale:1};}
     else if(width*height>16000000)throw new AppError('IMAGE_TOO_LARGE','Viewport exceeds the screenshot size limit.');
     if(format==='jpeg')params.quality=85;
+    // Hidden-tab captures are throttled on some hosts (Vivaldi): escalate to
+    // captureBeyondViewport (forces off-screen compositing), then to a screencast
+    // frame (the compositor must emit frames while a screencast runs).
+    const screencastShot=async()=>{
+      // Register the frame waiter BEFORE starting the cast so a fast first frame isn't missed;
+      // the trailing catch keeps a late timeout rejection handled if we bail early.
+      const frameP=new Promise((resolve,reject)=>{
+        const timer=setTimeout(()=>{screencastWaiters.delete(a.tabId);reject(new AppError('CDP_TIMEOUT','Screencast frame wait timed out.'));},Math.max(1,Math.min(10000,ctx.deadline-Date.now())));
+        screencastWaiters.set(a.tabId,{resolve,timer});
+      });
+      frameP.catch(()=>{});
+      try{
+        await raw(a.tabId,'Page.startScreencast',{format,everyNthFrame:1,maxWidth:Math.min(width,8192),maxHeight:Math.min(height,8192)},ctx,false,{revokeOnTimeout:false});
+        const f=await frameP;
+        if(f.sessionId!==undefined)await chrome.debugger.sendCommand({tabId:a.tabId},'Page.screencastFrameAck',{sessionId:f.sessionId}).catch(()=>{});
+        return {data:f.data};
+      }finally{screencastWaiters.delete(a.tabId);await raw(a.tabId,'Page.stopScreencast',{},ctx,false,{revokeOnTimeout:false}).catch(()=>{});}
+    };
     let shot;
-    for(let attempt=0;attempt<2;attempt++){
+    for(let attempt=0;attempt<3;attempt++){
       if(attempt){await sleep(800);checkpoint(ctx);await attach(a.tabId,ctx,false);}
       try {
         // Read-only capture: an unacknowledged reply leaves nothing uncertain, so keep the grant.
-        shot=await raw(a.tabId,'Page.captureScreenshot',params,ctx,false,{revokeOnTimeout:false});break;
+        if(attempt===2){
+          shot=await screencastShot();
+          width=v.width;height=v.height;if(a.fullPage)clipped=true;
+        } else {
+          const p=attempt===1?{...params,captureBeyondViewport:true,clip:a.fullPage?params.clip:{x:v.scrollX||0,y:v.scrollY||0,width,height,scale:1}}:params;
+          // 4s cap per attempt: a host that answers capture does so in well under a
+          // second, and the escalation chain must fit inside the command deadline.
+          shot=await raw(a.tabId,'Page.captureScreenshot',p,ctx,false,{revokeOnTimeout:false,timeoutMs:4000});
+        }
+        break;
       } catch(e) {
-        if(e.code==='CDP_TIMEOUT'&&attempt===0)continue;
-        if(e.code==='CDP_TIMEOUT')throw new AppError('SCREENSHOT_UNAVAILABLE','This host did not acknowledge hidden-tab capture; the grant is intact. Capture while the tab is foreground, or use browser_snapshot.');
-        throw e;
+        if(e.code==='CDP_TIMEOUT'&&attempt<2)continue;
+        if(e.code!=='CDP_TIMEOUT')throw e;
+        // Final fallback: the print pipeline rasterizes offscreen and does not need a
+        // compositor surface — it works on hosts that never paint hidden tabs (Vivaldi).
+        const pdf=await raw(a.tabId,'Page.printToPDF',{printBackground:true},ctx,false,{revokeOnTimeout:false,timeoutMs:15000}).catch(()=>null);
+        if(pdf&&pdf.data&&pdf.data.length<30000000)return {tabId:a.tabId,via:'printToPDF',note:'Hidden-tab rasterization is unsupported on this host; captured the rendered page as PDF instead.',pdf:{data:pdf.data,mimeType:'application/pdf'},fullPage:true,clipped:false,viewport:v};
+        throw new AppError('SCREENSHOT_UNAVAILABLE','This host did not acknowledge hidden-tab capture (capture, beyondViewport, screencast and printToPDF all failed); the grant is intact. Capture while the tab is foreground, or use browser_snapshot.');
       }
     }
     if(shot.data.length>22000000)throw new AppError('IMAGE_TOO_LARGE','Try JPEG or viewport-only.');
@@ -385,6 +417,15 @@ async function dispatch(name,a,ctx) {
     const result=await raw(a.tabId,'Runtime.evaluate',{expression:a.expression,returnByValue:true,awaitPromise:a.awaitPromise!==false,userGesture:true,timeout:8000},ctx);
     if(result.exceptionDetails)throw new AppError('PAGE_ERROR',result.exceptionDetails.exception?.description || result.exceptionDetails.text);
     const r=result.result||{};return {type:r.type,subtype:r.subtype,className:r.className,value:r.value,unserializableValue:r.unserializableValue,description:r.description};
+  }
+  if(name==='browser_pdf'){
+    await attach(a.tabId,ctx,false);
+    // The print pipeline rasterizes offscreen — no compositor surface needed, so this
+    // is the reliable capture path on hosts that never paint hidden tabs (Vivaldi).
+    const r=await raw(a.tabId,'Page.printToPDF',{printBackground:a.printBackground!==false,landscape:!!a.landscape,scale:a.scale??1},ctx,false,{revokeOnTimeout:false,timeoutMs:20000});
+    if(!r||!r.data)throw new AppError('PDF_UNAVAILABLE','Print pipeline returned no data.');
+    if(r.data.length>30000000)throw new AppError('PDF_TOO_LARGE','Document exceeds the size limit (~22MB).');
+    return {tabId:a.tabId,pdf:{data:r.data,mimeType:'application/pdf'}};
   }
   if(name==='browser_cdp')return await raw(a.tabId,a.method,a.params||{},ctx);
   if(name==='browser_check'){const s=await page(a.tabId,'checkState',a,ctx);if(s.type==='radio'&&!a.checked)throw new AppError('RADIO_UNCHECK','Select another radio button instead.');let r;if(s.checked!==a.checked)r=await click(a.tabId,await page(a.tabId,'point',a,ctx),{},ctx);const after=await page(a.tabId,'checkState',a,ctx);if(after.checked!==a.checked)throw new AppError('CHECK_NOT_APPLIED','The page did not keep the requested state. Inspect the element; do not blindly repeat the click.');return {checked:after.checked,changed:s.checked!==a.checked,...r};}
@@ -419,6 +460,10 @@ chrome.debugger.onEvent.addListener((source,method,params)=>{
     record('javascript-dialog',tabId,'dismissed');void chrome.debugger.sendCommand({tabId},'Page.handleJavaScriptDialog',{accept:false}).catch(()=>{});
   }
   if(method==='Page.fileChooserOpened')record('file-chooser',tabId,'blocked');
+  if(method==='Page.screencastFrame'){
+    const w=screencastWaiters.get(tabId);
+    if(w){clearTimeout(w.timer);screencastWaiters.delete(tabId);w.resolve(params);}
+  }
 });
 chrome.tabGroups.onRemoved.addListener(group=>{for(const w of Object.values(workspaces))if(w.groupId===group.id)w.groupId=null;void persist();});
 chrome.tabs.onRemoved.addListener(tabId=>{delete grants[tabId];attached.delete(tabId);worlds.delete(tabId);void persist();});
