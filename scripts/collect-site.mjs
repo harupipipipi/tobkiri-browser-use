@@ -125,7 +125,9 @@ async function collect(url, toolHint, worker) {
   // crashes under parallel load usually recover on a fresh profile.
   const isStub = (h) => h.length < 500 || /<title>\s*(Blink App|Preview \| Blink)\s*<\/title>/i.test(h);
   let r;
-  for (let attempt = 0; attempt < (isStub(html) ? 2 : 1); attempt++) {
+  // --no-render: skip the browser entirely (HTTP-only mode — right call when the local
+  // headless build is broken; stubs then fail fast and stay retryable later).
+  for (let attempt = 0; !NORENDER && attempt < (isStub(html) ? 2 : 1); attempt++) {
     const prof = path.join(TMP, `w${process.pid}-${worker}-${attempt}-` + Date.now());
     if (attempt) await sleep(1500);
     await rm(shot, { force: true }).catch(() => {}); await rm(pdf, { force: true }).catch(() => {});
@@ -139,7 +141,7 @@ async function collect(url, toolHint, worker) {
     await rm(prof, { recursive: true, force: true, maxRetries: 8, retryDelay: 700 }).catch(() => {});
     if (!isStub(r.out || '')) { html = r.out; rendered = true; break; }
   }
-  if (isStub(html)) return { url, ok: false, why: html.length >= 500 ? 'stub shell (renderer unavailable)' : 'dom ' + html.length + 'B ' + ((r && r.err) || '').slice(0, 120) };
+  if (isStub(html)) return { url, ok: false, why: html.length >= 500 ? 'stub shell (renderer unavailable)' : 'dom ' + html.length + 'B ' + (NORENDER ? 'no-render' : ((r && r.err) || '').slice(0, 120)) };
 
   const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio', 'trickle', 'butternut', 'websim', 'dora']);
   const detected0 = fingerprint(html, url);
@@ -170,8 +172,14 @@ async function collect(url, toolHint, worker) {
 }
 
 const [listfile, ...rest] = process.argv.slice(2);
-const opt = {}; for (let i = 0; i < rest.length; i += 2) opt[rest[i].replace(/^--/, '')] = rest[i + 1];
+const opt = {}; const flags = new Set();
+for (let i = 0; i < rest.length; i++) {
+  if (!rest[i].startsWith('--')) continue;
+  if (rest[i + 1] === undefined || rest[i + 1].startsWith('--')) { flags.add(rest[i]); continue; }
+  opt[rest[i].replace(/^--/, '')] = rest[++i];
+}
 const JOBS = +(opt.jobs || 4);
+const NORENDER = flags.has('--no-render');
 const lines = (await readFile(listfile, 'utf8')).split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
 const tasks = lines.map(l => { const [u, t] = l.split(/\t/); return { url: u.trim(), tool: (t || '').trim() || null }; });
 

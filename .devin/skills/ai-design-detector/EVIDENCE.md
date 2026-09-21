@@ -72,16 +72,24 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
   (`$ cat intro.md`), JSON block, fake status bar "Synced 12ms", metric chips, small-caps
   eyebrow "THIS IS WHAT YOU GET".
 
-## blink/ — 102 html (85 gated + 17 real apps) (verified)
+## blink/ — 3,199 html + 2,684 png + 2,354 pdf + 350 webp shots + 400 provenance md (verified)
 
-- Gated previews (~85 files): `*.blinkusercontent.com`, title `Preview | Blink`,
-  "Authorized Users Only" black interstitial, `blink.new/preview-access?project=` link,
-  Cloudflare beacon. The interstitial itself = hosting fingerprint.
-- Real apps: `blink-badge-container` ×20, `blink-picker(-active/-editing)`,
-  `blink-edit-hover`, `blink-seo-text`, `blink-badge` classes; default OG
-  `og:title "Blink App"` + `og:description "An app built with Blink."` (all 17);
+- Host alone is decisive: `*.blinkusercontent.com` (+ signed `?__bpt=` preview tokens).
+- Live apps are SSR — full text in the initial GET. Artifact markers across 3,199 html:
+  `built with Blink`/`og:description "An app built with Blink."` 1,748; `blink-badge*`
+  classes (`blink-badge-container`, `blink-picker`, `blink-edit-hover`, `blink-seo-text`) 1,271;
   Vite `/assets/index-*.js` + `modulepreload` + `createLucideIcon-*.js`; inline
-  `localStorage.getItem('theme')` dark-mode script; many `images.unsplash.com` preloads.
+  `localStorage.getItem('theme')` dark-mode script; `images.unsplash.com` preloads.
+- SPA stub shell (~650B): `<title>Blink App</title>` + `auto-engineer.js?projectId=<slug>`
+  module script — unhydrated marker, needs a renderer; observed hydrated to 42KB DOM via
+  a real browser tab.
+- `Preview | Blink` interstitials (two kinds, both ~2KB, HTTP 200): "Authorized Users Only"
+  gate and dead-project shell — hosting fingerprint, NOT app content (68 pre-filter files
+  remain from earlier runs; collector now rejects them).
+- Showcase provenance: `blink.new/p/<slug>` exposes `og:image` → `cdn.blink.new/screenshots/`
+  official preview webp; `blink.new/p/<slug>.md` is a provenance doc (title, tech stack
+  "React, TypeScript, Blink DB", creator handle, build time) containing the `Live URL:` line.
+- Public index: `blink.new/llms.txt`-style index lists ~686k public projects across 687 pages.
 - Visual (`3d-car-showroom*.png`): "Made with Blink" pill bottom-right; premium dark-luxe
   editorial — serif-italic display, numbered eyebrow `01 / THE COLLECTION`, orange accent,
   configurator/spec panels, footer `STUDIO MODE · V1.0`.

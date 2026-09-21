@@ -82,7 +82,8 @@ Absence of a badge means nothing (paid tiers remove them) — never use absence 
 - Gamma quirk observed: `<meta name="robots" content=", ">` (malformed value) plus
   `og:image`/`twitter:image` `content="null"` — sloppy meta generation, strong tell.
 - Blink default OG (conclusive when unedited): `og:title "Blink App"` +
-  `og:description "An app built with Blink."` (17/17 non-gated blink apps in dataset).
+  `og:description "An app built with Blink."` (1,748/3,199 html in dataset; rest carry
+  `blink-badge*` classes or the `auto-engineer.js?projectId=` stub script instead).
 - Manus shell: `csp-nonce` meta, `<meta name="theme-color" content="#f8f8f7">`,
   `google: notranslate`, assets on `files.manuscdn.com`.
 - Emergent: `<meta name="description" content="A product of emergent.sh">`.
