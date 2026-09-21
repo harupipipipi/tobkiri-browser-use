@@ -61,13 +61,21 @@ function fingerprint(html, url) {
   return null;
 }
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 function run(url, args, timeout = 60000) {
   return new Promise((resolve) => {
-    const p = spawn(url, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    const p = spawn(url, args, { stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let out = '', err = '';
     p.stdout.on('data', d => out += d);
     p.stderr.on('data', d => err += d);
-    const t = setTimeout(() => { p.kill('SIGKILL'); resolve({ code: -1, out, err: err + ' TIMEOUT' }); }, timeout);
+    const t = setTimeout(() => {
+      // Kill the whole browser process tree, not just the launcher — orphaned renderer
+      // processes survive a bare kill() and accumulate into hundreds of zombies.
+      if (process.platform === 'win32') { if (p.pid) spawn('taskkill', ['/PID', String(p.pid), '/T', '/F'], { stdio: 'ignore' }); }
+      else { try { process.kill(-p.pid, 'SIGKILL'); } catch {} try { p.kill('SIGKILL'); } catch {} }
+      resolve({ code: -1, out, err: err + ' TIMEOUT' });
+    }, timeout);
     p.on('close', c => { clearTimeout(t); resolve({ code: c, out, err }); });
     p.on('error', e => { clearTimeout(t); resolve({ code: -1, out, err: String(e) }); });
   });
@@ -98,24 +106,40 @@ function extractImages(html, base) {
 
 async function collect(url, toolHint, worker) {
   const name = nameFor(url);
-  // preflight
-  let status = 0;
-  try { const r = await fetch(url, { method: 'GET', headers: { 'user-agent': 'Mozilla/5.0' }, redirect: 'follow', signal: AbortSignal.timeout(15000) }); status = r.status; await r.body?.cancel(); } catch (e) { return { url, ok: false, why: 'preflight: ' + e.message }; }
+  // Preflight doubles as the fast path: SSR/pre-rendered sites return complete HTML to
+  // a plain GET, so the renderer is only needed for SPA stubs and for screenshots.
+  let html = '', status = 0, rendered = false;
+  try {
+    const resp = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) tobkiri-dataset/1.0' }, redirect: 'follow', signal: AbortSignal.timeout(20000) });
+    status = resp.status;
+    if (status < 400 && /text\/html/i.test(resp.headers.get('content-type') || '')) html = await resp.text();
+    else await resp.body?.cancel();
+  } catch (e) { return { url, ok: false, why: 'preflight: ' + e.message }; }
   if (status >= 400) return { url, ok: false, why: 'HTTP ' + status };
 
-  const prof = path.join(TMP, `w${process.pid}-${worker}-` + Date.now());
   const shot = path.join(TMP, `shot-${process.pid}-${worker}.png`);
   const pdf = path.join(TMP, `shot-${process.pid}-${worker}.pdf`);
-  const rmProf = () => rm(prof, { recursive: true, force: true, maxRetries: 8, retryDelay: 700 }).catch(() => {});
-  const r = await run(BROWSER, [
-    '--headless', '--disable-gpu', '--disable-extensions', '--no-first-run', '--disable-sync',
-    '--hide-scrollbars', '--mute-audio', '--disable-dev-shm-usage',
-    '--user-data-dir=' + prof,
-    '--window-size=1440,2400', '--virtual-time-budget=16000', '--timeout=45000',
-    `--screenshot=${shot}`, `--print-to-pdf=${pdf}`, '--dump-dom', url,
-  ], 70000);
-  const html = r.out || '';
-  if (html.length < 500) { await rmProf(); return { url, ok: false, why: 'dom ' + html.length + 'B ' + (r.err || '').slice(0, 120) }; }
+  // "Blink App"/"Preview | Blink" titled pages are JS stubs / dead-project shells, not
+  // real content — and anything under 500B is a stub too. Stubs need the renderer;
+  // real fetched HTML only borrows it once for screenshot/PDF. Transient "dom 0B"
+  // crashes under parallel load usually recover on a fresh profile.
+  const isStub = (h) => h.length < 500 || /<title>\s*(Blink App|Preview \| Blink)\s*<\/title>/i.test(h);
+  let r;
+  for (let attempt = 0; attempt < (isStub(html) ? 2 : 1); attempt++) {
+    const prof = path.join(TMP, `w${process.pid}-${worker}-${attempt}-` + Date.now());
+    if (attempt) await sleep(1500);
+    await rm(shot, { force: true }).catch(() => {}); await rm(pdf, { force: true }).catch(() => {});
+    r = await run(BROWSER, [
+      '--headless', '--disable-gpu', '--disable-extensions', '--no-first-run', '--disable-sync',
+      '--hide-scrollbars', '--mute-audio', '--disable-dev-shm-usage',
+      '--user-data-dir=' + prof,
+      '--window-size=1440,2400', '--virtual-time-budget=16000', '--timeout=45000',
+      `--screenshot=${shot}`, `--print-to-pdf=${pdf}`, '--dump-dom', url,
+    ], 70000);
+    await rm(prof, { recursive: true, force: true, maxRetries: 8, retryDelay: 700 }).catch(() => {});
+    if (!isStub(r.out || '')) { html = r.out; rendered = true; break; }
+  }
+  if (isStub(html)) return { url, ok: false, why: html.length >= 500 ? 'stub shell (renderer unavailable)' : 'dom ' + html.length + 'B ' + ((r && r.err) || '').slice(0, 120) };
 
   const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio', 'trickle', 'butternut', 'websim', 'dora']);
   const detected0 = fingerprint(html, url);
@@ -127,7 +151,7 @@ async function collect(url, toolHint, worker) {
   const detected = detected0;
   const common = { pageUrl: url, tool, fingerprint: detected || null };
 
-  await saveAsset(outdir, base + '.html', Buffer.from(html), { ...common, file: base + '.html', contentType: 'text/html', assetUrl: url, rendered: true });
+  await saveAsset(outdir, base + '.html', Buffer.from(html), { ...common, file: base + '.html', contentType: 'text/html', assetUrl: url, rendered });
   try { const b = await readFile(shot); if (b.length > 2000) await saveAsset(outdir, base + '.png', b, { ...common, file: base + '.png', contentType: 'image/png', assetUrl: url, kind: 'screenshot' }); } catch {}
   try { const b = await readFile(pdf); if (b.length > 1000) await saveAsset(outdir, base + '.pdf', b, { ...common, file: base + '.pdf', contentType: 'application/pdf', assetUrl: url, kind: 'pdf' }); } catch {}
 
@@ -142,7 +166,6 @@ async function collect(url, toolHint, worker) {
       if (imgs >= 5) break;
     } catch {}
   }
-  rmProf();
   return { url, ok: true, tool, dir: tool, bytes: html.length, imgs };
 }
 
