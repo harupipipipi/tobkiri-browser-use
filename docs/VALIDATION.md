@@ -20,8 +20,16 @@ author's Windows Vivaldi session, with hidden background tabs.
   `scale` params); same guard stack, read-only, bounded to ~22MB.
 - Screencast fallback no longer leaks an unhandled rejected waiter when
   `startScreencast` itself fails; `stopScreencast`/`frameAck` cleanup is best-effort.
-- Mock suite: 39 passing / 0 failing (screenshot escalation chain, PDF fallback, and
-  `browser_pdf` are covered; the mock cannot reproduce "ack-but-no-frames" timing).
+- **Added — `saveAs` on `browser_screenshot`/`browser_pdf`.** The MCP client writes the
+  capture under `capturesDir` (or `<configDir>/captures`) and replies with
+  `{imageSaved|pdfSaved:{path,bytes}}` instead of inline base64 — bulk captures no longer
+  pay the JSON transcript cost. Relative paths only; absolute paths and `..` segments are
+  rejected at validation and re-checked at write time.
+- Live-verified on this host: `browser_screenshot` on a hidden tab returned the real
+  rendered page via `via:'printToPDF'` after all image paths timed out.
+- Mock suite: 40 passing / 0 failing (screenshot escalation chain, PDF fallback,
+  `browser_pdf`, and saveAs disk-write/traversal are covered; the mock cannot reproduce
+  "ack-but-no-frames" timing).
 
 ## 0.2.7
 

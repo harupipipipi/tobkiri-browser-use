@@ -5,6 +5,9 @@ import {once} from 'node:events';
 import net from 'node:net';
 import http from 'node:http';
 import {randomBytes} from 'node:crypto';
+import {mkdtempSync,readFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {safeUrl,validateArgs,TOOLS} from '../extension/shared.mjs';
 import {startBridge} from '../src/bridge.mjs';
 import {request} from '../src/config.mjs';
@@ -50,6 +53,25 @@ test('MCP stdio initialization, negotiation, listing, parse errors and tool erro
  send('tools/call',{name:'browser_click',arguments:{tabId:1}},3);assert.equal((await response(3)).result.isError,true);
  send('tools/call',{name:'browser_status',arguments:{}},4);assert.equal(JSON.parse((await response(4)).result.content[0].text).connected,false);
  input.write('bad json\n');for(let n=0;n<50&&!rows.some(r=>r.error?.code===-32700);n++)await new Promise(r=>setTimeout(r,10));assert.ok(rows.some(r=>r.error?.code===-32700));
+});
+
+test('saveAs writes capture payloads under capturesDir and strips base64 from the reply',async t=>{
+ const c=await fixture(t),sessionId=await register(c),{connectionId}=await pair(c);
+ const capDir=mkdtempSync(join(tmpdir(),'tbt-cap-'));
+ const input=new PassThrough(),output=new PassThrough();const rows=[];let buf='';output.on('data',chunk=>{buf+=chunk;let n;while((n=buf.indexOf('\n'))>=0){rows.push(JSON.parse(buf.slice(0,n)));buf=buf.slice(n+1);}});
+ const mcp=await runMcp({...c,capturesDir:capDir},{input,output});t.after(()=>mcp.shutdown());
+ const send=(method,params,id)=>input.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');
+ async function response(id){for(let n=0;n<200;n++){const r=rows.find(r=>r.id===id);if(r)return r;await new Promise(r=>setTimeout(r,10));}throw new Error('No MCP response');}
+ send('initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'test',version:'1'}},1);await response(1);send('notifications/initialized');
+ send('tools/call',{name:'browser_pdf',arguments:{tabId:1,saveAs:'unit/x.pdf'}},10);
+ let cmd;for(let n=0;n<100&&!cmd;n++){const {messages}=await request(c,`/extension/poll?connectionId=${connectionId}`);cmd=messages.find(m=>m.kind==='command');if(!cmd)await new Promise(r=>setTimeout(r,20));}
+ assert.equal(cmd.name,'browser_pdf');
+ await request(c,'/extension/result',{connectionId,id:cmd.id,result:{tabId:1,pdf:{data:Buffer.from('%PDF-1.4\n%%EOF\n').toString('base64'),mimeType:'application/pdf'}}});
+ const r10=JSON.parse((await response(10)).result.content[0].text);
+ assert.ok(r10.pdfSaved.path.startsWith(capDir));assert.equal(r10.pdfSaved.bytes>0,true);assert.equal(r10.pdf,undefined);
+ assert.equal(readFileSync(join(capDir,'unit','x.pdf'),'utf8'),'%PDF-1.4\n%%EOF\n');
+ send('tools/call',{name:'browser_pdf',arguments:{tabId:1,saveAs:'../evil.pdf'}},11);
+ assert.equal((await response(11)).result.isError,true);
 });
 
 test('screenshot pixel dimensions are reported for Retina coordinate conversion',()=>{

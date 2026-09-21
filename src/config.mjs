@@ -6,6 +6,7 @@ export const configPath = explicit => resolve(explicit || process.env.TOBKIRI_TA
 export async function readConfig(path) {
   let c; try { c=JSON.parse(await readFile(path,'utf8')); } catch { throw new Error(`Config unavailable. Run: node src/cli.mjs setup --config "${path}"`); }
   if (!Number.isInteger(c.port) || c.port<1024 || c.port>65535 || !/^[a-f0-9]{64}$/.test(c.token)) throw new Error('Invalid configuration.');
+  c.configDir=dirname(path);
   return c;
 }
 export async function initConfig(path,port=17653) {

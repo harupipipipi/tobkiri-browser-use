@@ -1,4 +1,6 @@
 import {StringDecoder} from 'node:string_decoder';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {dirname,resolve,sep} from 'node:path';
 import {request} from './config.mjs';
 import {TOOLS,VERSION,validateArgs} from '../extension/shared.mjs';
 export const PROTOCOLS=['2025-11-25','2025-06-18','2025-03-26','2024-11-05'];
@@ -45,8 +47,21 @@ export async function runMcp(config,{input=process.stdin,output=process.stdout,n
     try {
       const args=validateArgs(toolName,m.params.arguments ?? {});
       const {result}=await request(config,'/rpc',{sessionId,name:toolName,args},ctrl.signal,39000);
+      const blob=result?.image?.data?{field:'image',data:result.image.data,mimeType:result.image.mimeType}
+               :result?.pdf?.data?{field:'pdf',data:result.pdf.data,mimeType:result.pdf.mimeType}:null;
       let content;
-      if(result?.image) {
+      if(blob&&args.saveAs!==undefined){
+        const rel=String(args.saveAs);
+        if(!rel.length||rel.length>300||/^(?:[a-zA-Z]:[\\/]|[\\/])/.test(rel)||rel.split(/[\\/]+/).some(s=>!s||s==='..'||s==='.'))throw new Error('INVALID_ARGUMENT: saveAs must be a relative path without dot/empty segments.');
+        const base=resolve(config.capturesDir||dirname(config.configDir||'.')+'/captures');
+        const abs=resolve(base,rel);
+        if(abs!==base&&!abs.startsWith(base+sep))throw new Error('INVALID_ARGUMENT: saveAs escapes the captures directory.');
+        await mkdir(dirname(abs),{recursive:true});
+        const buf=Buffer.from(blob.data,'base64');
+        await writeFile(abs,buf);
+        const {[blob.field]:_,...rest}=result;
+        content=[{type:'text',text:JSON.stringify({...rest,[blob.field+'Saved']:{path:abs,mimeType:blob.mimeType,bytes:buf.length}})}];
+      } else if(result?.image) {
         const {image,...metadata}=result;
         content=[{type:'text',text:JSON.stringify(metadata)},{type:'image',data:image.data,mimeType:image.mimeType}];
       } else content=[{type:'text',text:JSON.stringify(result ?? null)}];
