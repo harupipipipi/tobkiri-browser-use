@@ -5,7 +5,7 @@
 // Usage: node scripts/collect-site.mjs <listfile> [--jobs N]
 //   listfile lines: <url>\t<tool-slug>   (or just <url> -> tool auto-fingerprinted)
 import { spawn } from 'node:child_process';
-import { writeFile, mkdir, appendFile, readFile, rm } from 'node:fs/promises';
+import { writeFile, mkdir, appendFile, readFile, rm, statfs } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -184,10 +184,15 @@ const lines = (await readFile(listfile, 'utf8')).split(/\r?\n/).map(l => l.trim(
 const tasks = lines.map(l => { const [u, t] = l.split(/\t/); return { url: u.trim(), tool: (t || '').trim() || null }; });
 
 console.log(`collecting ${tasks.length} sites, jobs=${JOBS}`);
-let done = 0, ok = 0;
+let done = 0, ok = 0, diskFull = false;
+async function checkDisk() {
+  try { const f = await statfs(ROOT); if (f.bsize * f.bavail < 8 * 1024 ** 3) diskFull = true; } catch {}
+}
 const results = [];
 async function worker(w) {
   while (tasks.length) {
+    if (done % 25 === 0) await checkDisk();
+    if (diskFull) { console.log(`[${done}] DISK GUARD: <8GB free — stopping early`); return; }
     const t = tasks.shift();
     const res = await collect(t.url, t.tool, w);
     results.push(res); done++;
