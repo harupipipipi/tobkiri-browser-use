@@ -11,7 +11,7 @@ import {request} from '../src/config.mjs';
 const event=()=>{const listeners=[];return {listeners,addListener:fn=>listeners.push(fn),emit:(...args)=>listeners.forEach(fn=>fn(...args))};};
 function fakeChrome(config) {
  const tabs=new Map([[1,{id:1,windowId:1,url:'https://human.example/',title:'PRIVATE HUMAN TAB',active:true,incognito:false,groupId:-1,autoDiscardable:true}]]),groups=new Map(),debuggers=new Set(),cdpCalls=[],activationCalls=[];
- const flags={dropInput:false,domFails:false};
+ const flags={dropInput:false,domFails:false,navFails:false};
  let nextTab=2,nextGroup=1;
  const store=initial=>{const values=structuredClone(initial);return {async setAccessLevel(){},async get(keys){return Object.fromEntries((Array.isArray(keys)?keys:[keys]).filter(k=>k in values).map(k=>[k,structuredClone(values[k])]));},async set(v){Object.assign(values,structuredClone(v));}};};
  const chrome={
@@ -37,7 +37,7 @@ function fakeChrome(config) {
     cdpCalls.push({tabId,method,params:p});
     if(method==='Page.getFrameTree')return {frameTree:{frame:{id:`frame-${tabId}`,loaderId:'mock-loader'}}};
     if(method==='Page.createIsolatedWorld')return {executionContextId:1};
-    if(method==='Page.navigate'){tabs.get(tabId).url=p.url;chrome.debugger.onEvent.emit({tabId},'Page.frameNavigated',{frame:{id:`frame-${tabId}`}});return {frameId:`frame-${tabId}`,loaderId:'mock-loader'};}
+    if(method==='Page.navigate'){if(flags.navFails)return {errorText:'net::ERR_FAILED'};tabs.get(tabId).url=p.url;chrome.debugger.onEvent.emit({tabId},'Page.frameNavigated',{frame:{id:`frame-${tabId}`}});return {frameId:`frame-${tabId}`,loaderId:'mock-loader'};}
     if(method==='Runtime.evaluate'){
      const x=p.expression;let value={};
      if(x.includes(')("ready",'))value={readyState:'complete',url:tabs.get(tabId).url};
@@ -104,4 +104,29 @@ test('extension permission and dispatch integration (MOCK native Chrome APIs)',a
  await t.test('close last owned tab then reopen workspace recreates its deleted group',async()=>{const x=await tool('browser_workspace_create',{name:'reopen'});await tool('browser_tab_close',{tabId:x.tabId});const y=await tool('browser_tab_open',{workspaceId:x.workspaceId,url:'about:blank'});assert.notEqual(y.groupId,x.groupId);assert.ok(fake.groups.has(y.groupId));});
  await t.test('native debugger cancellation revokes grant, never silently reattaches',async()=>{const x=await tool('browser_workspace_create',{name:'cancel'});await tool('browser_snapshot',{tabId:x.tabId});fake.debuggers.delete(x.tabId);chrome.debugger.onDetach.emit({tabId:x.tabId},'canceled_by_user');await assert.rejects(tool('browser_snapshot',{tabId:x.tabId}),/NOT_GRANTED/);assert.ok(!fake.debuggers.has(x.tabId));});
  await t.test('session end releases its grants but leaves tabs open',async()=>{const x=await tool('browser_workspace_create',{name:'second agent'},second);await request(c,'/session/release',{sessionId:second});for(let i=0;i<50;i++){if(!(await ui({type:'status'})).tabs.some(t=>t.tabId===x.tabId))break;await new Promise(r=>setTimeout(r,10));}assert.ok(fake.tabs.has(x.tabId));assert.ok(!(await ui({type:'status'})).tabs.some(t=>t.tabId===x.tabId));});
+ await t.test('a failed first navigation returns the granted tab with a warning, not PARTIAL_TAB_CREATION',async()=>{
+  const w2=await tool('browser_workspace_create',{name:'navwarn'});
+  fake.flags.navFails=true;
+  try{
+    const t2=await tool('browser_tab_open',{workspaceId:w2.workspaceId,url:'https://example.com/'});
+    assert.ok(t2.tabId);assert.match(t2.warning,/Initial navigation failed/);
+    assert.ok((await tool('browser_tabs')).tabs.some(t=>t.tabId===t2.tabId&&!t.revoked),'created tab stays granted and listed');
+  }finally{fake.flags.navFails=false;}
+ });
+ await t.test('revoked grants can be explicitly re-granted or closed, never orphaned',async()=>{
+  const x=await tool('browser_workspace_create',{name:'regrant'});
+  await tool('browser_snapshot',{tabId:x.tabId});
+  fake.debuggers.delete(x.tabId);chrome.debugger.onDetach.emit({tabId:x.tabId},'canceled_by_user');
+  await assert.rejects(tool('browser_snapshot',{tabId:x.tabId}),/NOT_GRANTED/);
+  const other=(await request(c,'/session/register',{name:'agent-three'})).sessionId;
+  await assert.rejects(tool('browser_tab_regrant',{tabId:x.tabId},other),/NOT_GRANTED/,'cross-session re-grant must be rejected');
+  const r=await tool('browser_tab_regrant',{tabId:x.tabId});
+  assert.equal(r.revoked,false);
+  await tool('browser_snapshot',{tabId:x.tabId});
+  fake.debuggers.delete(x.tabId);chrome.debugger.onDetach.emit({tabId:x.tabId},'canceled_by_user');
+  await assert.rejects(tool('browser_snapshot',{tabId:x.tabId}),/NOT_GRANTED/);
+  const cl=await tool('browser_tab_close',{tabId:x.tabId});
+  assert.equal(cl.closed,true);assert.equal(cl.wasRevoked,true);assert.ok(!fake.tabs.has(x.tabId));
+  await assert.rejects(tool('browser_tab_close',{tabId:1}),/NOT_GRANTED/,'ungranted human tab is still unclosable');
+ });
 });

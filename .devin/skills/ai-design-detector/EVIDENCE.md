@@ -94,18 +94,174 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
 - Style: dark navy gradient, big-stat rows `87% / 0 / ∞`, italic parenthetical subtitle,
   comparison splits, numbered timeline chips.
 
-## human/ — 11 imgs (verified subset)
+## human/ — 52 imgs (verified subset)
 
 - r/webdev-type posts: iPhone product-shot promos (real device photos w/ reflections,
   skeuomorphic UI) — `8e869c32b6917d93.png`, `b37e5687d5c90052.png`.
 - `97bb83fc0123c4cd.png` (CHRCIT.COM): cream bg, hand-drawn border grid, dithered portrait,
   REAL book covers + REAL brand logos (React, Arc, Notion, BetterTouchTool), weather widget
   "VIENNA, AT 09:24 19°" — idiosyncratic human content.
+- Slidesgo themes (`3899d954bc4511d7.jpg`, `51bc4c7cff4c3a1d.jpg`): placeholder copy
+  "Here is where your presentation begins", "20XX" year slots, real photography (fig
+  cross-section, train station), mixed serif/sans type — polished HUMAN templates;
+  calibration: polished ≠ AI.
+- apple.com/newsroom, ir.tesla.com shots — corporate human baseline.
 
-## v0 (pending — collector in progress)
+## v0/ — 13 html + screenshots (verified)
 
-- `_tmp/v0-batch.txt`: targets are `v0-<slug>.vercel.app` + `v0.app/templates/<id>`.
-  Subdomain convention is a weak tell; no captured v0 HTML verified yet.
+- `<meta name="generator" content="v0.app">` in 11/13 — decisive.
+- `v0-built-with-button-<uuid>` fixed div + dismiss button, injected via
+  `self.__next_f.push` RSC streaming payload = Next.js **App Router**
+  (vs Gamma's Pages Router `data-next-head`).
+- The 2 non-generator files are `v0.app/templates/<id>` (v0's own gallery): internal
+  design-system classes `v0-gray-*` ×256, `v0-alpha-*` ×120, `v0-blue-*`, `v0-caveat-*`.
+- Deploy host convention: `v0-<slug>.vercel.app`.
+- Visual (`v0-ai-food-order-bot*.png`): "Built with v0" dark pill bottom-right; black bg +
+  single saturated accent (yellow), heavy display headline, step-indicator pills.
+
+## pitch/ — pitch-front-deck.html (verified)
+
+- `pitch.com/static/platform/asset/` font paths (eina01/lato/markpro woff2 +
+  content-hash filenames), `pitch-assets-*`, title `"... by @front | Pitch"`.
+
+## framer/ — crazyui.com artifact (verified)
+
+- `<meta name="generator" content="Framer e0809aa">` (build-hash suffix).
+- `framerusercontent.com` ×204; `data-framer-*` attrs ×518; `framer-*` classes ×887;
+  `__framer__breakpoints`, `__framer__appearAnimationsContent` globals.
+- CAVEAT: designer tool — proves Framer pipeline, not AI authorship (cap `ai_likely`).
+
+## polsia/ — `*.polsia.app` sites (verified)
+
+- `polsia.io` canonical + `polsia.io/opengraph-image?<hash>` (Next.js OG route),
+  `polsia.com` refs; Next.js `_next` ×156, lucide ×57.
+- Visual (ai-outletcom): cream bg, serif display, orange CTA, eyebrow chip, numbered
+  card rows, mono micro-labels — editorial AI look.
+
+## base44/ — 21+ `*.base44.app` sites (verified)
+
+- `app.base44.com` (editor) + `media.base44.com` (asset CDN) in every file;
+  `base44-edit-badge`, `base44-scale-in`, `base44-fade-in` classes; `id="root"` + lucide.
+
+## grok/ — `*.grok.me` sites (verified)
+
+- `<meta name="grok-project-id" content="<uuid>">` + `grok.com` script — decisive.
+- Visual (apex-app): dark mobile-first app UI, mono labels, theme chips, Join/Login/guest.
+
+## replit/ — `*.replit.app` sites (verified)
+
+- Host `*.replit.app` + Vite+React (`id="root"`, lucide ×50); NO badge script observed;
+  `replit-helped-build-*` data-testids are content links, not builder chrome.
+  Host-only ⇒ `ai_likely` cap (humans deploy to replit.app too).
+
+## webflow/ — 21 files (verified)
+
+- `<meta content="Webflow" name="generator">`, `data-wf-site`, `data-wf-page`,
+  `webflow.css` — human designer tool; pipeline proven, authorship usually human.
+
+## aistudio/ — `*.ai.studio` sites (verified)
+
+- Real per-site artifacts captured (bacalabsanalytics, docuvoiceafrica, matrix-1,
+  prism-ai, subzero-ai...): all Vite+React+Lucide SPAs (`id="root"`,
+  `/assets/index-<hash>.js`, `type="module"`) with NO self-identifying marker —
+  the `*.ai.studio` host IS the fingerprint. Stack alone is generic vibe-code;
+  combine host + stack for `ai_likely`. (ai.studio = Google AI Studio app hosting.)
+
+## emergent/ — `*.emergent.host` sites (verified)
+
+- `<a id="emergent-badge" href="https://app.emergent.sh/?utm_source=emergent-badge">`
+  "Made with Emergent"; `<meta name="description" content="A product of emergent.sh">`;
+  `ap.emergent.sh/static/array.js` analytics + `assets.emergent.sh/scripts/emergent-main.js`
+  + `debug-monitor.js`; `id="root"`. Decisive.
+
+## chatgpt/ — `*.chatgpt.site` sites (verified)
+
+- Host `*.chatgpt.site` (canonical link present); HTML is semantic vanilla —
+  `style.css`, `<header>/<main>/<section>`, skip-links, NO framework root.
+  Copy style: punchy GPT short-sentences, eyebrows, numbered steps, FAQ accordions.
+- Screenshot note: browser-native file inputs show the *collector's* OS locale
+  (Japanese "ファイルの選択") — locale leakage is a capture artifact, not a design tell.
+
+## wix/ — custom-domain site (verified)
+
+- `wixstatic.com` asset CDN on custom domain `bidriot.lol` — Wix fingerprint survives
+  custom domains. Wix = human site tool (pipeline only).
+
+## From collector notes (`_notes/site-builders.md`, verified source inventory)
+
+- lovable asset CDN: `cdn.gpteng.co` (matches observed `gpt-engineer-file-uploads` bucket).
+- v0 badge href: `v0.app/chat/api/open/built-with-v0/...`.
+- Bolt-on-Netlify keeps title "⚡️ Bolt.new + Vite + React".
+- Framer published hosts: `*.framer.ai` + "Made in Framer"/"Create a free website with Framer".
+- Additional AI-built hosts in the wild: `*.emergent.host`, `*.polsia.app`,
+  `*.chatgpt.site`, `*.grok.me`, `*.ai.studio`, `*.wegic.net`.
+- Documented dead ends: same.new/durable deploy to custom domains (no crawlable pattern);
+  created.app SERPs are phishing-polluted (skipped deliberately).
+
+## aippt/ mixo/ sitekick/ autoslide/ tome/
+
+- Only ProductHunt marketing assets (`ph-files.imgix.net`) — tool *advertising*, not
+  generated artifacts. No fingerprints extractable; listed in A1 on host-pattern only.
+
+## slidesai/ slidebean/ decktopus/ beautifulai/ slidescarnival/ deckgallery/
+
+- Template-gallery captures — the vendor's own pre-made designs, NOT generated user
+  artifacts: slidesai `cdn.slidesai.io/screenshots/<driveId>/g*.png` (~746), slidebean
+  per-slide renders (1,142), decktopus `framerusercontent.com` 1920×1080 webp embeds
+  (517), beautifulai `cdn.prod.website-files.com` `*- Slide N.avif` (1,613), deckgallery
+  signed `w=1366,q=82?-Sig=<hex>` srcset (~1,700; bare CDN URLs return 410).
+- slidescarnival + deckgallery decks are human-made templates — treat as control
+  material (`tool` label says fetch source, not authorship; see A5). pitch/ og:image
+  renders are likewise human-designed template decks, not generated artifacts.
+
+## presenton/ — community gallery (verified)
+
+- `presenton.ai/community/presentations/<id>` — public gallery of ~366 AI-generated
+  decks; HTML embeds full slide text + rendered captures. Real generated artifacts.
+
+## canva/ — 10 rendered decks (verified)
+
+- Raw fetch hits a "Client Challenge" bot-gate (3KB shells); headless-Edge
+  `collect-site.mjs` passes — rendered HTML + PNG + PDF captured. Canva hosts human
+  designs too: host alone ⇒ `ai_likely` cap stands.
+
+## wegic/ — 277 `*.wegic.net` captures (verified)
+
+- `id="wegic-branding-badge"`/`wegic-badge` classes + `cdn.wegic.ai` logo +
+  `wegic.ai/assets/onepage/agent/` paths (also `aibuildcdn-dev.geesdev.com` CDN) —
+  218/277 carry the badge (tier-gated); host + badge classes are the fingerprint.
+
+## butternut/ — `*.butternut.ai` sites (verified)
+
+- 13/14 HTML carry `butternut.ai` refs (×20 in one file); "Built on Butternut" is the
+  collector fingerprint. Some custom-domain samples are now parked/404.
+
+## websim/ — `*.c.websim.com` sites (verified)
+
+- `websim.com/@user/slug` shell pages render 0B under `--dump-dom`; the artifact lives
+  at the direct `*.c.websim.com` iframe URL (`__websim_origin`/`__websim_route` params),
+  `__websim*` globals present. Host = `*.c.websim.com`, not websim.com proper.
+
+## trickle/ — `*.trickle.host` sites (verified)
+
+- `trickle`/`Trickle` markers throughout HTML (×29+ in samples).
+
+## manus/ — 241 `*.manus.space` captures (verified 2026-09-21)
+
+- 239/241 real site captures carry the dispatcher shell:
+  `<manus-content-root></manus-content-root>` + inline
+  `var __manus_space_editor_info = {spaceId:'<8-char slug>', patchList:[], hideBadge:false, ...}`
+  + `var __manus__global_env = {apiHost:'https://api.manus.im', host:'https://manus.im', amplitudeKey:'<hex>'}`
+  + `<script src="https://files.manuscdn.com/manus-space-dispatcher/spaceEditor-<hash>.js" async>`.
+- `hideBadge:false` ⇒ badge drawn by dispatcher JS when enabled.
+- Inner stack varies per site — Next.js, Vite+React (leftover `/vite.svg`), three.js,
+  tailwind — the shell is the fingerprint, not the stack.
+- Edge case (2/241): dead/offline spaces serve a "Manus Space" branded interstitial
+  (`<title>Manus Space</title>` + centered SVG, no shell globals) — still Manus-infra,
+  a distinct fingerprint, just not an artifact page.
+- `manus/sessions/` also holds 256 shared-session replays fetched via public
+  `api.manus.im/api/chat/getSessionV2|getSessionFilesV2?type=shared` routes;
+  `user_file` uploads were deliberately skipped (user-private inputs, not AI outputs).
 
 ## Method notes
 
@@ -113,5 +269,6 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
   does not — collectors should target the CDN manifest, not the SPA.
 - PDFs captured for blink/bolt/lovable show no plain-text Producer/Creator via `strings`
   (compressed streams) — don't rely on PDF metadata without real extraction.
-- Gaps still open: beautifulai, canva, decktopus, pitch, slidesai, tome, manus share
-  artifacts, v0 captures (dirs exist or collector queues only).
+- Gaps still open: `slides-mixed/` (no samples yet); aippt/mixo/sitekick/autoslide/tome
+  have PH marketing only; canva is bot-gated beyond the 10 captured decks; ~69 early
+  blink captures are the "Authorized Users Only" wall (untokenized, pre-resolver).

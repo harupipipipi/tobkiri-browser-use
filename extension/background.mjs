@@ -176,9 +176,16 @@ async function newTab(owner,workspaceId,url,ctx) {
     await chrome.tabGroups.update(w.groupId,{title:`🔎 ${w.name}`,color:w.color});
     await chrome.tabs.update(tab.id,{autoDiscardable:false});
     await persist();
-    if(url!=='about:blank'){await waitTabReady(tab.id,ctx);await navigate(tab.id,url,ctx,15000);}
-    return await tabInfo(tab.id);
+    if(url!=='about:blank')await waitTabReady(tab.id,ctx);
   } catch(e) {await persist();throw new AppError('PARTIAL_TAB_CREATION',`${e.message} A background tab may remain; inspect browser_tabs before retrying.`);}
+  if(url!=='about:blank'){
+    // The tab is already created, grouped and granted — a failed first navigation is a
+    // warning, not a partial creation. Return the handle (incl. revoked state) so the
+    // caller can inspect and retry instead of losing track of a working tab.
+    try{await navigate(tab.id,url,ctx,15000);}
+    catch(e){return {...await tabInfo(tab.id),warning:`Initial navigation failed: ${e.message}`};}
+  }
+  return await tabInfo(tab.id);
 }
 async function navigate(tabId,url,ctx,timeoutMs=15000) {
   safeUrl(url);await attach(tabId,ctx);
@@ -282,7 +289,31 @@ async function dispatch(name,a,ctx) {
   if(name==='browser_tabs'){if(a.workspaceId)await getWorkspace(a.workspaceId,owner);return {tabs:await listTabs(owner,a.workspaceId)};}
   if(name==='browser_workspace_release'){await getWorkspace(a.workspaceId,owner);await releaseWorkspace(a.workspaceId);return {released:true,tabsClosed:false};}
   if(name==='browser_tab_release'){if(grants[a.tabId]?.owner!==owner)throw new AppError('NOT_GRANTED','Tab not owned.');await releaseTab(a.tabId);return {released:true,tabClosed:false};}
+  // Cleanup paths run without a deadline checkpoint so a timed-out command never leaves
+  // an orphaned tab behind. Owner, pause and active-tab protection still apply; closing
+  // a revoked tab cannot interact with page content, so the revocation check is waived.
+  if(name==='browser_tab_close'){
+    const g=grants[a.tabId];
+    if(!g||g.owner!==owner)throw new AppError('NOT_GRANTED','This tab is not granted to this MCP session.');
+    if(workspaces[g.workspaceId]?.paused)throw new AppError('WORKSPACE_PAUSED','User paused this workspace.');
+    const tab=await chrome.tabs.get(a.tabId).catch(()=>{throw new AppError('TAB_GONE','Tab was already closed.');});
+    if(config.protectActive&&tab.active)throw new AppError('HUMAN_ACTIVE_TAB','This tab is active. Ask the user to switch to a different tab; do not disable protection on their behalf.');
+    await chrome.tabs.remove(a.tabId);await releaseTab(a.tabId);return {closed:true,wasRevoked:!!g.revoked};
+  }
   checkpoint(ctx);
+  if(name==='browser_tab_regrant'){
+    // Restore a grant this session already held after an auto-revocation (e.g. CDP_TIMEOUT).
+    // This is NOT granting an unrelated tab: owner, workspace ownership and pause are
+    // re-checked, and the explicit call is the acknowledgment — not a blind retry.
+    const g=grants[a.tabId];
+    if(!g||g.owner!==owner||!workspaces[g.workspaceId]||workspaces[g.workspaceId].owner!==owner)throw new AppError('NOT_GRANTED','This tab is not granted to this MCP session.');
+    if(workspaces[g.workspaceId].paused)throw new AppError('WORKSPACE_PAUSED','User paused this workspace.');
+    const tab=await chrome.tabs.get(a.tabId).catch(()=>{throw new AppError('TAB_GONE','Tab was closed.');});
+    safeUrl(tab.pendingUrl||tab.url||'about:blank');
+    if(tab.incognito)throw new AppError('INCOGNITO_BLOCKED','Incognito is not supported.');
+    if(g.revoked){g.revoked=false;await persist();record('tab-regrant',a.tabId,'ok');}
+    return await tabInfo(a.tabId);
+  }
   if(name==='browser_workspace_create') {
     if(!config.allowCreate)throw new AppError('CREATE_NOT_ALLOWED','User must enable new AI tabs.');
     const windows=await chrome.windows.getAll({windowTypes:['normal']});
@@ -301,7 +332,6 @@ async function dispatch(name,a,ctx) {
   }
   if(name==='browser_tab_open')return await newTab(owner,a.workspaceId,a.url,ctx);
   if(name==='browser_tab_navigate')return await navigate(a.tabId,a.url,ctx,a.timeoutMs);
-  if(name==='browser_tab_close'){await guard(a.tabId,ctx);await chrome.tabs.remove(a.tabId);await releaseTab(a.tabId);return {closed:true};}
   const readOnly=['browser_snapshot','browser_screenshot','browser_wait'].includes(name);
   await attach(a.tabId,ctx,!readOnly);
   if(name==='browser_snapshot')return await page(a.tabId,'snapshot',a,ctx,false);

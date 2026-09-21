@@ -1,3 +1,34 @@
+# Validation record — 0.2.7
+
+## 0.2.7 changes — Node mock-suite only, NOT verified on a real host (2026-09-21)
+
+Field reports from dataset-collection sessions (Windows, Vivaldi) drove these fixes. Only
+`npm test` (mock Chrome APIs + real bridge) has been run — no installed-extension
+verification was performed for this version.
+
+- **Fixed — revoked grants orphaned tabs.** `browser_tab_close` previously ran the full
+  grant guard, so a tab whose grant was auto-revoked (CDP_TIMEOUT / debugger detach)
+  returned `NOT_GRANTED` and could never be closed or reused — dead tabs accumulated.
+  Close now requires only session ownership + workspace-not-paused + active-tab
+  protection (closing is cleanup, not page interaction); it also works while paused.
+- **Added — `browser_tab_regrant`.** The CDP_TIMEOUT message told callers to "explicitly
+  re-grant" but no such command existed. Re-grant restores only a grant the same session
+  already held, in the same still-owned workspace — it never grants an unrelated tab and
+  is not a blind retry (the timed-out action may still have applied; inspect first).
+- **Fixed — `PARTIAL_TAB_CREATION` misreport.** `browser_tab_open`/`workspace_create`
+  reported partial creation even when the tab was fully created, grouped and granted and
+  only the first navigation failed. Structural failures still throw
+  `PARTIAL_TAB_CREATION`; a failed initial navigation now returns the tab handle with a
+  `warning` (and `revoked` state) so callers can inspect/retry.
+- **Improved — dom-click fallback fidelity.** The fallback now dispatches the full
+  pointerover/mouseover/pointermove/mousemove → focus → pointerdown/mousedown →
+  pointerup/mouseup → click sequence with real coordinates, `detail:1` and pointer
+  identity, instead of bare `el.click()` (detail:0, no coords) that delegated handlers
+  could ignore.
+- Not fixed (host-level, documented): `CDP_TIMEOUT` on unacknowledged debugger commands
+  still auto-revokes by design — a timed-out input must never be blindly retried. The
+  recovery path (regrant/close) is what was missing, and now exists.
+
 # Validation record — 0.2.4
 
 ## What was actually run

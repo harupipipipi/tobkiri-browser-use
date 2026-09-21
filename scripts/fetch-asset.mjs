@@ -3,7 +3,8 @@
 // Usage: node scripts/fetch-asset.mjs <url> <outdir> [--tool <name>] [--page <pageUrl>] [--name <basename>]
 // Saves the asset as <outdir>/<hash>.<ext> and appends one JSON line to <outdir>/metadata.jsonl.
 import { createHash } from 'node:crypto';
-import { writeFile, mkdir, appendFile } from 'node:fs/promises';
+import { writeFile, readFile, mkdir, appendFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const [url, outdir, ...rest] = process.argv.slice(2);
@@ -26,8 +27,13 @@ try {
   if (!/^[a-z0-9]{1,5}$/i.test(ext)) ext = 'bin';
   const hash = createHash('sha1').update(buf).digest('hex').slice(0, 16);
   const base = (opt.name || hash).replace(/[^a-z0-9_.-]/gi, '_').slice(0, 120);
-  const file = `${base}.${ext}`;
   await mkdir(outdir, { recursive: true });
+  let file = `${base}.${ext}`;
+  const existing = path.join(outdir, file);
+  if (existsSync(existing)) {
+    const prev = createHash('sha1').update(await readFile(existing)).digest('hex').slice(0, 16);
+    if (prev !== hash) file = `${base}-${hash.slice(0, 8)}.${ext}`;
+  }
   await writeFile(path.join(outdir, file), buf);
   const rec = { file, bytes: buf.length, contentType: ct, assetUrl: url, pageUrl: opt.page || null, tool: opt.tool || 'unknown', capturedAt: new Date().toISOString() };
   await appendFile(path.join(outdir, 'metadata.jsonl'), JSON.stringify(rec) + '\n');

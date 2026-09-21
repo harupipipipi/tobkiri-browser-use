@@ -90,7 +90,7 @@ MCPプロセス起動時、ブリッジが停止していれば自動起動し�
 |---|---|
 | 状態・許可対象の一覧 | `browser_status`, `browser_workspaces`, `browser_tabs` |
 | ワークスペース | `browser_workspace_create`, `browser_workspace_update`, `browser_workspace_release` |
-| タブ | `browser_tab_open`, `browser_tab_navigate`, `browser_tab_close`, `browser_tab_release` |
+| タブ | `browser_tab_open`, `browser_tab_navigate`, `browser_tab_close`, `browser_tab_release`, `browser_tab_regrant` |
 | 読み取り・画像 | `browser_snapshot`, `browser_screenshot` |
 | 操作 | `browser_click`, `browser_type`, `browser_press`, `browser_scroll`, `browser_drag` |
 | フォーム・待機 | `browser_select`, `browser_check`, `browser_wait` |

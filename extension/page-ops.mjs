@@ -135,9 +135,18 @@ export function pageOp(op, a={}) {
     if(!hit)return {applied:false};
     const hr=hit.getBoundingClientRect();mark(hr.left+hr.width/2,hr.top+hr.height/2);flash(hit);
     const PE=globalThis.PointerEvent||MouseEvent;
-    const init={bubbles:true,cancelable:true,composed:true,clientX:a.x,clientY:a.y,button:0};
-    for(const t of['pointerover','pointerdown','mousedown','pointerup','mouseup'])hit.dispatchEvent(t.startsWith('pointer')?new PE(t,init):new MouseEvent(t,init));
-    hit.click();
+    // Full pointer/mouse sequence with real coordinates, detail and pointer identity —
+    // el.click() alone emits click with detail:0 and no coords, which delegated handlers
+    // (e.g. React roots inspecting nativeEvent) can silently ignore.
+    const base={bubbles:true,cancelable:true,composed:true,view:window,clientX:a.x,clientY:a.y,screenX:a.x,screenY:a.y,button:0,detail:1};
+    const pe=t=>new PE(t,{...base,pointerId:1,pointerType:'mouse',isPrimary:true});
+    const me=(t,extra)=>new MouseEvent(t,{...base,...extra});
+    hit.dispatchEvent(pe('pointerover'));hit.dispatchEvent(me('mouseover'));
+    hit.dispatchEvent(pe('pointermove'));hit.dispatchEvent(me('mousemove'));
+    try{hit.focus?.({preventScroll:true});}catch{}
+    hit.dispatchEvent(pe('pointerdown'));hit.dispatchEvent(me('mousedown',{buttons:1}));
+    hit.dispatchEvent(pe('pointerup'));hit.dispatchEvent(me('mouseup',{buttons:0}));
+    hit.dispatchEvent(me('click'));
     return {applied:true,tag:hit.tagName.toLowerCase()};
   }
   if(op==='domType') {

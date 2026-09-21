@@ -43,6 +43,11 @@ const FINGERPRINTS = [
   [/grok\.me|xai\.ai|grok\.com/i, 'grok'],
   [/emergent\.host|emergent\.sh/i, 'emergent'],
   [/polsia/i, 'polsia'],
+  [/trickle\.host|Built with Trickle|trickle\.so/i, 'trickle'],
+  [/butternut\.ai|Built on Butternut/i, 'butternut'],
+  [/wegic\.net/i, 'wegic'],
+  [/websim\.(com|ai)|websim/i, 'websim'],
+  [/dora\.run|made (in|with) dora/i, 'dora'],
   [/ai\.studio|aistudio|AI Studio|made with google ai studio/i, 'aistudio'],
 ];
 
@@ -98,9 +103,9 @@ async function collect(url, toolHint, worker) {
   try { const r = await fetch(url, { method: 'GET', headers: { 'user-agent': 'Mozilla/5.0' }, redirect: 'follow', signal: AbortSignal.timeout(15000) }); status = r.status; await r.body?.cancel(); } catch (e) { return { url, ok: false, why: 'preflight: ' + e.message }; }
   if (status >= 400) return { url, ok: false, why: 'HTTP ' + status };
 
-  const prof = path.join(TMP, 'w' + worker + '-' + Date.now());
-  const shot = path.join(TMP, `shot-${worker}.png`);
-  const pdf = path.join(TMP, `shot-${worker}.pdf`);
+  const prof = path.join(TMP, `w${process.pid}-${worker}-` + Date.now());
+  const shot = path.join(TMP, `shot-${process.pid}-${worker}.png`);
+  const pdf = path.join(TMP, `shot-${process.pid}-${worker}.pdf`);
   const rmProf = () => rm(prof, { recursive: true, force: true, maxRetries: 8, retryDelay: 700 }).catch(() => {});
   const r = await run(BROWSER, [
     '--headless', '--disable-gpu', '--disable-extensions', '--no-first-run', '--disable-sync',
@@ -112,7 +117,7 @@ async function collect(url, toolHint, worker) {
   const html = r.out || '';
   if (html.length < 500) { await rmProf(); return { url, ok: false, why: 'dom ' + html.length + 'B ' + (r.err || '').slice(0, 120) }; }
 
-  const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio']);
+  const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio', 'trickle', 'butternut', 'websim', 'dora']);
   const detected0 = fingerprint(html, url);
   const tool = (toolHint && toolHint !== 'auto') ? toolHint : (BUILDERS.has(detected0) ? detected0 : 'sites-mixed');
   const outdir = path.join(ROOT, 'dataset', tool);
@@ -160,5 +165,5 @@ async function worker(w) {
   }
 }
 await Promise.all(Array.from({ length: JOBS }, (_, i) => worker(i)));
-await writeFile(path.join(ROOT, 'dataset', '_tmp', 'collect-results.json'), JSON.stringify(results, null, 1));
+await writeFile(path.join(ROOT, 'dataset', '_tmp', `collect-results-${process.pid}.json`), JSON.stringify(results, null, 1));
 console.log(`DONE ok=${ok} fail=${done - ok}`);
