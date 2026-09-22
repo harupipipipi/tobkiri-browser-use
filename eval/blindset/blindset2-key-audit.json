@@ -1,0 +1,23 @@
+{
+ "note": "blindset2 post-hoc audit: same-deck leakage (hash-named chatgpt-slides files evaded group regex), tool-page items, capture failures, and decktopus vendor-template label noise",
+ "excluded": {
+  "dup_same_deck": {
+   "v2_074.png": "Mind Travel deck instance 2 (keep v2_009)",
+   "v2_077.png": "Mind Travel deck instance 3",
+   "v2_097.png": "Mind Travel deck instance 4",
+   "v2_109.png": "Mind Travel deck instance 5",
+   "v2_051.png": "Infercat deck instance 2 (keep v2_022)",
+   "v2_110.png": "Infercat deck instance 3"
+  },
+  "contested_label": {
+   "v2_063.png": "emergent.sh own auth/onboarding page — tool chrome, not a generated artifact",
+   "v2_080.png": "decktopus marketplace cover by salescharmforbusiness.com — human vendor template hosted on AI platform",
+   "v2_100.png": "decktopus marketplace influencer-bio template — human vendor template hosted on AI platform"
+  },
+  "unavailable": {
+   "v2_037.png": "websim subdomain rendered blank shell — nothing to judge",
+   "v2_104.png": "blank white capture — capture failure",
+   "v2_105.png": "IANA example.com placeholder — not a design artifact"
+  }
+ }
+}

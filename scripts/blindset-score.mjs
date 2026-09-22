@@ -13,8 +13,10 @@
 //                    badge/chrome (badge:true) — the strict "no watermark" mode
 //
 // Verdict mapping: ai_confirmed|ai_likely -> "ai", human_likely -> "human",
-//                  uncertain -> abstain.
-// Usage: node scripts/blindset-score.mjs [--no-badge]
+//                  uncertain|unavailable -> abstain/unmeasured.
+// Usage: node scripts/blindset-score.mjs [--no-badge] [--audit] [--set v2]
+//   --set v2  score the second blindset (blindset2-key.json + blindset2-judge.jsonl
+//             + blindset2-key-audit.json exclusion categories)
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,18 +25,32 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EVAL = path.join(ROOT, 'eval', 'blindset');
 const TMP = path.join(ROOT, 'dataset', '_tmp');
-const dir = fs.existsSync(path.join(EVAL, 'blindset-key.json')) ? EVAL : TMP;
-const judgeFile = fs.existsSync(path.join(dir, 'judgments.jsonl'))
-  ? path.join(dir, 'judgments.jsonl') : path.join(TMP, 'blindset-judge.jsonl');
+const setArg = process.argv.includes('--set') ? process.argv[process.argv.indexOf('--set') + 1] : 'v1';
+const base = setArg === 'v1' ? 'blindset' : 'blindset' + setArg.replace(/^v/, ''); // v2 -> blindset2, v2b -> blindset2b
+const dir = fs.existsSync(path.join(EVAL, `${base}-key.json`)) ? EVAL : TMP;
+const judgeFile = fs.existsSync(path.join(dir, `${base}-judgments.jsonl`))
+  ? path.join(dir, `${base}-judgments.jsonl`)
+  : fs.existsSync(path.join(dir, 'judgments.jsonl'))
+    ? path.join(dir, 'judgments.jsonl')
+    : path.join(TMP, `${base}-judge.jsonl`);
 const noBadge = process.argv.includes('--no-badge');
 const audit = process.argv.includes('--audit');
 
-const key = JSON.parse(fs.readFileSync(path.join(dir, 'blindset-key.json'), 'utf8'));
+const key = JSON.parse(fs.readFileSync(path.join(dir, `${base}-key.json`), 'utf8'));
+const exclusions = { dup: [], contested: [], unavailable: [] };
 if (audit) {
-  const a = JSON.parse(fs.readFileSync(path.join(dir, 'blindset-key-audit.json'), 'utf8'));
-  for (const [f, o] of Object.entries(a.overrides)) {
-    if (o.contested) key[f].contested = true;
-    else Object.assign(key[f], { label: o.label, pipe: o.pipe, auditNote: o.note });
+  const a = JSON.parse(fs.readFileSync(path.join(dir, `${base}-key-audit.json`), 'utf8'));
+  if (a.overrides) {
+    for (const [f, o] of Object.entries(a.overrides)) {
+      if (o.contested) key[f].contested = true;
+      else Object.assign(key[f], { label: o.label, pipe: o.pipe, auditNote: o.note });
+    }
+  }
+  if (a.excluded) {
+    for (const [cat, items] of Object.entries(a.excluded)) {
+      const bucket = cat.startsWith('dup') ? 'dup' : cat.startsWith('contested') ? 'contested' : 'unavailable';
+      for (const f of Object.keys(items)) { key[f].excluded = cat; exclusions[bucket].push(f); }
+    }
   }
 }
 const judge = fs.readFileSync(judgeFile, 'utf8')
@@ -91,12 +107,17 @@ function report(title, r) {
   }
 }
 
-const joined = judge.map(j => ({ f: j.f, judge: j, truth: key[j.f] }))
-  .filter(x => x.truth)
-  .filter(x => !x.truth.contested);
+const all = judge.map(j => ({ f: j.f, judge: j, truth: key[j.f] })).filter(x => x.truth);
+const exd = all.filter(x => x.truth.excluded || x.truth.contested || x.judge.v === 'unavailable');
+const joined = all.filter(x => !x.truth.excluded && !x.truth.contested && x.judge.v !== 'unavailable');
 
-if (joined.length !== judge.length)
-  console.log(`note: ${judge.length - joined.length} judge rows unkeyed or contested-excluded`);
+if (exd.length) {
+  console.log(`excluded/unmeasured: ${exd.length}`);
+  for (const x of exd)
+    console.log(`  ${x.f} [${x.truth.excluded || (x.truth.contested ? 'contested' : 'judge-unavailable')}] truth=${x.truth.dir}/${x.truth.pipe}`);
+}
+if (all.length !== judge.length)
+  console.log(`note: ${judge.length - all.length} judge rows unkeyed`);
 
 report('ALL ITEMS (badge evidence allowed)', score(joined));
 

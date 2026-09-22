@@ -324,3 +324,74 @@ Canva templates).
   (same Presenton deck twice; Canva template family; same app concept across
   blink/beautifulai). Future sets need content-hash dedup.
 - imagegen n=3 post-audit — too small to bound a rate.
+
+## Visual blind eval round 2 (2026-09-23, blindset2 + blindset2b)
+
+Two new unseen sets judged pixel-only. Keys/audits/judgments in
+`eval/blindset/blindset2*.json{,l}` — v2 n=130, v2b n=61.
+
+### blindset2 (mixed pipes, n=118 scored after audit)
+
+- Full visual: AI caught 90.9% (70/77), missed 3.9%, abstain 5.2%;
+  human FP 22.0% (9/41), abstain 2.4%.
+- No-badge subset (n=88): AI caught 88.0% (44/50), human FP 23.7% (9/38).
+- Per-pipe: imagegen 16/16, codegen 44/46, mixed 10/15.
+- Audit exclusions (12): Mind Travel deck leaked ×5 and Infercat deck ×3 —
+  hash-named `chatgpt-slides/` files evaded filename grouping (content-hash
+  dedup caught bytes-dups but not same-deck different slides); emergent.sh
+  own auth page (tool UI, not artifact); 2 decktopus marketplace vendor
+  templates (platform hosts human-made templates — label noise); 3 blank/
+  placeholder captures (unmeasurable).
+- Badge/chrome caveat: 30 badge items repeat ~13 builder signatures, so
+  badge-mode catch partly measures badge recognition — quote the no-badge
+  rate for generalization.
+
+### blindset2b (imagegen-focused supplement, n=53 scored after audit)
+
+- Full: AI caught 80.0% (24/30), missed 5, abstain 1; human FP 5/23.
+  (Set contained no badge items — identical to no-badge mode.)
+- imagegen 18/19 caught; mixed 6/11.
+- Audit exclusions (8): 3 same-author civitai pairs (group regex keyed on
+  id+author, not author alone), 1 same-deck slidesai pair, 4 decktopus
+  marketplace vendor templates.
+
+### Combined imagegen evidence (v2+v2b, n=35 scored)
+
+- 34/35 caught (97%). Sole miss: civitai Krea_2 wolf rendered in a
+  deliberately naive hand-drawn style — style mimicry defeats visual priors.
+- Dominated by obvious AI renders (hyperreal anime, impossible scenes,
+  fur/latex physics, garbled in-image text). Rate does NOT bound subtle
+  photo-like output.
+
+### New confirmed visual tells
+
+- Garbled in-image text: "FREES USE PECH" t-shirt — decisive imagegen tell.
+- Pseudo-Japanese headers in AI decks ("レプオブス" non-word in a corporate
+  quarterly-review slide).
+- "Here is where your presentation begins" placeholder = SlidesGo template —
+  human unless typos/invented content coexist (a human deck can typo too:
+  "Psychchology" human slide was an FP).
+
+### Failure taxonomy additions
+
+- **slidesai/decktopus template mimicry** = the dominant AI-miss class in
+  both sets (5 of 8 v2b misses). Their output ships template placeholder
+  conventions — visually indistinguishable from human templates.
+- **genspark real-doc mimicry**: KAKENHI grant proposal (Kyoto iPS, real
+  funding scheme, ¥42.8M) read as human academic doc — top-tier miss.
+- **Designer-tool FPs doubled** vs v1 (22% vs 13.2%): framer/wix/webflow/
+  beautifulai/deckgallery items with invented-brand look + bento-stat polish.
+  Invented-brand + polish is NOT sufficient AI evidence.
+- **Hand-drawn both ways**: AI naive-style wolf -> called human (miss);
+  human hand-drawn wolf (X, explicit "手描き" claim) -> called AI (FP).
+
+### Eval-infrastructure lessons
+
+- Trailing-image cap on batched reads dropped leading images silently and
+  shifted judgment-to-file mapping for ~2 batches (043-049, 034-042).
+  Caught by ev-vs-keydir consistency scan; all affected items re-read solo.
+  Batch visual reads at <=3 and always re-verify first/last of a batch.
+- Group regexes must capture a *meaningful* identity (deck dir, author).
+  Hash-named dirs (chatgpt-slides) need content-based clustering or a
+  hard per-dir cap; dt-img marketplace items need provenance review before
+  they can carry an AI label.

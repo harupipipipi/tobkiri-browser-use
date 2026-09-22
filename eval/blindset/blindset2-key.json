@@ -1,0 +1,912 @@
+{
+ "v2_001.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Modern-3D-Sport-Shop-Business-Plan-14-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "17c3cb54cd55"
+ },
+ "v2_002.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-143481562-user_c.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "e52f826a4d2c"
+ },
+ "v2_003.png": {
+  "dir": "trickle",
+  "file": "7ea9imo1e7tn.trickle.host-3f0cfb4151.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "7d7a58066805"
+ },
+ "v2_004.webp": {
+  "dir": "blink",
+  "file": "anime-3d-scroll-v4218z46.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "509e67c52acb"
+ },
+ "v2_005.webp": {
+  "dir": "blink",
+  "file": "deal-sniper-ai-386maj63.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "21c1d3e35150"
+ },
+ "v2_006.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95c17e5994c9258d67f65f_Beautiful.ai-20--20Pharma-20Pitch-20Deck-20--.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "bb3d0bb374bf"
+ },
+ "v2_007.webp": {
+  "dir": "blink",
+  "file": "ios26-web-sim-3cpglcb2.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "11a21b7c5cd3"
+ },
+ "v2_008.jpeg": {
+  "dir": "civitai",
+  "file": "SD_1.5-143481780-sjdkfljs.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f7c7ee6c6b35"
+ },
+ "v2_009.png": {
+  "dir": "chatgpt-slides",
+  "file": "05995ae0b2eaa4d2.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "05995ae0b2ea"
+ },
+ "v2_010.png": {
+  "dir": "grok",
+  "file": "topcrypto.grok.me-8e1992d072.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "0a51f993baaf"
+ },
+ "v2_011.jpg": {
+  "dir": "human",
+  "file": "113a0ce35bdc3e78.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "113a0ce35bdc"
+ },
+ "v2_012.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143446940-Panychus.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "c7ef275f3984"
+ },
+ "v2_013.png": {
+  "dir": "gamma",
+  "file": "sisd-1zamqe5.gamma.site-1c63c2c3c8.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "29bf79ad0582"
+ },
+ "v2_014.webp": {
+  "dir": "blink",
+  "file": "freefire-tourney-app-lymr88ei.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "8e972a369b08"
+ },
+ "v2_015.png": {
+  "dir": "slidesai",
+  "file": "sai-1VQBER6Tug-g2c4a1a28867_0_343.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "80821deaf452"
+ },
+ "v2_016.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481651-marthir777.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "8c7437f369c8"
+ },
+ "v2_017.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481678-a940802021.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "51be296f0c70"
+ },
+ "v2_018.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-963-Escalus-Slide2.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "8fb86304a5f2"
+ },
+ "v2_019.webp": {
+  "dir": "blink",
+  "file": "deriv-signal-pro-gqb6dzjp.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a5c5fa984630"
+ },
+ "v2_020.png": {
+  "dir": "polsia",
+  "file": "privacywatch.polsia.app-e870e3af09.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a82b8861eff0"
+ },
+ "v2_021.png": {
+  "dir": "wix",
+  "file": "www.emgex.ai-deef69f004.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "e705954d00c6"
+ },
+ "v2_022.png": {
+  "dir": "chatgpt-slides",
+  "file": "8ecc361033319971.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "8ecc36103331"
+ },
+ "v2_023.png": {
+  "dir": "trickle",
+  "file": "taskbox.trickle.host-97a8f76d97.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "34e3a7337c02"
+ },
+ "v2_024.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-141756563-NexBlend.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "8fe7c863fc56"
+ },
+ "v2_025.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Beige-Brown-and-Green-Organic-Boho-Artistic-Thesis-Presentation-15-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "d48cd1f17782"
+ },
+ "v2_026.webp": {
+  "dir": "deckgallery",
+  "file": "dg-perplexity-ads-pitch-deck-2024-the-refresh-studios-service-credentials-2024-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "d31435f025af"
+ },
+ "v2_027.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-143481446-pjGuy240.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f54f69509a83"
+ },
+ "v2_028.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143481864-CatSassou.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "371eadf2a1f2"
+ },
+ "v2_029.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Blue-Yellow-and-Green-Illustrative-School-Icebreakers-9-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "bd685711a82e"
+ },
+ "v2_030.png": {
+  "dir": "webflow",
+  "file": "fandf.co_4wPNBkZ-6a0dfbf833.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "74c87de56661"
+ },
+ "v2_031.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Orange-Red-and-Light-Gray-Cute-Pastel-3D-Shapes-Company-Business-Profile-6-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "f355a29cbe0a"
+ },
+ "v2_032.png": {
+  "dir": "bolt",
+  "file": "digital-transformati-igu1.bolt.host-3b615e7600.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "c8d52fbaa231"
+ },
+ "v2_033.png": {
+  "dir": "websim",
+  "file": "xob7e1o8ju135yg7eccx.c.websim.com-916dc755cd.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "1cf928e1fe9f"
+ },
+ "v2_034.jpg": {
+  "dir": "human",
+  "file": "a93473b63da8a44c.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "a93473b63da8"
+ },
+ "v2_035.png": {
+  "dir": "decktopus",
+  "file": "dt-img-z5MAYN2gSYqJVjJvdwXmZ2Zehg.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "bd390582f6a7"
+ },
+ "v2_036.png": {
+  "dir": "bolt",
+  "file": "high-performer-resil-azcb.bolt.host-340038de1d.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "f8622c4000a1"
+ },
+ "v2_037.png": {
+  "dir": "websim",
+  "file": "erwadxcuyxaomj9uq863.c.websim.com-0f4fc77d7c.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "84caefdf6e48"
+ },
+ "v2_038.jpg": {
+  "dir": "human",
+  "file": "3f39f940ce59c970.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "3f39f940ce59"
+ },
+ "v2_039.png": {
+  "dir": "grok",
+  "file": "ideabank.grok.me_marketplace-06caaa8a5d.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "352f007698d0"
+ },
+ "v2_040.png": {
+  "dir": "base44",
+  "file": "diamond-duel-21e25ab0.base44.app-67d2181843.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "da01d3363e2c"
+ },
+ "v2_041.png": {
+  "dir": "bolt",
+  "file": "toteplay.bolt.host-7efb78053a.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "6ea3ed931003"
+ },
+ "v2_042.png": {
+  "dir": "human",
+  "file": "8ae4a062b67a2b6e.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "8ae4a062b67a"
+ },
+ "v2_043.jpg": {
+  "dir": "human",
+  "file": "d0a76424daa66fd2.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "d0a76424daa6"
+ },
+ "v2_044.png": {
+  "dir": "lovable",
+  "file": "insider-quest-game.lovable.app-5bc56a71ab.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "ce73027803a5"
+ },
+ "v2_045.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_1o9ZJQxDtU4-89339da92e.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "3614b87f4e51"
+ },
+ "v2_046.png": {
+  "dir": "base44",
+  "file": "windpipe-social-hub.base44.app-c08fd8630b.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a67a112e10be"
+ },
+ "v2_047.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_240-ce54ba15a1.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "c6f8d63fe09b"
+ },
+ "v2_048.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Aesthetic-Indonesian-History-Masters-Degree-7-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "9e31f2bc55b8"
+ },
+ "v2_049.png": {
+  "dir": "lovable",
+  "file": "freshjobhub.lovable.app-9eb8eb54b0.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "996469943f26"
+ },
+ "v2_050.webp": {
+  "dir": "deckgallery",
+  "file": "dg-boiler-room-audience-2025-boiler-room-audience-report-2025-006.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "5b9512e33c8c"
+ },
+ "v2_051.png": {
+  "dir": "chatgpt-slides",
+  "file": "f02e45a154c98dea.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f02e45a154c9"
+ },
+ "v2_052.png": {
+  "dir": "bolt",
+  "file": "mommy-time-5fnz.bolt.host-78f3c66028.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "c9b95bb80d14"
+ },
+ "v2_053.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95c17e12fdfdf0757e1fbc_Beautiful.ai-20--20Pharma-20Pitch-20Deck-20--.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "40f87f413950"
+ },
+ "v2_054.png": {
+  "dir": "emergent",
+  "file": "regulation-lab.emergent.host-edc34ac233.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "bc847b3cbd03"
+ },
+ "v2_055.webp": {
+  "dir": "human",
+  "file": "e9c79f1124e04f90.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "e9c79f1124e0"
+ },
+ "v2_056.png": {
+  "dir": "base44",
+  "file": "futuro-sim-copy-322fd40a.base44.app-4c3454281f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "77411753f247"
+ },
+ "v2_057.png": {
+  "dir": "emergent",
+  "file": "family-pact.emergent.host-5432e9978a.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "ac70bd0350a2"
+ },
+ "v2_058.png": {
+  "dir": "websim",
+  "file": "a1ky6cwibap5ls2kvolw.c.websim.com-e7acd81408.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "d392d325fec2"
+ },
+ "v2_059.png": {
+  "dir": "webflow",
+  "file": "quo.com-c989d65093.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "519438d6363a"
+ },
+ "v2_060.png": {
+  "dir": "aistudio",
+  "file": "symptomlog.ai.studio-b5cd8652b9.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "6541ce4613b7"
+ },
+ "v2_061.webp": {
+  "dir": "blink",
+  "file": "eduexam-portal-site-sfvf89nx.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "850ee93f4838"
+ },
+ "v2_062.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143481800-I_am_a_file_cabinet.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "e4bd1c92f755"
+ },
+ "v2_063.png": {
+  "dir": "emergent",
+  "file": "emergent.sh-4426fd9aa4.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "71dbad8e6329"
+ },
+ "v2_064.png": {
+  "dir": "framer",
+  "file": "shadergradient.co-426c852a93.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "7af4b8069fbc"
+ },
+ "v2_065.png": {
+  "dir": "trickle",
+  "file": "firstversion.trickle.host-4550d5cf65.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a9b1bb9d25bb"
+ },
+ "v2_066.png": {
+  "dir": "websim",
+  "file": "xrw1lk5ar16sthvq3a5d.c.websim.com-a347193ac6.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "7f88cfe34a7c"
+ },
+ "v2_067.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_200-96153732d1.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "5a84c187aef8"
+ },
+ "v2_068.png": {
+  "dir": "framer",
+  "file": "pigion.ai-a2fef89086.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "6324077280fa"
+ },
+ "v2_069.png": {
+  "dir": "gamma",
+  "file": "summarizing-data-graphs-du4rdj5.gamma.site-ff43f570fa.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "86098587e621"
+ },
+ "v2_070.png": {
+  "dir": "decktopus",
+  "file": "dt-img-QIrqsNVoVa7S4bZa20W0NTMcH98.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "ecc2ab3141a4"
+ },
+ "v2_071.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143481966-okingjo.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ddcbe842d9f4"
+ },
+ "v2_072.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_215-1f6ddc9dcb.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "6f821eb2f87b"
+ },
+ "v2_073.jpg": {
+  "dir": "human",
+  "file": "fe9d4d5d56e88ff3.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "fe9d4d5d56e8"
+ },
+ "v2_074.png": {
+  "dir": "chatgpt-slides",
+  "file": "0b8664a9fa8e9bc5.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "0b8664a9fa8e"
+ },
+ "v2_075.webp": {
+  "dir": "blink",
+  "file": "ai-minesweepe-bot-5fqad9zj.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "952fe2d595c3"
+ },
+ "v2_076.png": {
+  "dir": "lovable",
+  "file": "cupid-bridge-project.lovable.app-e97db2a813.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a2b6fd687db6"
+ },
+ "v2_077.png": {
+  "dir": "chatgpt-slides",
+  "file": "1a29a6652d51c7cb.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "1a29a6652d51"
+ },
+ "v2_078.png": {
+  "dir": "lovable",
+  "file": "dailylife-assistant.lovable.app-2d34ef054b.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "62a8a927b0ed"
+ },
+ "v2_079.png": {
+  "dir": "lovable",
+  "file": "youtube-to-vertical.lovable.app-0f36f493a8.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "9129a9c8e4bf"
+ },
+ "v2_080.png": {
+  "dir": "decktopus",
+  "file": "dt-img-OD4mMxTZM8JvdCZK6pHEcMTooqk.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "f6665fb7c20c"
+ },
+ "v2_081.webp": {
+  "dir": "deckgallery",
+  "file": "dg-docusign-brand-guidelines-docusign-brand-guidelines-004.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "7c3eb0fb70d6"
+ },
+ "v2_082.webp": {
+  "dir": "deckgallery",
+  "file": "dg-accept-proceed-impact-2022-accept-and-proceed-impact-report-2022-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "eb2ef6f5e6c1"
+ },
+ "v2_083.jpg": {
+  "dir": "human",
+  "file": "ea36072879ee0ebc.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "ea36072879ee"
+ },
+ "v2_084.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_TdbdgFKSnpg-7c38101631.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "1960ab510f03"
+ },
+ "v2_085.png": {
+  "dir": "gamma",
+  "file": "all-data-clouds-are-not--fwf3rnu.gamma.site-99371b8526.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "3041e8c32d1b"
+ },
+ "v2_086.webp": {
+  "dir": "blink",
+  "file": "guildfire-bot-zxs7476p.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "d03cf97f92e5"
+ },
+ "v2_087.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_9-a659b1faf0.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "9aa1d6133777"
+ },
+ "v2_088.png": {
+  "dir": "pitch",
+  "file": "slide1-Hale-Pitch-Deck-2kUirh6sAZFP5sw63w5wnK11.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "3b4c88235840"
+ },
+ "v2_089.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143481714-PoroshokTV.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "9a95ab2b1b30"
+ },
+ "v2_090.png": {
+  "dir": "aistudio",
+  "file": "alca-navy.vercel.app_en_models-fe4f461f58.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "2bde6bb9022b"
+ },
+ "v2_091.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95be66e894f46e4e81d2bd_Beautiful.ai-20--20Real-20Estate-20Market-20A.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "5f0fcc4976aa"
+ },
+ "v2_092.webp": {
+  "dir": "deckgallery",
+  "file": "dg-mindset-studios-capabilities-deck-andreas-maris-capabilities-deck-2025-001.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "78659d673740"
+ },
+ "v2_093.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAF4rLz_up4_UOWQw0F00I2RViURjrxlyg_watch-d57ec1fd8a.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "0a62226cbb71"
+ },
+ "v2_094.png": {
+  "dir": "lovable",
+  "file": "stasher-app-flow.lovable.app-6c7359ed6a.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "d6b185da4630"
+ },
+ "v2_095.png": {
+  "dir": "trickle",
+  "file": "google1997.trickle.host-a226524130.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "b626df1e0108"
+ },
+ "v2_096.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_277-b22898bc32.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "5b645f4d032f"
+ },
+ "v2_097.png": {
+  "dir": "chatgpt-slides",
+  "file": "6844c62355d2ad87.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "6844c62355d2"
+ },
+ "v2_098.jpg": {
+  "dir": "human",
+  "file": "a589e09332b65b18.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "a589e09332b6"
+ },
+ "v2_099.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_429-404168bd67.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "72c615222c83"
+ },
+ "v2_100.png": {
+  "dir": "decktopus",
+  "file": "dt-img-pNOgwzbFdxeznmmLWbzO2cpcgSw.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "1cfdfbb45629"
+ },
+ "v2_101.png": {
+  "dir": "v0",
+  "file": "watch-tudum.vercel.app-656feaa41f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "0727677666cb"
+ },
+ "v2_102.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DADZnTS3mAg_QeSGyNsmbgyecBoa7JuFFA_view-d1973cf0b3.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "82911d7491c7"
+ },
+ "v2_103.jpg": {
+  "dir": "human",
+  "file": "aed6523d540071a8.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "aed6523d5400"
+ },
+ "v2_104.png": {
+  "dir": "aistudio",
+  "file": "voicenot.netlify.app-c8374fa1fb.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "4baeff5147e6"
+ },
+ "v2_105.png": {
+  "dir": "human-baseline/shots",
+  "file": "example-com-6b48bef5.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "6b48bef54669"
+ },
+ "v2_106.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_XmzC9oi7g4m-716926862c.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "abaf9428540b"
+ },
+ "v2_107.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b56d9c12e6608aeac98a_SaaS-20Pitch-20Deck-20--20Slide-208.jpeg.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "951de4aabbc0"
+ },
+ "v2_108.png": {
+  "dir": "gamma",
+  "file": "abm-strategy-attribution-yl3ao8i.gamma.site-91f7020242.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "d79cfdd5ba77"
+ },
+ "v2_109.png": {
+  "dir": "chatgpt-slides",
+  "file": "2202d624a521b944.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "2202d624a521"
+ },
+ "v2_110.png": {
+  "dir": "chatgpt-slides",
+  "file": "5f2ba68c30042129.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "5f2ba68c3004"
+ },
+ "v2_111.webp": {
+  "dir": "deckgallery",
+  "file": "dgfix-neuroaesthetics-design-for-the-mind-neuroaesthetics-design-for-the-mind-005.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "eb8612e85a0a"
+ },
+ "v2_112.png": {
+  "dir": "webflow",
+  "file": "minimal-agency-portfolio.webflow.io-9bb0f832d2.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "fd73dd20d225"
+ },
+ "v2_113.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAFQ691eiso_3rxqd4nX-og1rZjd035EoQ_view-718faaec64.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "b04247b93c77"
+ },
+ "v2_114.png": {
+  "dir": "polsia",
+  "file": "ai-outletcom.polsia.app-ccb3f92704.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "7f89c4176152"
+ },
+ "v2_115.png": {
+  "dir": "framer",
+  "file": "app.mocklyenglish.com-8f8978dd41.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "547548040365"
+ },
+ "v2_116.png": {
+  "dir": "grok",
+  "file": "zinc-branch-lotus-tango.grok.me-7af35234c9.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "722411130494"
+ },
+ "v2_117.png": {
+  "dir": "polsia",
+  "file": "threshwise.polsia.app-7c4a0b0f16.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "313e51416873"
+ },
+ "v2_118.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1MlASW9HM0-g26d7feade67_0_592.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "0b5381a38a56"
+ },
+ "v2_119.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481653-marthir777.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f9ed498e7b59"
+ },
+ "v2_120.png": {
+  "dir": "websim",
+  "file": "e0bc6i5p9bt3nfqdniga.c.websim.com-c7ee9288c1.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "ca60190295a5"
+ },
+ "v2_121.webp": {
+  "dir": "deckgallery",
+  "file": "dg-openai-brand-guidelines-openai-brand-guidelines-003.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "f21b0d52048e"
+ },
+ "v2_122.png": {
+  "dir": "wix",
+  "file": "indicpacific.com_ai_regulationvisual-17fe294a44.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "46b4646a5dcd"
+ },
+ "v2_123.png": {
+  "dir": "websim",
+  "file": "7cdqzhoudglv7x62zo9i.c.websim.com-f96895f44d.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "79715097c965"
+ },
+ "v2_124.webp": {
+  "dir": "blink",
+  "file": "discord-handle-finder-jhr4fq5t.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "e30ac75fd2b8"
+ },
+ "v2_125.png": {
+  "dir": "lovable",
+  "file": "mycashbook.lovable.app-afb99636d6.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "9dfac8026713"
+ },
+ "v2_126.png": {
+  "dir": "gamma",
+  "file": "ai-literacy-college-yfr3wvc.gamma.site-32a5d56905.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "f3515cfbf87e"
+ },
+ "v2_127.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481327-BlurHorizon.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "25e1e8d6e5ef"
+ },
+ "v2_128.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-143481565-user_c.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "75fc5c44ad8e"
+ },
+ "v2_129.webp": {
+  "dir": "deckgallery",
+  "file": "dg-dropbox-q3-conference-2024-dropbox-q3-conference-call-deck-2024-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "7c0e7d55cbbd"
+ },
+ "v2_130.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Vintage-Vampire-Journals-7-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "4d59524cfca4"
+ }
+}

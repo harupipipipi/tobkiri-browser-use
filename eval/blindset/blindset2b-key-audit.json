@@ -1,0 +1,18 @@
+{
+ "note": "blindset2b audit: same-author civitai pairs (group regex keyed on id+author, not author alone), slidesai same-deck pair, decktopus marketplace vendor templates (ambiguous provenance)",
+ "excluded": {
+  "dup_same_author_or_deck": {
+   "v2b_012.jpeg": "same civitai author as v2b_006 (I_am_a_file_cabinet)",
+   "v2b_017.jpeg": "same civitai author as v2b_011 (a940802021)",
+   "v2b_057.jpeg": "same civitai author+subject as v2b_041 (Sleeps_In_Sunbeams kittens)",
+   "v2b_031.jpg": "same slidesai deck as v2b_019 (1mfqU8F0dk-g27159f72bf4)"
+  },
+  "contested_label": {
+   "v2b_027.png": "decktopus marketplace template (YOUR LOGO HERE placeholder) — likely human vendor template",
+   "v2b_028.png": "decktopus marketplace PT bio card — likely human vendor template",
+   "v2b_039.png": "decktopus marketplace Canva-style cover — likely human vendor template",
+   "v2b_050.png": "decktopus marketplace book-review slide — likely human vendor template"
+  },
+  "unavailable": {}
+ }
+}

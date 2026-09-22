@@ -323,6 +323,10 @@ excluded:
 Per-pipeline (audited, badge-allowed): codegen 47/50 caught, mixed 12/15,
 imagegen 1/3 (small n — the two contested exclusions were imagegen).
 
+**v1 is a learning/internal set — not an independent test.** Its failure list
+informed cue tuning, so treat its numbers as a lower bound on difficulty, not
+validation.
+
 Failure taxonomy observed:
 - **AI misses**: human-authored-looking content ON AI platforms (gamma.site
   event/report pages read as human editorial); AI slides indistinguishable
@@ -336,13 +340,73 @@ Failure taxonomy observed:
   grouping is insufficient; content-hash dedup needed for future sets.
 - imagegen sample too small (n=3 after audit) to bound — do not quote a rate.
 
+#### Second blind set (v2, n=130 — unseen, per-source isolated)
+
+`blindset-build2.mjs` rebuilds with sha1 content dedup, v1 exclusion, and
+per-(dir,author/model/deck) group caps. Post-judge audit excluded 12 of 130:
+6 same-deck leaks (hash-named chatgpt-slides files evaded the name-based
+grouping — Mind Travel deck ×5, Infercat deck ×3), 3 contested labels
+(emergent.sh own auth page = tool UI, two decktopus marketplace vendor
+templates), 3 unmeasurable captures (blank websim shell, blank white, IANA
+example.com placeholder).
+
+| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain |
+|---|---|---|---|---|---|
+| Full visual (n=118) | 90.9% (70/77) | 3.9% | 5.2% | 22.0% (9/41) | 2.4% |
+| No-badge subset (n=88) | 88.0% (44/50) | 6.0% | 6.0% | 23.7% (9/38) | 2.6% |
+
+Per-pipeline (audited, badge-allowed): imagegen **16/16**, codegen 44/46,
+mixed 10/15. Caveat: badge/chrome items repeat a small number of builder
+signatures (Presenton community chrome ×6, v0 template chrome ×4, Lovable
+badge ×6…) — badge-assisted catches share one visual cue per tool, so the
+no-badge rate is the honest generalization estimate.
+
+#### imagegen supplement (v2b, n=61 — model/author/diverse)
+
+`blindset-build2b.mjs` adds confirmed-provenance imagegen: civitai
+(baseModel+author provenance, one per author/model group), X media with
+explicit claims (2 AI-claimed, 1 hand-drawn human control), genspark decks
+(deck-dir grouping), slidesai/decktopus template-mimic hard cases, human
+image/template controls. Audit excluded 8: 4 same-author/same-deck pairs the
+group keys missed, 4 decktopus marketplace vendor templates (label noise).
+
+| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain |
+|---|---|---|---|---|---|
+| Full (n=53; no badge items present) | 80.0% (24/30) | 16.7% | 3.3% | 21.7% (5/23) | 0% |
+
+Per-pipeline: imagegen 18/19 caught (miss = AI wolf rendered in hand-drawn
+style), mixed 6/11 (misses = slidesai template slides + a genspark deck that
+reproduced a KAKENHI grant proposal convincingly).
+
+**Combined imagegen across v2+v2b: 34/35 caught (97%)** — but dominated by
+obvious AI render styles; the only miss was deliberate style mimicry, so do
+not extrapolate to subtle cases.
+
+Consistent failure taxonomy across both sets:
+- **Template mimicry is the #1 AI-miss class** (mixed pipe): slidesai and
+  decktopus outputs ship SlidesGo-style placeholders and read as human
+  templates; a genspark KAKENHI proposal read as a real academic doc.
+- **Designer-tool FPs** (framer/wix/webflow/beautifulai): polished human
+  landing pages + bento-stat decks share the AI idiom — invented-brand look
+  is not AI-exclusive (Boc.Studio, EverSwap, Studio Minds typo-site were all
+  human).
+- **Style mimicry both ways**: AI hand-drawn-style wolf called human;
+  human hand-drawn art (X claim) called AI.
+- New visual tells worth weighting: garbled in-image text
+  ("FREES USE PECH" shirt), pseudo-Japanese headers, invented-consulting
+  case-study scroll pages.
+
 Reproduce:
 
 ```bash
-node scripts/blindset-build.mjs          # rebuild set + key (seeded)
-# judge images visually -> dataset/_tmp/blindset-judge.jsonl
-node scripts/blindset-score.mjs --audit            # audited metrics
-node scripts/blindset-score.mjs --audit --no-badge # strict no-watermark subset
+node scripts/blindset-build.mjs           # v1 set (historical)
+node scripts/blindset-build2.mjs          # v2 set (130 imgs)
+node scripts/blindset-build2b.mjs         # v2b imagegen supplement (61 imgs)
+# judge images visually -> dataset/_tmp/blindset{,2,2b}-judge.jsonl
+node scripts/blindset-score.mjs --audit                  # v1 audited
+node scripts/blindset-score.mjs --set v2 --audit         # v2 audited
+node scripts/blindset-score.mjs --set v2b --audit        # v2b audited
+node scripts/blindset-score.mjs --set v2 --audit --no-badge  # strict visual
 ```
 
 Usage:

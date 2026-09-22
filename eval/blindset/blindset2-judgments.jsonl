@@ -1,0 +1,130 @@
+{"f":"v2_001.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"slidesgo template: \"Elaborate on what you want to discuss\" placeholders + sneaker photo"}
+{"f":"v2_002.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.75,"badge":false,"ev":"stylized 3-eyed straw-doll illustration on white — smooth AI-render look, single mascot subject"}
+{"f":"v2_003.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented resume-builder app: theme-picker sidebar + John Smith fake resume preview"}
+{"f":"v2_004.webp","v":"ai_likely","pipe":"mixed","conf":0.8,"badge":false,"ev":"invented anime franchise site (KAGE//NOCTURNE) w/ AI-style anime key visual + EPISODE 01 furniture"}
+{"f":"v2_005.webp","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented deal-scanner SaaS (Deal Sniper): dense dashboard, fake user, real product listings inside"}
+{"f":"v2_006.jpg","v":"uncertain","pipe":null,"conf":0.45,"badge":false,"ev":"generic healthcare consulting slide — could be AI deck or human corporate template"}
+{"f":"v2_007.webp","v":"ai_likely","pipe":"codegen","conf":0.85,"badge":false,"ev":"invented iOS-simulator app (Nimbus): pixel-perfect fake iPhone UI + feature list + session furniture"}
+{"f":"v2_008.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.6,"badge":false,"ev":"hyperclean aerial sunset photo — square format, overly-perfect flare; could be stock, lean AI"}
+{"f":"v2_009.png","v":"ai_likely","pipe":"mixed","conf":0.75,"badge":false,"ev":"invented startup pitch (Mind Travel): 02/NN section + problem→solution arrow rows + generic copy"}
+{"f":"v2_010.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented crypto bidding board (BITCRYPTO): Phantom/Metamask wallet chrome, fake bid table"}
+{"f":"v2_011.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"slidesgo \"Here is where your presentation begins\" + leaf illustration"}
+{"f":"v2_012.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.9,"badge":false,"ev":"surreal demon-goat-from-printer render — impossible scene, AI-typical texture mush"}
+{"f":"v2_013.png","v":"uncertain","pipe":null,"conf":0.5,"badge":false,"ev":"real school-district AI-strategy page (Socorro ISD, named superintendent) — real content, layout could be AI-built"}
+{"f":"v2_014.webp","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented esports-tourney app (TOURNEY HUB): Free Fire control room, fake prize pool/check-ins"}
+{"f":"v2_015.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"template slide: lorem ipsum placeholders + generic pie chart"}
+{"f":"v2_016.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.7,"badge":false,"ev":"Star-Butterfly-style fanart — overly-smooth finish, off-model wand/hair details"}
+{"f":"v2_017.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.9,"badge":false,"ev":"hyperreal-smooth anime portrait — unmistakable AI render"}
+{"f":"v2_018.jpg","v":"human_likely","pipe":"human","conf":0.95,"badge":false,"ev":"SlidesCarnival instructions slide w/ CC-attribution + slidescarnival.com link"}
+{"f":"v2_019.webp","v":"ai_likely","pipe":"codegen","conf":0.85,"badge":false,"ev":"invented trading-signals dashboard (Deriv Signal): fake accuracy stats, volatility indexes, team-online chrome"}
+{"f":"v2_020.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented cookie-scanner SaaS (PrivacyWatch): sample report card, risk badge, 01/02/03 steps"}
+{"f":"v2_021.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"invented leadership-coach landing (EMGEX): dark luxe + AI-generated book-cover hero + report CTA"}
+{"f":"v2_022.png","v":"ai_confirmed","pipe":"imagegen","conf":0.95,"badge":false,"ev":"Infercat slide 03/06 — same deck family as v1 (dedup hole: per-file hex prefix differs)"}
+{"f":"v2_023.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"invented task-app landing (TaskBox): gradient headline + calendar mockup"}
+{"f":"v2_024.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.9,"badge":false,"ev":"hyperreal AI portrait in garden — perfect skin/bokeh, generic face"}
+{"f":"v2_025.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"template stat slide: \"Elaborate on the featured statistic\" placeholders"}
+{"f":"v2_026.webp","v":"human_likely","pipe":"human","conf":0.8,"badge":false,"ev":"real studio capabilities deck (Refresh Studio): bold minimal, \"Human Made\" tagline, NN footer"}
+{"f":"v2_027.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.85,"badge":false,"ev":"AI anime render: cel-shaded boy in ruins, generic face + AI-style bg"}
+{"f":"v2_028.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.8,"badge":false,"ev":"photoreal ballroom dancer — uncanny feet/hand artifacts, over-polished AI photo"}
+{"f":"v2_029.jpg","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"kids game template: \"Write the instructions of the game here\" placeholder + cartoon"}
+{"f":"v2_030.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"real company marketing (Runpod GPU cloud): real dashboard screenshot, real nav, dated update"}
+{"f":"v2_031.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"Canva template: @reallygreatsite placeholder + stock handshake photo"}
+{"f":"v2_032.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made in Bolt\" badge; dark particle-field portfolio (Skerdi Stefanai)"}
+{"f":"v2_033.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"AI WORLD MAKER language-picker modal — websim-style AI worldbuilder app"}
+{"f":"v2_034.jpg","v":"human_likely","pipe":"human","conf":0.95,"badge":false,"ev":"SlidesGo-style Win95 template: \"Digital Nostalgia\", \"Here is where your presentation begins\" signature placeholder"}
+{"f":"v2_035.png","v":"human_likely","pipe":"human","conf":0.8,"badge":false,"ev":"practitioner marketing card (Dr. Alicia Lee MS,RD): real photo+credentials — actually decktopus AI slide, MISS"}
+{"f":"v2_036.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made in Bolt\" badge; Baseline wellness-check-in landing (bolt.host resil app)"}
+{"f":"v2_037.png","v":"unavailable","pipe":null,"conf":0,"badge":false,"ev":"websim subdomain shell: black/blank capture — no content rendered"}
+{"f":"v2_038.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"template slide: \"Elaborate on what you want to discuss\" + Name/Title placeholders"}
+{"f":"v2_039.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Created with Grok\"+Remix chrome; IdeaBank invented IP marketplace"}
+{"f":"v2_040.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented league-mgmt SaaS (GAMESLATE): org/team counts, sport chips, capability cards"}
+{"f":"v2_041.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented horse-racing game (TotePlay v0.0.1): form guide, emoji horses, test-mode label"}
+{"f":"v2_042.png","v":"ai_likely","pipe":"imagegen","conf":0.6,"badge":false,"ev":"MASCOT divider slide: kawaii ghost swarm on pastel gradient — human template slide misread (FP)"}
+{"f":"v2_043.jpg","v":"human_likely","pipe":"human","conf":0.7,"badge":false,"ev":"glitch-art \"Heartless\" music cover edit — databend portrait, human fan-art aesthetic"}
+{"f":"v2_044.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Edit with Lovable\" badge; cyber insider-threat investigation game"}
+{"f":"v2_045.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"v0.app template page: v0 chrome/nav/footer + Open in v0"}
+{"f":"v2_046.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented niche community login (FartFellas 18+): illustrated bg + fake social chrome — windpipe.base44.app"}
+{"f":"v2_047.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: prompt + slide placeholders (Hannibal deck)"}
+{"f":"v2_048.jpg","v":"human_likely","pipe":"human","conf":0.8,"badge":false,"ev":"scrapbook history slide: torn-paper collage, Indonesian seal stamp — template style"}
+{"f":"v2_049.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made with Lovable\" badge; Hindi job-board (पहली नौकरी)"}
+{"f":"v2_050.webp","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"real brand report (Boiler Room 2025 Audience Report): real photography, named quote source, editorial"}
+{"f":"v2_051.png","v":"ai_confirmed","pipe":"imagegen","conf":0.95,"badge":false,"ev":"Infercat slide 06/06 — same deck family AGAIN (dedup hole persists)"}
+{"f":"v2_052.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented kids-games app (Mommy Time): welcome modal + colorful game-card grid"}
+{"f":"v2_053.jpg","v":"human_likely","pipe":"human","conf":0.8,"badge":false,"ev":"pharma marketing slide: real photography + restrained editorial type"}
+{"f":"v2_054.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made with Emergent\" badge; SenseWise sensory-regulation tool"}
+{"f":"v2_055.webp","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"invented museum app (LiveSurface): device-frame UI + nav bar + fake content"}
+{"f":"v2_056.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented PT decision-sim (PresenteSim): numbered steps, feature cards, gradient CTA"}
+{"f":"v2_057.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made with Emergent\" badge; RuleRoom invented social-rules app"}
+{"f":"v2_058.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"3D Christmas-tree decorator: Add-Ornament UI, websim-style interactive scene"}
+{"f":"v2_059.png","v":"human_likely","pipe":"human","conf":0.8,"badge":false,"ev":"real SaaS marketing (Quo phone system): real product UI, real client logos (Mercury/Supabase), dated content"}
+{"f":"v2_060.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented health app (Symptom Log): onboarding modal over blurred bg, numbered steps"}
+{"f":"v2_064.png","v":"human_likely","pipe":"designer","conf":0.8,"badge":false,"ev":"real tool site (ShaderGradient): mesh-gradient hero, real Figma/Framer/React availability copy"}
+{"f":"v2_065.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Built with Trickle\" badge; FirstVersion rebuilt-first-versions gallery"}
+{"f":"v2_066.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented world-generator app (World Forge): category/tone/detail form + Generate CTA"}
+{"f":"v2_062.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.95,"badge":false,"ev":"hyperreal anime demon girl — unmistakable AI render (skin, hair physics, horn texture)"}
+{"f":"v2_063.png","v":"uncertain","pipe":null,"conf":0.4,"badge":true,"ev":"TOOLPAGE: Emergent builder auth/onboarding screen — the tool's own UI, not a generated artifact"}
+{"f":"v2_061.webp","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Made with Blink\" badge; Arabic EduExam dashboard w/ fake stats"}
+{"f":"v2_067.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: prompt + blank slide placeholders"}
+{"f":"v2_068.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"invented AI-mail SaaS (Pigion.AI): fake Outlook mock, invented stats, generic AI-SaaS landing"}
+{"f":"v2_070.png","v":"uncertain","pipe":null,"conf":0.5,"badge":false,"ev":"medical case-study collage (NeuroRestore Alzheimer): template aesthetic but invented brand + March 2029 future date"}
+{"f":"v2_072.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: Indonesian HRMS deck, prompt text, blank slide placeholders"}
+{"f":"v2_069.png","v":"ai_likely","pipe":"codegen","conf":0.7,"badge":false,"ev":"generated lesson page: faded repeated sections, generic ed copy, AI-looking classroom photo"}
+{"f":"v2_071.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.8,"badge":false,"ev":"anime girl archway — clean AI-cel shading, odd finger geometry on raised hand"}
+{"f":"v2_073.jpg","v":"human_likely","pipe":"designer","conf":0.6,"badge":false,"ev":"Ducimus pitch-deck collage — Pitch-style template preview; polished systematic but template-showcase format"}
+{"f":"v2_075.webp","v":"ai_likely","pipe":"codegen","conf":0.85,"badge":false,"ev":"invented minesweeper-predictor app (Minewise): fake stats, squad-signal panel, activity log, v1.4.2"}
+{"f":"v2_076.png","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Edit with Lovable\" badge; Spark invented dating app landing"}
+{"f":"v2_074.png","v":"ai_likely","pipe":"mixed","conf":0.65,"badge":false,"ev":"Mind Travel hackathon deck (HACK CMU 2026, named students): AI-style flat map illustration + NN furniture — likely AI-generated deck by real team"}
+{"f":"v2_077.png","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"SAME Mind Travel deck (slide 05 IFM+Grok) — deck-level dedup hole vs v2_074"}
+{"f":"v2_078.png","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Made with Lovable\" badge; LifeHub AI invented life-admin app landing"}
+{"f":"v2_080.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"template-vendor cover (salescharmforbusiness.com): generic sales deck cover, real vendor credit"}
+{"f":"v2_081.webp","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"real corporate brand book (Docusign Identity Guidelines v1.2): real company, editorial TOC style"}
+{"f":"v2_079.png","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Edit with Lovable\" badge; ClipForge invented AI clipper landing (dark neon-green)"}
+{"f":"v2_083.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"Canva template: \"Elaborate on what you want to discuss\" placeholder + real photo"}
+{"f":"v2_084.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"v0.app community template page (FinFlow by jessin): v0 chrome, Open-in-v0, footer"}
+{"f":"v2_085.png","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"Gamma-style scroll doc: cream bg, serif cards, numbered sections, consulting copy"}
+{"f":"v2_086.webp","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Made with Blink\" badge; GuildFire invented guild dashboard w/ fake leaderboard"}
+{"f":"v2_087.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: prompt text + rendered SLIDE 01-03 (broadcast-style football deck)"}
+{"f":"v2_082.webp","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"real NASA JPL mission deck (A&P B-corp assessment): dated Oct 2019, editorial lime-grid TOC"}
+{"f":"v2_088.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"real startup deck cover (Hale pelvic-pain mental health): Feb 2023, real founder email"}
+{"f":"v2_089.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.65,"badge":false,"ev":"anime beer-girl illustration — smooth AI-typical shading, generic moe style; could be human fanart"}
+{"f":"v2_091.jpg","v":"ai_likely","pipe":"mixed","conf":0.65,"badge":false,"ev":"bento-stat real-estate slide: invented metrics (5.7 yield, 95%), generic consulting copy — AI-deck idiom"}
+{"f":"v2_092.webp","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"real portfolio deck (Andreas Maris): real domain+email, capabilities deck, 2025"}
+{"f":"v2_090.png","v":"uncertain","pipe":null,"conf":0.5,"badge":false,"ev":"dense real-data model-comparison table (Alca): real providers/quotas — plausibly AI-built table app or human directory"}
+{"f":"v2_093.png","v":"human_likely","pipe":"designer","conf":0.8,"badge":true,"ev":"Canva video embed: Shaw Contract corporate overview (real company, IOBAC partner), video player chrome"}
+{"f":"v2_094.png","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Made with Lovable\" badge; Stash savings-goal landing (EN/FR, 01/02/03 steps)"}
+{"f":"v2_096.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: Korean ISO 14001 deck, SLIDE 01-03 rendered"}
+{"f":"v2_097.png","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"Mind Travel deck AGAIN (slide 03 demo) — 3rd instance of same deck, dedup hole"}
+{"f":"v2_095.png","v":"ai_confirmed","pipe":"codegen","conf":0.97,"badge":true,"ev":"\"Built with Trickle\" badge; retro-1997 Google demo recreation (BackRub logo, Larry/Sergey copy)"}
+{"f":"v2_098.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"template slide: lorem ipsum placeholders + gold serif + stock desk photo"}
+{"f":"v2_099.png","v":"ai_confirmed","pipe":"mixed","conf":0.95,"badge":true,"ev":"Presenton community chrome: prompt text + blank slide placeholders (36-Hour Hackathon)"}
+{"f":"v2_101.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"\"Built with\" badge (builder chrome); TUDUM invented movie-ID app, broken video placeholder"}
+{"f":"v2_102.png","v":"human_likely","pipe":"designer","conf":0.85,"badge":true,"ev":"Canva publish page: real teacher library poster w/ REAL published book covers (Todd Parr etc.)"}
+{"f":"v2_100.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"influencer-bio template slide: Jane Smith placeholder persona, \"More examples on the next page\""}
+{"f":"v2_103.jpg","v":"human_likely","pipe":"human","conf":0.95,"badge":false,"ev":"TOC template slide: all entries say \"Name of the section\" — pure placeholder"}
+{"f":"v2_104.png","v":"unavailable","pipe":null,"conf":0,"badge":false,"ev":"BLANK WHITE image — capture failure, unmeasurable"}
+{"f":"v2_105.png","v":"unavailable","pipe":null,"conf":0,"badge":false,"ev":"IANA Example Domain placeholder — not a design artifact"}
+{"f":"v2_106.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"v0.app template page (Shopify Ecommerce by joyco): v0 chrome/footer"}
+{"f":"v2_108.png","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"ABM case-study scroll page: invented Confidence-GTM consulting brand + dense B2B copy + icon bullets — Gamma/Tome-style"}
+{"f":"v2_109.png","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"Mind Travel deck 4TH instance (slide 01 overview) — severe same-deck leakage"}
+{"f":"v2_107.jpg","v":"ai_likely","pipe":"mixed","conf":0.7,"badge":false,"ev":"dark bento financial slide: invented round metrics (320% growth, 97% retention), generic AI-deck idiom"}
+{"f":"v2_110.png","v":"ai_confirmed","pipe":"imagegen","conf":0.95,"badge":false,"ev":"Infercat deck AGAIN (slide 05/06) — same-deck dedup hole continues"}
+{"f":"v2_111.webp","v":"ai_likely","pipe":"mixed","conf":0.6,"badge":false,"ev":"dreamy abstract-blob \"Designing for Feeling\" slide — Gamma/AI vibe-deck aesthetic"}
+{"f":"v2_113.png","v":"human_likely","pipe":"designer","conf":0.85,"badge":true,"ev":"Canva publish page: Azores travel poster, script type on real photo, JP Canva chrome"}
+{"f":"v2_114.png","v":"ai_likely","pipe":"codegen","conf":0.75,"badge":false,"ev":"invented AI-systems marketplace (AI-Outlet.com): cream serif editorial landing, Job/Inputs/Handoff card"}
+{"f":"v2_112.png","v":"ai_confirmed","pipe":"codegen","conf":0.9,"badge":false,"ev":"invented design agency (Studio Minds) w/ pervasive typos: \"Sactifed Costumer\",\"imgaination\",\"Proiects\",\"storylelling\" + AI hero imagery"}
+{"f":"v2_116.png","v":"ai_likely","pipe":"codegen","conf":0.8,"badge":false,"ev":"invented interactive math explainer (Euler Identity): poetic prologue, Explore/Skip-to-lab, 3D-lab teaser — websim-style"}
+{"f":"v2_117.png","v":"uncertain","pipe":null,"conf":0.4,"badge":true,"ev":"TOOLPAGE: Polsia own landing (\"AI That Runs Your Company\") — tool marketing site, not a generated artifact"}
+{"f":"v2_115.png","v":"ai_likely","pipe":"codegen","conf":0.6,"badge":false,"ev":"Mockly English-interview SaaS: named coaches w/ photos+LinkedIn, real-logo strip, reviews — plausible-real but fictional-content AI idiom"}
+{"f":"v2_118.jpg","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"yearbook template slide: \"Introduce the purpose...\" placeholder + checkerboard border + party photo"}
+{"f":"v2_119.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.75,"badge":false,"ev":"Azula fan-art, blue flames — over-smooth AI cel shading, symmetric flame composition"}
+{"f":"v2_121.webp","v":"human_likely","pipe":"human","conf":0.9,"badge":false,"ev":"real OpenAI brand guidelines intro page — real corporate doc"}
+{"f":"v2_122.png","v":"human_likely","pipe":"human","conf":0.85,"badge":false,"ev":"AIACT.IN India AI Regulation Tracker — real legal research org, real paper citation, editorial serif"}
+{"f":"v2_120.png","v":"ai_likely","pipe":"codegen","conf":0.85,"badge":false,"ev":"XP Bliss wallpaper + Minesweeper window — retro-OS game sim, websim-style interactive demo"}
+{"f":"v2_124.webp","v":"ai_likely","pipe":"codegen","conf":0.85,"badge":false,"ev":"invented 4-letter handle finder (rare.): dark neon-green, rarity scores, team shortlist — generic AI-SaaS"}
+{"f":"v2_125.png","v":"ai_likely","pipe":"codegen","conf":0.65,"badge":false,"ev":"bare invented-app login (MyCashbook): minimal auth card, weak but invented-brand signal"}
+{"f":"v2_123.png","v":"ai_confirmed","pipe":"codegen","conf":0.95,"badge":true,"ev":"websim badge bottom-right; EZCREDITS casino page w/ INITIALISING ADHUB popup"}
+{"f":"v2_126.png","v":"ai_likely","pipe":"mixed","conf":0.6,"badge":false,"ev":"UNL AGRI course page: salmon scroll-sections + icon trio = Gamma/Tome idiom, but real instructors/dept/dates"}
+{"f":"v2_127.jpeg","v":"ai_likely","pipe":"imagegen","conf":0.7,"badge":false,"ev":"anime cat-boy split-scene illustration — polished AI composition, odd wrist/hand anatomy"}
+{"f":"v2_129.webp","v":"human_likely","pipe":"human","conf":0.95,"badge":false,"ev":"Dropbox SEC safe-harbor slide: real 10-Q boilerplate, dated Aug 2024, real company filing"}
+{"f":"v2_130.jpg","v":"human_likely","pipe":"human","conf":0.95,"badge":false,"ev":"vintage template slide: \"Briefly elaborate...\" placeholders, book-collage aesthetic"}
+{"f":"v2_128.jpeg","v":"ai_confirmed","pipe":"imagegen","conf":0.95,"badge":false,"ev":"wheat-rope owl concept art — symmetrical glossy AI render, invented creature"}

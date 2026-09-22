@@ -1,0 +1,429 @@
+{
+ "v2b_001.png": {
+  "dir": "human",
+  "file": "03836f8249276fac.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "03836f824927"
+ },
+ "v2b_002.jpg": {
+  "dir": "human",
+  "file": "e45a9a87aca163bc.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "e45a9a87aca1"
+ },
+ "v2b_003.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1L1MwasiD4-g29d3a2fb1e9_0_84.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "3fc0f14a6ac9"
+ },
+ "v2b_004.jpeg": {
+  "dir": "civitai",
+  "file": "Pony-143481964-LUNAR_Senpai.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "56ac87992060"
+ },
+ "v2b_005.jpg": {
+  "dir": "human",
+  "file": "fed2e5d9c731a32f.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "fed2e5d9c731"
+ },
+ "v2b_006.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143481797-I_am_a_file_cabinet.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "821ed6a4ace8"
+ },
+ "v2b_007.png": {
+  "dir": "genspark",
+  "file": "kakenhi-nrf-grant\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "03a3e9ce362c"
+ },
+ "v2b_008.webp": {
+  "dir": "deckgallery",
+  "file": "dg-freitag-impact-report-2022-freitag-impact-report-2022-005.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "5f76026c2a7b"
+ },
+ "v2b_009.jpg": {
+  "dir": "human",
+  "file": "f001ee0318e29989.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "f001ee0318e2"
+ },
+ "v2b_010.png": {
+  "dir": "genspark",
+  "file": "fda-510k-presub-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "539b252a7955"
+ },
+ "v2b_011.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481682-a940802021.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "eabd37782f93"
+ },
+ "v2b_012.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.1_D-143481795-I_am_a_file_cabinet.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "5be23d0427b3"
+ },
+ "v2b_013.png": {
+  "dir": "genspark",
+  "file": "crm-funnel-qbr-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "a2bc0ca91efa"
+ },
+ "v2b_014.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143477614-SeeSeeLP.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "6e6900475519"
+ },
+ "v2b_015.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481418-BlurHorizon.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "630774000212"
+ },
+ "v2b_016.webp": {
+  "dir": "deckgallery",
+  "file": "dg-the-state-of-youth-2022-accept-and-proceed-impact-report-2022-001.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "9dd6e035202f"
+ },
+ "v2b_017.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481686-a940802021.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "bf78564f93f3"
+ },
+ "v2b_018.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481665-chiying5555.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "97407eead232"
+ },
+ "v2b_019.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1mfqU8F0dk-g27159f72bf4_0_264.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "5641b813f9ed"
+ },
+ "v2b_020.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143481536-IZUMISTARRY.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "79715ee5557b"
+ },
+ "v2b_021.png": {
+  "dir": "human",
+  "file": "1b6aefe2a0417f97.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "1b6aefe2a041"
+ },
+ "v2b_022.jpg": {
+  "dir": "human",
+  "file": "727967bbd266820c.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "727967bbd266"
+ },
+ "v2b_023.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Modern-Minimal-Cafeteria-Business-Plan-13-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "a1914fcb0713"
+ },
+ "v2b_024.jpg": {
+  "dir": "human",
+  "file": "db3c873e388e8843.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "db3c873e388e"
+ },
+ "v2b_025.jpg": {
+  "dir": "human",
+  "file": "460a9cb5cefeb1e5.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "460a9cb5cefe"
+ },
+ "v2b_026.png": {
+  "dir": "genspark",
+  "file": "smb-business-plan-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "ccf7743348e1"
+ },
+ "v2b_027.png": {
+  "dir": "decktopus",
+  "file": "dt-img-pBiRPtazjgXrFNRArZbzFJTCLM.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "d9a7e5c65e14"
+ },
+ "v2b_028.png": {
+  "dir": "decktopus",
+  "file": "dt-img-Jzan9onOUXGG9LjRogsaJLdjyY.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "8d3269015fdf"
+ },
+ "v2b_029.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.2_Klein_9B-143481889-portaatrecoo711.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "754a0e658e0d"
+ },
+ "v2b_030.jpeg": {
+  "dir": "civitai",
+  "file": "Pony-143479230-burttyrd337.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "fb13e7ad91bf"
+ },
+ "v2b_031.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1mfqU8F0dk-g27159f72bf4_0_129.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "421e15724721"
+ },
+ "v2b_032.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143481680-F42.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "b7bcf74b9a4d"
+ },
+ "v2b_033.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143449193-nekot.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f8d964e700f7"
+ },
+ "v2b_034.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Modern-College-Final-Year-Project-Slides-15-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "c36babbdb932"
+ },
+ "v2b_035.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Minimalistic-Christmas-Lights-MK-Campaign-15-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "e292621869ec"
+ },
+ "v2b_036.png": {
+  "dir": "genspark",
+  "file": "summer-research-pitch-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "894f047d6a18"
+ },
+ "v2b_037.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143481712-PoroshokTV.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ffa5976a0e5f"
+ },
+ "v2b_038.webp": {
+  "dir": "deckgallery",
+  "file": "dg-aiport-futures-by-2024-aiport-futures-by-gharage-2024-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "283592087c69"
+ },
+ "v2b_039.png": {
+  "dir": "decktopus",
+  "file": "dt-img-OZ4iyDX8VuIVKU5IEDJribBKs.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "e678c18a335b"
+ },
+ "v2b_040.webp": {
+  "dir": "deckgallery",
+  "file": "dg-superlist-pitch-deck-2023-superlists-pitch-deck-003.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "e8428aff267a"
+ },
+ "v2b_041.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143480966-Sleeps_In_Sunbeams.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "426374632510"
+ },
+ "v2b_042.png": {
+  "dir": "genspark",
+  "file": "ai-vertical-industry-briefing-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "fe730da68348"
+ },
+ "v2b_043.png": {
+  "dir": "genspark",
+  "file": "crisis-communication-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "1f3dd015e110"
+ },
+ "v2b_044.png": {
+  "dir": "human",
+  "file": "bf001e6ebc54a6d1.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "bf001e6ebc54"
+ },
+ "v2b_045.webp": {
+  "dir": "deckgallery",
+  "file": "dg-dept-impact-report-2023-full-report-depts-impact-report-2023-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "1d6306cfe474"
+ },
+ "v2b_046.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1myKKwBdCK-g2c84dc25a5c_0_558.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "00a55c1e696f"
+ },
+ "v2b_047.png": {
+  "dir": "genspark",
+  "file": "municipal-hearing-deck\\01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "4616b66157ff"
+ },
+ "v2b_048.webp": {
+  "dir": "deckgallery",
+  "file": "dg-it-s-nice-2021-it-s-nice-that-creative-community-2021-006.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "8b4cf894bf81"
+ },
+ "v2b_049.jpg": {
+  "dir": "xmedia",
+  "file": "x-ai-nekomimi-1.jpg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "d4ba18dea7e8"
+ },
+ "v2b_050.png": {
+  "dir": "decktopus",
+  "file": "dt-img-q33qJhucLdaE12SQmimwGhRpfCk.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "16d009d9860d"
+ },
+ "v2b_051.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Professional-Customer-Service-Training-Slides-3-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "48b7df72634f"
+ },
+ "v2b_052.jpg": {
+  "dir": "xmedia",
+  "file": "x-ai-nekomimi-2.jpg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "77c006107d76"
+ },
+ "v2b_053.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Cool-Digital-Animation-Agency-7-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "2ee4c9d148e7"
+ },
+ "v2b_054.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481941-Loraman.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "d60abaec9a2a"
+ },
+ "v2b_055.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481791-Bigboy1997.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "c4911561e031"
+ },
+ "v2b_056.jpg": {
+  "dir": "human",
+  "file": "0fc8518d4ea110e6.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "0fc8518d4ea1"
+ },
+ "v2b_057.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143481143-Sleeps_In_Sunbeams.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "7f0ab9d7b747"
+ },
+ "v2b_058.jpeg": {
+  "dir": "civitai",
+  "file": "SD_1.5-143477827-Cinnadust.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "131fa0bf2ea9"
+ },
+ "v2b_059.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-301-Nathaniel-Slide2.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "8e2cfebf742a"
+ },
+ "v2b_060.jpg": {
+  "dir": "xmedia",
+  "file": "x-human-handdrawn-1.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "8bc536a61553"
+ },
+ "v2b_061.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-143481564-user_c.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ed7097ae3b5d"
+ }
+}

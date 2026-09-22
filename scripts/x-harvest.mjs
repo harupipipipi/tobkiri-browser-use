@@ -5,7 +5,7 @@
 // artifact links land directly on disk — nothing transits a chat transcript.
 // Usage: node scripts/x-harvest.mjs [--queries "a,b"] [--scrolls 25] [--out dataset/twitter]
 import { spawn } from 'node:child_process';
-import { appendFile, mkdir } from 'node:fs/promises';
+import { appendFile, mkdir, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { homedir } from 'node:os';
 
@@ -111,4 +111,35 @@ for (const q of QUERIES) {
 }
 try { await call('browser_tab_close', { tabId }); await call('browser_workspace_release', { workspaceId: ws.workspaceId }); } catch {}
 console.log(`DONE queries=${QUERIES.length} tweets=${totalNew} unique=${seen.size}`);
+
+// Media resolver pass: hidden tabs never hydrate X lazy media
+// (document.visibilityState=hidden -> IntersectionObserver gated imgs stay
+// placeholders). Resolve media URLs via api.fxtwitter.com instead — public,
+// no auth, returns pbs.twimg.com media links for the tweet id.
+const allTweets = [];
+for (const f of await readdir(OUT).catch(() => [])) {
+  if (!f.endsWith('.jsonl') || !f.startsWith('tweets-')) continue;
+  for (const l of (await readFile(path.join(OUT, f), 'utf8')).trim().split('\n')) {
+    try { allTweets.push(JSON.parse(l)); } catch {}
+  }
+}
+const photoTweets = allTweets.filter(t => (t.links || []).some(x => /\/photo\/\d/.test(x.href)));
+const mediaOut = path.join(OUT, 'media.jsonl');
+const haveMedia = new Set();
+try { for (const l of (await readFile(mediaOut, 'utf8')).trim().split('\n')) haveMedia.add(JSON.parse(l).id); } catch {}
+let resolved = 0, mediaUrls = 0;
+for (const t of photoTweets) {
+  if (haveMedia.has(t.id)) continue;
+  try {
+    const j = await fetch(`https://api.fxtwitter.com/status/${t.id}`).then(r => r.json());
+    const photos = (j.tweet?.media?.photos || []).map(p => p.url);
+    const videos = (j.tweet?.media?.videos || []).map(v => v.url);
+    if (photos.length || videos.length) {
+      await appendFile(mediaOut, JSON.stringify({ id: t.id, handle: t.handle, q: t.q, text: (t.text || '').slice(0, 400), photos, videos }) + '\n');
+      resolved++; mediaUrls += photos.length + videos.length;
+    }
+  } catch {}
+  await sleep(350); // polite rate
+}
+console.log(`media: resolved ${resolved}/${photoTweets.length} photo tweets, ${mediaUrls} media urls`);
 mcp.kill();

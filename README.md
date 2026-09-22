@@ -182,4 +182,4 @@ long-pollは15秒ごとにしか操作しないという意味ではありませ
 
 ## AIデザインデータセット
 
-AI生成スライド/サイト/デザインを公開ソースから継続収集するスクリプト群(`scripts/fetch-asset.mjs`, `collect-site.mjs`, `blink-enrich.mjs`, `blink-index.mjs`, `blink-feed.mjs`, `social-harvest.mjs`, `github-readme-dig.mjs`, `x-harvest.mjs`, `mcp-rescue.mjs`)と、成果物がAI製かを判定するスキル(`.devin/skills/ai-design-detector/`、実測評価ハーネス `scripts/detector-eval.mjs`、視覚盲検セット `scripts/blindset-build.mjs` + `scripts/blindset-score.mjs`（判定済みデータ `eval/blindset/`）)を同梱しています。隠しタブのスクショ/PDF収集とログイン済みX検索の収穫にはこの拡張自身を使います。詳しくは [DATASET.md](docs/DATASET.md)。
+AI生成スライド/サイト/デザインを公開ソースから継続収集するスクリプト群(`scripts/fetch-asset.mjs`, `collect-site.mjs`, `blink-enrich.mjs`, `blink-index.mjs`, `blink-feed.mjs`, `social-harvest.mjs`, `github-readme-dig.mjs`, `x-harvest.mjs`, `mcp-rescue.mjs`)と、成果物がAI製かを判定するスキル(`.devin/skills/ai-design-detector/`、実測評価ハーネス `scripts/detector-eval.mjs`、視覚盲検セット `scripts/blindset-build.mjs` / `blindset-build2.mjs` / `blindset-build2b.mjs` + `scripts/blindset-score.mjs`（判定済みデータ `eval/blindset/`）)を同梱しています。隠しタブのスクショ/PDF収集とログイン済みX検索の収穫にはこの拡張自身を使います。詳しくは [DATASET.md](docs/DATASET.md)。
