@@ -1,0 +1,1024 @@
+{
+ "v3_001.png": {
+  "dir": "websim",
+  "file": "oj6c33lr787tit4ez03y.c.websim.com-ec1cb0e2bd.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "860d034dcc04"
+ },
+ "v3_002.png": {
+  "dir": "websim",
+  "file": "ne9og1klbyq93_7itebi.c.websim.com-8e714056bf.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "2da47c505e1f"
+ },
+ "v3_003.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_AUMAtHInyQl-c3e979e73f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "2c617c31d329"
+ },
+ "v3_004.jpg": {
+  "dir": "human",
+  "file": "0bef24891061b093.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "0bef24891061"
+ },
+ "v3_005.png": {
+  "dir": "trickle",
+  "file": "dizzydisc.trickle.host-bd2b15314e.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "8664e8514fd3"
+ },
+ "v3_006.png": {
+  "dir": "websim",
+  "file": "2gyr9c96m0kkwhvilr5i.c.websim.com-ca66dda64c.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "11ac41ab748f"
+ },
+ "v3_007.jpeg": {
+  "dir": "civitai",
+  "file": "OpenAI-143481836-KONI22NIANAKY.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f6be323de0a7"
+ },
+ "v3_008.png": {
+  "dir": "genspark",
+  "file": "top-cs-research-poster/01-poster.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "97e84ffe1725"
+ },
+ "v3_009.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b824ec547e9164ccb8ca_AI-20Startup-20Business-20Plan-20Presentation.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "da8189b8887f"
+ },
+ "v3_010.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_6-9597cd7496.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "21e2a85a22f0"
+ },
+ "v3_011.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1sqs_ImDwa-g2614d5edec2_0_394.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "81f60794e9ed"
+ },
+ "v3_012.png": {
+  "dir": "gamma",
+  "file": "zero-to-one-street-smart-mwlgqgf.gamma.site-0c8619707d.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "d9be7e211118"
+ },
+ "v3_013.webp": {
+  "dir": "deckgallery",
+  "file": "dg-the-realreal-resale-2024-the-realreal-resale-report-2024-002.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "ae26bbf49da6"
+ },
+ "v3_014.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1mfqU8F0dk-g2716d56aec5_0_10.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "abe8355ca88a"
+ },
+ "v3_015.png": {
+  "dir": "pitch",
+  "file": "slide1-Framework-Pitch-Deck-3mETzR4VNkQP5ncnEk0eS8Kk.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "5f06ed3f644b"
+ },
+ "v3_016.png": {
+  "dir": "base44",
+  "file": "baritex-os-main-website.base44.app_ai-tools-155d5078aa.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "9a1b8688c8d3"
+ },
+ "v3_017.png": {
+  "dir": "webflow",
+  "file": "nuvio.io-42e323c531.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "343afc05e173"
+ },
+ "v3_018.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_442-865ba6b8dc.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "beb9c1dceb53"
+ },
+ "v3_019.png": {
+  "dir": "gamma",
+  "file": "thegrowthcurve-casestudy-m2przq7.gamma.site-a8d952aa4d.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "304aa0771e3e"
+ },
+ "v3_020.png": {
+  "dir": "wix",
+  "file": "www.sdi-protocol.org-54a4fc5699.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "a7d01f1b07e6"
+ },
+ "v3_021.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-143456867-azucena21.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "49bec779d54a"
+ },
+ "v3_022.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95be6612fdfdf0757beb8a_Beautiful.ai-20--20Real-20Estate-20Market-20A.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "5034c1624309"
+ },
+ "v3_023.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Cool-Conference-Meeting-of-Accountants-10-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "0f8f60e04fe9"
+ },
+ "v3_024.jpeg": {
+  "dir": "civitai",
+  "file": "NoobAI-143481794-Bigboy1997.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "6724ec45593e"
+ },
+ "v3_025.png": {
+  "dir": "polsia",
+  "file": "mardonic.polsia.app-f98bbc0b87.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "e9bda2f96b67"
+ },
+ "v3_026.png": {
+  "dir": "bolt",
+  "file": "cloudstate.web.app-86d0b04e28.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "ea50512fa308"
+ },
+ "v3_027.webp": {
+  "dir": "deckgallery",
+  "file": "dg-reece-evans-portfolio-bb-agency-company-deck-001.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "e6b534a53e14"
+ },
+ "v3_028.png": {
+  "dir": "webflow",
+  "file": "www.specode.ai_free-hipaa-compliance-scan-b9efc5f3b9.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "02940fa36673"
+ },
+ "v3_029.png": {
+  "dir": "webflow",
+  "file": "www.syftai.com-0fbf593a29.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "54cd0ac619f5"
+ },
+ "v3_030.webp": {
+  "dir": "deckgallery",
+  "file": "dg-zapier-brand-guidelines-2023-slides-from-zapiers-brand-guidelines-003.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "19f0347d3b5a"
+ },
+ "v3_031.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143481748-Kaligo731.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "e6b0ea5f9f74"
+ },
+ "v3_032.png": {
+  "dir": "pitch",
+  "file": "slide1-My-journey-to-becoming-a-product-designer-463pCt4BTW9y5M.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "092bda84ab03"
+ },
+ "v3_033.webp": {
+  "dir": "blink",
+  "file": "glowpods-store-va6tljig.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a4590e428b50"
+ },
+ "v3_034.png": {
+  "dir": "aistudio",
+  "file": "daily-supportive-letters.ai.studio-947be30d60.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "f60b78475b6d"
+ },
+ "v3_035.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAFPHc4figs_HcHMxo-jppYpgAG47_y-Og_view-0e90439d23.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "a19d234947d8"
+ },
+ "v3_036.png": {
+  "dir": "lovable",
+  "file": "best-self-tracker.lovable.app-5461101e51.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "19340011eed1"
+ },
+ "v3_037.png": {
+  "dir": "chatgpt-slides",
+  "file": "b226ff96235911af.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "b226ff962359"
+ },
+ "v3_038.webp": {
+  "dir": "blink",
+  "file": "wallet-simulator-mobile-y6u91105.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "6a467cd769e1"
+ },
+ "v3_039.png": {
+  "dir": "genspark",
+  "file": "kol-influencer-deck/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "9bdd9bc61585"
+ },
+ "v3_040.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1DYmQtuEsM-g2ab29cd35f8_0_449.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "0cc0dbd333ab"
+ },
+ "v3_041.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Blue-Yellow-and-Green-Illustrative-School-Icebreakers-13-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "6b6eee50ec80"
+ },
+ "v3_042.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Simple-Professional-Brainstorm-Presentation-4-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "b67b244f931e"
+ },
+ "v3_043.png": {
+  "dir": "genspark",
+  "file": "ceo-ready-deck-polish/01-cover-pyramid-diff.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "e2e4bca2a2cd"
+ },
+ "v3_044.png": {
+  "dir": "bolt",
+  "file": "brilliant-tapioca-5ad42f.netlify.app-ffee65d468.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "c00b33b80a9f"
+ },
+ "v3_045.png": {
+  "dir": "aistudio",
+  "file": "prism-ai.ai.studio-11b015f8af.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "af89736b421b"
+ },
+ "v3_046.jpg": {
+  "dir": "human",
+  "file": "6533e7b7770b76b1.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "6533e7b7770b"
+ },
+ "v3_047.png": {
+  "dir": "chatgpt-slides",
+  "file": "31eebe197c1842c5.png",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "31eebe197c18"
+ },
+ "v3_048.png": {
+  "dir": "human-baseline/shots",
+  "file": "motherfuckingwebsite-com-349f277d.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "349f277d4df6"
+ },
+ "v3_049.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1ntZ6hMZLI-g26162b9631b_0_173.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "daa0fca8060d"
+ },
+ "v3_050.png": {
+  "dir": "polsia",
+  "file": "clyrden-3.polsia.app-c48d2bdec1.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "35149e6422a9"
+ },
+ "v3_051.jpg": {
+  "dir": "human",
+  "file": "c1cf18e3e3d468c1.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "c1cf18e3e3d4"
+ },
+ "v3_052.jpg": {
+  "dir": "human",
+  "file": "6c2f7cae44415198.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "6c2f7cae4441"
+ },
+ "v3_053.png": {
+  "dir": "trickle",
+  "file": "db88qorl3uvv.trickle.host-ae18b9a719.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "812a83eed9a2"
+ },
+ "v3_054.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-142794806-Rippir.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "c63d0c2e53cc"
+ },
+ "v3_055.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1-bYFAfTeZ-g2b963f78c81_0_585.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "e3d53e6c7bbf"
+ },
+ "v3_056.png": {
+  "dir": "framer",
+  "file": "creaflow.dev-c422827ada.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "5aad5589f6bd"
+ },
+ "v3_057.png": {
+  "dir": "genspark",
+  "file": "cross-language-seminar-deck/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "4ce89cbed97e"
+ },
+ "v3_058.png": {
+  "dir": "human",
+  "file": "75713aff7adb71cb.png",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "75713aff7adb"
+ },
+ "v3_059.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_434-4315d94aa2.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "b696990f704e"
+ },
+ "v3_060.png": {
+  "dir": "bolt",
+  "file": "tripx-kiroween.bolt.host-6abd79c86d.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "f787fbd87645"
+ },
+ "v3_061.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAEoyIBPBnA_view-66733cc1ef.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "c167795b3dce"
+ },
+ "v3_062.webp": {
+  "dir": "deckgallery",
+  "file": "dg-dept-trends-forecast-2024-it-s-nice-that-creative-community-2021-001.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "a5ff00406240"
+ },
+ "v3_063.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Modern-3D-Sport-Shop-Business-Plan-6-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "c67f3de54256"
+ },
+ "v3_064.jpeg": {
+  "dir": "civitai",
+  "file": "ZImageTurbo-143456935-ewhite.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "9e33d0513d52"
+ },
+ "v3_065.png": {
+  "dir": "webflow",
+  "file": "dotts.se-ad46d0c4bc.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "635cb270b93a"
+ },
+ "v3_066.png": {
+  "dir": "lovable",
+  "file": "kushalweb.lovable.app-de33d07373.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "51901afa1b40"
+ },
+ "v3_067.png": {
+  "dir": "framer",
+  "file": "www.sendroq.com-cc21eddc3d.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "cee67c86c1ea"
+ },
+ "v3_068.png": {
+  "dir": "framer",
+  "file": "apiarium.dev-968ce028e1.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "ebe1038ef4f1"
+ },
+ "v3_069.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b54a5a681ae8dc60db78_SaaS-20Pitch-20Deck-20--20Slide-201.jpeg.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "61f9f0653a8a"
+ },
+ "v3_070.jpeg": {
+  "dir": "civitai",
+  "file": "Illustrious-142794809-Rippir.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "2dab47351dc4"
+ },
+ "v3_071.jpg": {
+  "dir": "human",
+  "file": "54333684ec22c4de.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "54333684ec22"
+ },
+ "v3_072.png": {
+  "dir": "lovable",
+  "file": "search-surveyor.lovable.app-dff5519aa4.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "f28fcba02fe2"
+ },
+ "v3_073.png": {
+  "dir": "framer",
+  "file": "deserveos.com-71521d7cac.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "ebf2f5f91d2b"
+ },
+ "v3_074.png": {
+  "dir": "wix",
+  "file": "justhealthy.com-6b7a272891.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "274e1b382138"
+ },
+ "v3_075.png": {
+  "dir": "emergent",
+  "file": "robustness-analysis.emergent.host-040e667c71.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a89daf159125"
+ },
+ "v3_076.png": {
+  "dir": "genspark",
+  "file": "community-event-execution-deck/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "a1f58c8fde2b"
+ },
+ "v3_077.png": {
+  "dir": "base44",
+  "file": "makpe.base44.app-ad6334dcbc.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "7dfe37598393"
+ },
+ "v3_078.webp": {
+  "dir": "blink",
+  "file": "discord-name-check-7jqw89cf.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "0da40ab029d7"
+ },
+ "v3_079.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAE2VrGDtAc_QeS87KxGWaQ8Nj-UknHD2Q_view-9370bdb3b1.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "846a86f0e7af"
+ },
+ "v3_080.jpg": {
+  "dir": "human",
+  "file": "dddf16729f1fbf00.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "dddf16729f1f"
+ },
+ "v3_081.png": {
+  "dir": "bolt",
+  "file": "three-js-immersive-w-3s0e.bolt.host-05b9fd01c9.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "cdbb6629f331"
+ },
+ "v3_082.jpeg": {
+  "dir": "civitai",
+  "file": "Hunyuan-143456928-paul_bAuer.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ce3e43dea0f4"
+ },
+ "v3_083.png": {
+  "dir": "framer",
+  "file": "x.getstanley.ai_r_pas-4fd580597d.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "5f911ba005f0"
+ },
+ "v3_084.png": {
+  "dir": "pitch",
+  "file": "slide1-Hey-Jane-Pitch-Deck-6b6E1c5XRuo55EWdX52tveLc.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "8d015fa6f667"
+ },
+ "v3_085.png": {
+  "dir": "genspark",
+  "file": "curiosities-hobby-deck/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "f83134b1c8c7"
+ },
+ "v3_086.jpeg": {
+  "dir": "civitai",
+  "file": "Anima-143476238-tsutomu_s.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "8d70075ee38d"
+ },
+ "v3_087.jpeg": {
+  "dir": "civitai",
+  "file": "Flux.2_Klein_9B-143457012-beulah675206699.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "bdb772bfe33c"
+ },
+ "v3_088.jpg": {
+  "dir": "human",
+  "file": "4ffdb3d67b510a37.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "4ffdb3d67b51"
+ },
+ "v3_089.png": {
+  "dir": "wix",
+  "file": "createsagas.com-90c68b080d.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "f7db72153ebb"
+ },
+ "v3_090.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b56dbc74c72a75e394bd_SaaS-20Pitch-20Deck-20--20Slide-204.jpeg.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "8f5efb275d5b"
+ },
+ "v3_091.png": {
+  "dir": "emergent",
+  "file": "amrawebsiteai.netlify.app-1153f3dc6c.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "f96be6bdfe59"
+ },
+ "v3_092.png": {
+  "dir": "websim",
+  "file": "u8mq2bmepq7avmrwblv3.c.websim.com-2cc8e34497.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "2e1c85bbd690"
+ },
+ "v3_093.png": {
+  "dir": "lovable",
+  "file": "doom-scroll-app.lovable.app-e5c542cd2d.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "6451e8221353"
+ },
+ "v3_094.png": {
+  "dir": "grok",
+  "file": "i-love-rubin.grok.me-99b88f11b5.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "dd6bc8725582"
+ },
+ "v3_095.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143398697-Gorean.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "962c96af06b8"
+ },
+ "v3_096.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-10Gj2IxrCk-g2a85358d7bc_0_102.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "45ff18652b4b"
+ },
+ "v3_097.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143481681-F42.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ec3a2a430311"
+ },
+ "v3_098.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Story-Structure-English-Lesson-for-Elementary-6-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "edbde99cf4ff"
+ },
+ "v3_099.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1pFrEuI9dS-g29d9f294756_0_20.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "85bff4ea1539"
+ },
+ "v3_100.png": {
+  "dir": "gamma",
+  "file": "space9-ne9syqr.gamma.site-cbd323f769.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "a95846eb011e"
+ },
+ "v3_101.webp": {
+  "dir": "blink",
+  "file": "ai-business-analyzer-e89p0gxo.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "3488dcb0a184"
+ },
+ "v3_102.jpg": {
+  "dir": "human",
+  "file": "24685f1f9b63ecac.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "24685f1f9b63"
+ },
+ "v3_103.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95a31a4ecf2782540982f9_Beautiful.ai-20--20Legal-20Presentation-20--2.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "0c0013b3996c"
+ },
+ "v3_104.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Cute-Kawaii-Japan-Background-Slides-11-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "3b63a498d728"
+ },
+ "v3_105.png": {
+  "dir": "gamma",
+  "file": "beyond-the-hype-three-pr-h0wpdu2.gamma.site-17cbbca31c.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "3a6dadc87887"
+ },
+ "v3_106.jpg": {
+  "dir": "slidesai",
+  "file": "sai2-1dV5NdT__n-g26bfdd68eb8_0_220.jpg",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "1647cd8fd536"
+ },
+ "v3_107.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143456902-wystand691cc1309.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "f5d3ce69f67b"
+ },
+ "v3_108.webp": {
+  "dir": "deckgallery",
+  "file": "dg-linear-pitch-deck-2023-linear-apps-pitch-deck-005.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "0dce83af3228"
+ },
+ "v3_109.png": {
+  "dir": "genspark",
+  "file": "consulting-capability-pitch/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "fd09b4718be7"
+ },
+ "v3_110.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_EYN85i0FdYV-afe31fe85f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "e4f1cad82b49"
+ },
+ "v3_111.jpg": {
+  "dir": "human",
+  "file": "62baaba5401d6cef.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "62baaba5401d"
+ },
+ "v3_112.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143456830-sylviawatkins25.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ab47bd69d790"
+ },
+ "v3_113.png": {
+  "dir": "lovable",
+  "file": "screw.lovable.app-b854de0b5f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "672ef1c9d4f1"
+ },
+ "v3_114.png": {
+  "dir": "lovable",
+  "file": "miami-sun-cruiser.lovable.app-cfaf8e34ad.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "241f0161593d"
+ },
+ "v3_115.png": {
+  "dir": "gamma",
+  "file": "ranadeep-portfolio-rkbiwbo.gamma.site-1c13e8501b.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "ad296245fb79"
+ },
+ "v3_116.jpeg": {
+  "dir": "civitai",
+  "file": "Hunyuan-143456884-loleta7e2e40365.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "edb71014a8b1"
+ },
+ "v3_117.png": {
+  "dir": "canva",
+  "file": "www.canva.com_design_DAGVzEJCDaE_5CYySAEJtR3nmCM5cyvoCw_view-dc4679ed46.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "e8bffe47d787"
+ },
+ "v3_118.webp": {
+  "dir": "blink",
+  "file": "fnaf-cam-system-1twzxuc1.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "c6c7a060bcde"
+ },
+ "v3_119.png": {
+  "dir": "framer",
+  "file": "buildly.framer.website-c7ed3cdc2d.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "f3e621a771db"
+ },
+ "v3_120.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Illustrated-Big-Data-In-Healthcare-Slides-11-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "50d616c53f1f"
+ },
+ "v3_121.png": {
+  "dir": "webflow",
+  "file": "vonto.ai-60bf1a67f0.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "bdb22cd15b30"
+ },
+ "v3_122.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143413307-vishnarjk.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "961a2648d33f"
+ },
+ "v3_123.png": {
+  "dir": "emergent",
+  "file": "cast-deck.emergent.host-862f9b32d7.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "a07040103150"
+ },
+ "v3_124.png": {
+  "dir": "wix",
+  "file": "9vibesuniversal-4uidl3x.gamma.site-094a1f7981.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "d8c063bf86f5"
+ },
+ "v3_125.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Illustrated-Big-Data-In-Healthcare-Slides-8-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "1857325ffa03"
+ },
+ "v3_126.webp": {
+  "dir": "deckgallery",
+  "file": "dg-strava-year-in-2021-strava-year-in-sport-2021-005.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "704c2cae1dc3"
+ },
+ "v3_127.png": {
+  "dir": "gamma",
+  "file": "unlock-your-brands-growt-ghmykuc.gamma.site-41139cfcfb.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "6e236c4402ab"
+ },
+ "v3_128.jpg": {
+  "dir": "human",
+  "file": "3f17eab7aa26c46f.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "3f17eab7aa26"
+ },
+ "v3_129.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b8258c6b123ca9d01fcd_AI-20Startup-20Business-20Plan-20Presentation.jpg",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "0b51888355d5"
+ },
+ "v3_130.webp": {
+  "dir": "blink",
+  "file": "dansochat-chat-app-f2o8z2te.shot.webp",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "d1499a71dcb3"
+ },
+ "v3_131.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_vqoqDuffYbF-43a768653f.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "6283c94ca9ba"
+ },
+ "v3_132.png": {
+  "dir": "pitch",
+  "file": "slide1-Pitching-Platform-Release-Notes-November-2024-4xRwjz3PWD.png",
+  "label": "human",
+  "pipe": "designer",
+  "sha1": "daf65445a48b"
+ },
+ "v3_133.jpeg": {
+  "dir": "civitai",
+  "file": "Chroma-143456883-sudikshacreative.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "0e77df3ef3dc"
+ },
+ "v3_134.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143457024-deana68f55f998.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "2e9871d2ae4c"
+ },
+ "v3_135.png": {
+  "dir": "trickle",
+  "file": "cbz4g1va3x23.trickle.host-26b175747e.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "bad72add145a"
+ },
+ "v3_136.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_18-ceaf17f6a2.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "ac0d607dbb31"
+ },
+ "v3_137.jpeg": {
+  "dir": "civitai",
+  "file": "Krea_2-143250490-daceheg192491.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "ce4c3c811997"
+ },
+ "v3_138.webp": {
+  "dir": "deckgallery",
+  "file": "dg-palantir-q1-update-2023-palantir-q1-business-update-showing-commercial-and-government-growth-006.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "d8298dc7fb87"
+ },
+ "v3_139.jpeg": {
+  "dir": "civitai",
+  "file": "SDXL_1.0-143456910-jos_digital.jpeg",
+  "label": "ai",
+  "pipe": "imagegen",
+  "sha1": "bdcfcd70b2ab"
+ },
+ "v3_140.png": {
+  "dir": "base44",
+  "file": "autonomouseconomy.base44.app-c9ac3db693.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "4fefe79fd3c7"
+ },
+ "v3_141.jpg": {
+  "dir": "human",
+  "file": "eb55e29adfc6c7b2.jpg",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "eb55e29adfc6"
+ },
+ "v3_142.png": {
+  "dir": "genspark",
+  "file": "ai-101-explainer-deck/01-01-cover.png",
+  "label": "ai",
+  "pipe": "mixed",
+  "sha1": "54e53d951051"
+ },
+ "v3_143.webp": {
+  "dir": "deckgallery",
+  "file": "dg-openai-brand-guidelines-openai-brand-guidelines-004.webp.webp",
+  "label": "human",
+  "pipe": "human",
+  "sha1": "f5327899ab2b"
+ },
+ "v3_144.png": {
+  "dir": "trickle",
+  "file": "9afy6029n9cr.trickle.host-5f0b876e1e.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "14cf1f3192fd"
+ },
+ "v3_145.png": {
+  "dir": "grok",
+  "file": "nairatrack.grok.me-a47aa36589.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "562d4c414b3a"
+ },
+ "v3_146.png": {
+  "dir": "v0",
+  "file": "v0-ai-clips-xxx.vercel.app-c79e079899.png",
+  "label": "ai",
+  "pipe": "codegen",
+  "sha1": "9d4d18ff5418"
+ }
+}

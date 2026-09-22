@@ -395,3 +395,79 @@ Two new unseen sets judged pixel-only. Keys/audits/judgments in
   Hash-named dirs (chatgpt-slides) need content-based clustering or a
   hard per-dir cap; dt-img marketplace items need provenance review before
   they can carry an AI label.
+
+### blindset3 (final held-out set, n=146 -> audited n=141)
+
+Built after FP-control rules were added to SKILL.md (invented-brand+polish
+demoted to uncertain, >=2 content-anomaly tells required, real-entity anchors
+weigh human, placeholder copy is bidirectional). Disjoint sources vs
+v1/v2/v2b (sha1-verified 0 overlap); one item per civitai author/model;
+deck-dir isolation for genspark/slidesai; matched visual conditions
+(designer-tool landings vs codegen landings, template slides vs
+template-mimic AI slides).
+
+- Full (n=141): AI caught 64.7% (55/85), missed 11 (12.9%), abstain 19
+  (22.4%); human FP 5/56 (8.9%), correct 42, abstain 9. Decided 80.1%.
+- No-badge (n=117): AI 51.6% (32/62), miss 17.7%, abstain 30.6%;
+  human FP 9.1% (5/55). Decided 74.4%.
+- Per-pipe: codegen 37/40 (92.5%), imagegen 9/19 (47.4% — 10 abstains are
+  the photoreal/subtle cases), mixed 9/26 (34.6%), human/human 0 FP,
+  human/designer 5 FP + 8 abstain.
+- Audit exclusions (5): 2 cross-set same-deck (chatgpt-slides Mind-Travel
+  and Infercat families reused hash-named files across sets — builder
+  keyed on file, not deck), 1 civitai same-author pair, 2 blank captures.
+- Before/after on the FP fix: dev-set human FP 22.0%/21.7% -> final 8.9%;
+  recall cost: catch 90.9% -> 64.7%, abstains 5.2% -> 22.4%.
+
+### v3 miss class detail (all 11 misses = 2 classes)
+
+- Gamma-hosted human content (4): real-person decks/reports/portfolios
+  (Patrick Collins deck, Guru enterprise report w/ real authors, Brett
+  Swensen marketer portfolio, SPACE 9 Tokyo site w/ real map) — human
+  CONTENT on an AI pipeline. Provenance says ai; pixels honestly say human.
+  This is the floor of visual detection.
+- Template mimicry (7): slidesai slides shipping literal SlidesGo
+  placeholder copy ("Month, Year", "Elaborate on what you want to
+  discuss", "Replace this text...") scored as human templates; genspark
+  JP docs w/ real citations (Waseda comparative-lit seminar w/ 李商隠/
+  マラルメ + real bibliography; Penguin-paperback collector page;
+  dense internal report w/ revision table) read as real work docs.
+
+### v3 false positives (5 — residual class is narrow)
+
+- webflow Nuvio: invented fintech brand + "Acme Corp" placeholder merchant
+  inside a demo transaction table — the placeholder-demo-data tell fired
+  on a human site that ships demo content.
+- webflow SPECODE: jane@acme.com placeholder in a live form field.
+- framer SendRoq: SendRoa/SendRoq name inconsistency + invented
+  client-logo wall (UUDO/Flash/Medu) — real human site with sloppy assets.
+- framer DeserveOS: self-referencing product screenshot + laurel stats.
+- beautifulai circular-diagram slide: gradient + vague "one platform"
+  copy — the last layout-only FP.
+
+### Subtle/photoreal imagegen (v3, the honest frontier)
+
+10 of 19 imagegen items abstained: photoreal fashion (sequin dress,
+gold-leggings Nike shot), fern terrarium, brass telescope, rainy street,
+B&W flamingo fine-art, painterly arch abstract. Flux.2/Krea 2/Hunyuan/SDXL
+realism without anomaly is NOT visually separable from real photos — the
+verdict is uncertain, and that is the correct answer. Caught imagegen (9)
+needed tells: safetensors checkpoint-name grid (v3_086), impossible-craft
+(straw mouse motorcycle), AI-fantasy renders, melted-detail anime.
+
+### New v3-specific tells
+
+- In-artifact platform URL inside the artifact itself (mardonic.polsia.app
+  rendered in its own card) = badge-equivalent evidence.
+- Test-value GSTIN 33ABCDE1234F1Z5 in an embedded Indian-business demo =
+  fabricated-data tell (v3_091).
+- Repeated identical widgets across cards (same Buildability bars in every
+  paper card, v3_140) = template-instantiation tell.
+- Name inconsistency inside one artifact (SendRoa logo vs SendRoq copy).
+
+### Cross-cutting conclusion
+
+Visual-only judgment separates into: (a) badge/chrome items ~sure,
+(b) codegen apps ~92%, (c) obvious imagegen ~sure, (d) subtle imagegen /
+template-mimic slides / human-content-on-AI-hosts = the abstention zone —
+and abstaining there is correct, not a failure of the rubric.

@@ -68,7 +68,7 @@ function score(items) {
   };
   for (const it of items) {
     const truth = it.truth.label;              // 'ai' | 'human'
-    const call = aiCall(it.judge.v) ? 'ai' : it.judge.v === 'human_likely' ? 'human' : 'abstain';
+    const call = aiCall(it.judge.v) ? 'ai' : (it.judge.v === 'human_likely' || it.judge.v === 'human_confirmed') ? 'human' : 'abstain';
     const pk = `${it.truth.label}/${it.truth.pipe}`;
     r.byPipe[pk] ??= { n: 0, caught: 0, fp: 0, abstain: 0 };
     r.byPipe[pk].n++;

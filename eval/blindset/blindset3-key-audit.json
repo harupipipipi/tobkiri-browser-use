@@ -1,0 +1,17 @@
+{
+  "note": "v3 final-set audit (post-judgment, key-aligned)",
+  "excluded": {
+    "dup_same_deck_cross_set": {
+      "v3_037.png": "Mind Travel title slide — same deck as the 5 excluded v2 items (chatgpt-slides hash-named family)",
+      "v3_047.png": "Infercat ChatGPT-agent pptx capture — same deck/artifact family as the 3 excluded v2 items"
+    },
+    "dup_same_author": {
+      "v3_070.jpeg": "civitai author Rippir/Illustrious — same author+model as v3_054.jpeg; one item per author rule"
+    },
+    "unavailable": {
+      "v3_015.png": "black 'framework' splash screen — no content rendered to judge",
+      "v3_029.png": "SYFT nav bar on blank page — content unloaded, nothing to judge"
+    }
+  },
+  "overrides": {}
+}

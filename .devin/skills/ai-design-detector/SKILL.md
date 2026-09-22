@@ -194,6 +194,30 @@ slide that embeds an app-screenshot illustration reads as an invented AI app
 (`img_088` vs `img_089` — a Beautiful.ai template and a Blink app showing near-identical
 teacher-app UIs). When "polished" is the only signal, prefer `uncertain` over `ai_likely`.
 
+**FP-control rules (added after v2/v2b dev-set analysis, human FP was 22%):**
+- "Invented brand + polish" is NOT sufficient — human designers invent brands too
+  (Boc.Studio, EverSwap, Studio Minds, Mockly were all human FPs). A landing page
+  needs ≥2 *content-anomaly* tells (fake-ecosystem furniture, env/config leaks,
+  garbled text, impossible details, model claims) to reach `ai_likely`; layout
+  polish + invented brand alone = `uncertain`.
+- Bento-stat rows, NN section furniture, icon-card grids, gradient CTAs are
+  SHARED grammar — human templates and AI decks both ship them. Count them as
+  weak signals only.
+- Real-entity anchors weigh human: verifiable company/brand names, real product
+  logos, named real people + working contact paths, dated/filing content
+  (SEC boilerplate, real grant IDs) — unless the in-artifact content is
+  self-evidently fabricated (invented firm + invented metrics + no verifiable
+  anchor = AI-leaning).
+- Template placeholder copy ("Here is where your presentation begins",
+  "Elaborate on what you want to discuss", "20XX") is a HUMAN-template tell.
+  slidesai/decktopus outputs mimic exactly this — a slide that looks like a
+  template with placeholder copy = `uncertain`, not human_likely, when the
+  deck could be generated; but do not call it AI either.
+- Deliberately naive/hand-drawn style does not prove human — image models
+  mimic it (Krea_2 wolf example). Style authenticity is not evidence either way.
+- Conversely AI-looking polish does not prove AI: judge *content provenance
+  signals*, not vibes.
+
 ## Pipeline attribution: codegen vs imagegen
 
 Two distinct artifact families — report `pipelineGuess` separately from `toolGuess`:
@@ -382,6 +406,44 @@ reproduced a KAKENHI grant proposal convincingly).
 obvious AI render styles; the only miss was deliberate style mimicry, so do
 not extrapolate to subtle cases.
 
+#### Final held-out set (v3, n=146 → audited n=141 — NEW RULES applied)
+
+v3 was built *after* the FP-control rules above were added, from disjoint
+sources (sha1-excluded vs v1/v2/v2b, one per author/deck/template family).
+Deliberately includes the hard classes: subtle photoreal imagegen
+(Flux/Krea/Hunyuan/SDXL realism), slidesai template-mimic slides, genspark
+JP formal decks with real citations, Gamma-hosted human-authored content,
+and designer-tool landings. Audit excluded 5: 2 cross-set same-deck
+(chatgpt-slides Mind-Travel/Infercat families), 1 same-author civitai pair,
+2 blank captures.
+
+| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain | Decided |
+|---|---|---|---|---|---|---|
+| Full (n=141) | 64.7% (55/85) | 12.9% | 22.4% | **8.9% (5/56)** | 16.1% | 80.1% |
+| No-badge (n=117) | 51.6% (32/62) | 17.7% | 30.6% | 9.1% (5/55) | 16.4% | 74.4% |
+
+Per-pipeline (full): codegen 37/40 caught (92.5%), imagegen 9/19 (47.4% —
+10 abstains are the photoreal/subtle cases), mixed 9/26 (34.6% — the
+template-mimicry + human-content-on-AI-host class), human/human 0 FP,
+human/designer 5 FP / 27.
+
+**Before/after on the FP fix:** dev-set human FP was 22.0% (v2) / 21.7%
+(v2b); final-set FP is 8.9%. The cost is recall: catch fell to 64.7% as
+borderline cases correctly moved to `uncertain` instead of `ai_likely`.
+Abstentions are honest, not accuracy padding — decided rate is still 80%.
+
+v3 miss analysis (all 11 are the two known hard classes):
+- **Gamma-hosted human content** (4): real-person decks/reports/portfolios
+  authored by humans and rendered by Gamma — content is human even though
+  the artifact pipeline is AI. Visually indistinguishable from real work.
+- **Template mimicry** (7): slidesai slides shipping literal placeholder
+  copy read as human templates; genspark JP decks with real citations
+  (Waseda lit seminar, Penguin-paperback bibliography) read as real docs.
+v3 FPs (5): webflow Nuvio/SPECODE (invented-brand + placeholder-demo data),
+framer SendRoq/DeserveOS (invented logo walls + self-referencing screenshots),
+beautifulai circular-diagram slide — the residual FP class is now narrow:
+human designer landings that embed fabricated-looking demo content.
+
 Consistent failure taxonomy across both sets:
 - **Template mimicry is the #1 AI-miss class** (mixed pipe): slidesai and
   decktopus outputs ship SlidesGo-style placeholders and read as human
@@ -400,13 +462,15 @@ Reproduce:
 
 ```bash
 node scripts/blindset-build.mjs           # v1 set (historical)
-node scripts/blindset-build2.mjs          # v2 set (130 imgs)
-node scripts/blindset-build2b.mjs         # v2b imagegen supplement (61 imgs)
-# judge images visually -> dataset/_tmp/blindset{,2,2b}-judge.jsonl
+node scripts/blindset-build2.mjs          # v2 dev set (130 imgs)
+node scripts/blindset-build2b.mjs         # v2b dev supplement (61 imgs)
+node scripts/blindset-build3.mjs          # v3 final held-out set (146 imgs)
+# judge images visually -> dataset/_tmp/blindset{,2,2b,3}-judge.jsonl
 node scripts/blindset-score.mjs --audit                  # v1 audited
 node scripts/blindset-score.mjs --set v2 --audit         # v2 audited
 node scripts/blindset-score.mjs --set v2b --audit        # v2b audited
-node scripts/blindset-score.mjs --set v2 --audit --no-badge  # strict visual
+node scripts/blindset-score.mjs --set v3 --audit         # v3 FINAL (new rules)
+node scripts/blindset-score.mjs --set v3 --audit --no-badge  # strict visual
 ```
 
 Usage:
