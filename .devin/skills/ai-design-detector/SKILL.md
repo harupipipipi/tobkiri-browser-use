@@ -268,9 +268,14 @@ Held-out test results (n=3,920 HTML records, 32 dirs):
 | Human pages | 113 | — | 0 (0%) | — | 68 |
 | Tool pages | 1,447 | identified separately (not scored) | | | |
 
+Full-corpus sweep (n=21,603 scanned): AI caught 99.7% (11,003/11,039), missed 2,
+human FP 2 (0.5% — both are `*.gamma.site` files misfiled under `wix/`; the
+detector was right, the dir label was wrong).
+
 **No-host mode** (URL stripped — simulates bare HTML exports / offline captures):
-AI caught 76.1%, human FP 0%. The ~24% residual are stub shells and badge-less
-artifacts whose only tell was the host — abstain is correct there.
+AI caught 84.9% full-corpus (76.1% held-out), human FP 0.5%/0%. The residual are
+stub shells and badge-less artifacts whose only tell was the host — abstain is
+correct there.
 
 Honest caveats:
 - Selection bias: AI dirs were collected largely *via* their decisive surfaces

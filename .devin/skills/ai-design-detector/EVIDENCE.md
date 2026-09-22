@@ -249,6 +249,10 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
 - `websim.com/@user/slug` shell pages render 0B under `--dump-dom`; the artifact lives
   at the direct `*.c.websim.com` iframe URL (`__websim_origin`/`__websim_route` params),
   `__websim*` globals present. Host = `*.c.websim.com`, not websim.com proper.
+- Correction (eval pass): the `@user/slug` project page itself still counts as the
+  artifact record — the generated app is embedded via iframe, provenance is decisive.
+  ~38KB SSR HTML over plain HTTP (not the dump-dom path). Bare `websim.com` paths
+  without `/@` are tool pages, not artifacts.
 
 ## trickle/ — `*.trickle.host` sites (verified)
 
@@ -280,3 +284,17 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
 - Gaps still open: `slides-mixed/` (no samples yet); aippt/mixo/sitekick/autoslide/tome
   have PH marketing only; canva is bot-gated beyond the 10 captured decks; ~69 early
   blink captures are the "Authorized Users Only" wall (untokenized, pre-resolver).
+
+## Detector eval findings (2026-09-22, scripts/detector-eval.mjs)
+
+- Held-out test split (per-artifact hash, n=3,920): AI caught 99.4%, human FP 0%,
+  abstain on human-gallery HTML (deck.gallery — no framework/CMS markers at all).
+- No-host mode (URL stripped): AI caught 76.1%, human FP 0% — honest bound for
+  bare-HTML inputs.
+- Corpus label noise found by eval: `*.gamma.site` files misfiled under `wix/` and
+  `chatgpt/` dirs — in-artifact evidence overrides collector dir labels.
+- Designer-tool fingerprints (data-wf-*, webflow.css, wixstatic, squarespace) must
+  NEVER escalate toward ai_likely — slidebean's marketing pages are literally
+  webflow-built (51 files). Pipeline proven ≠ AI authored.
+- butternut artifact on custom domain (journeysutra.com) carries webflow markup —
+  likely rebuilt post-export; host erasure degrades to human_likely. Honest miss.
