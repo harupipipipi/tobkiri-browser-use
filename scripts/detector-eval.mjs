@@ -15,6 +15,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
 const DS = path.join(ROOT, 'dataset');
@@ -67,13 +68,16 @@ const HOST_RULES = [
   [/^v0\.app$|^v0\.dev$/, null, 'v0-toolpage', 'toolpage'],
   [/^presenton\.ai$/, /^\/community\/presentations\//, 'presenton', 'ai_confirmed'],
   [/\.wegic\.net$/, null, 'wegic', 'ai_confirmed'],
-  [/\.framer\.website$|\.framer\.site$|\.framer\.ai$/, null, 'framer', 'ai_likely'],
-  [/\.my\.canva\.site$|\.canva\.com$/, null, 'canva', 'ai_likely'],
-  [/\.beautiful\.ai$/, null, 'beautifulai', 'ai_likely'],
+  // human-operated tool hosts: pipeline proven, authorship undetermined —
+  // never ai_confirmed, lean human only for pure designer tools
+  [/\.framer\.ai$/, null, 'framer-ai', 'ai_likely'],          // Framer's AI surface
+  [/\.framer\.website$|\.framer\.site$/, null, 'framer', 'human_likely'],
+  [/\.my\.canva\.site$|\.canva\.com$/, null, 'canva', 'human_likely'],
+  [/\.beautiful\.ai$/, null, 'beautifulai', 'uncertain'],
   [/\.decktopus\.com$/, null, 'decktopus', 'ai_likely'],
   [/^tome\.app$/, null, 'tome', 'ai_likely'],
   [/\.pitch\.com$/, null, 'pitch', 'uncertain'],
-  [/\.replit\.app$/, null, 'replit', 'ai_likely'],
+  [/\.replit\.app$/, null, 'replit', 'uncertain'],
   [/\.ai\.studio$/, null, 'aistudio', 'ai_likely'],
   [/\.webflow\.io$/, null, 'webflow', 'human_likely'],
 ];
@@ -129,6 +133,22 @@ function probeHTML(html) {
 }
 
 // ---- verdict ---------------------------------------------------------------
+// Two-axis contract (see SKILL.md): verdict = graded call; aiGenerated =
+// tri-state true|false|null (null = undetermined, NOT a human finding);
+// scope = which components the generation evidence covers.
+const AI_V = new Set(['ai_confirmed', 'ai_likely']);
+const HU_V = new Set(['human_likely', 'human_confirmed']);
+const aiGen = v => AI_V.has(v) ? true : HU_V.has(v) ? false : null;
+const GENERATOR = t => /^(gamma|genspark|decktopus|slidesai|slidebean|tome|presenton|manus|base44|grok|emergent|butternut|trickle|chatgpt|bolt|polsia|lovable|blink|v0|websim|durable|mixo|wegic|aistudio)$/.test(t);
+const scopeFor = (tool, verdict) =>
+  verdict === 'ai_confirmed' || verdict === 'ai_likely'
+    ? GENERATOR(tool)
+      ? { design: 'ai', text: 'unknown', images: 'unknown' } // hosted artifact IS generator output; content authorship undetermined
+      : { design: 'unknown', text: 'unknown', images: 'unknown' }
+    : { design: 'unknown', text: 'unknown', images: 'unknown' };
+const out = (verdict, toolGuess, conf, ev, pipeline) =>
+  ({ verdict, aiGenerated: aiGen(verdict), toolGuess, conf, ev, pipeline, scope: scopeFor(toolGuess, verdict) });
+
 function classify({ url, html }) {
   const host = hostOf(url);
   let pathName = '';
@@ -137,37 +157,37 @@ function classify({ url, html }) {
   for (const [re, pathRe, tool, verdict] of HOST_RULES) {
     if (re.test(host) && (!pathRe || pathRe.test(pathName))) {
       ev.push(`A1: host ${host}${pathRe ? ' + path ' + pathName : ''}`);
-      if (verdict === 'toolpage') return { verdict: 'toolpage', toolGuess: tool, conf: 0.95, ev };
-      return { verdict, toolGuess: tool, conf: verdict === 'ai_confirmed' ? 0.97 : verdict === 'ai_likely' ? 0.7 : verdict === 'human_likely' ? 0.4 : 0.5, ev, pipeline: pipelineOf(tool) };
+      if (verdict === 'toolpage') return { verdict: 'toolpage', aiGenerated: null, toolGuess: tool, conf: 0.95, ev, pipeline: null, scope: null };
+      return out(verdict, tool, verdict === 'ai_confirmed' ? 0.97 : verdict === 'ai_likely' ? 0.7 : verdict === 'human_likely' ? 0.4 : 0.5, ev, pipelineOf(tool));
     }
   }
   const hits = html ? probeHTML(html) : [];
   const a = hits.filter(h => h.tier.startsWith('A'));
   const b = hits.filter(h => h.tier === 'B');
-  const bAi = b.filter(x => !DESIGNER_TOOLS.has(x.tool));
+  const bAi = b.filter(x => x.tool && !DESIGNER_TOOLS.has(x.tool)); // tool-specific only; generic stack (tool:null) is a method note, not an AI tell
   const bDes = b.filter(x => DESIGNER_TOOLS.has(x.tool));
+  const vibe = b.some(x => !x.tool);
   const h = hits.filter(h => h.tier === 'H');
   for (const x of hits) ev.push(`${x.tier}: ${x.name}`);
   if (a.length) {
     const tool = a[0].tool;
-    const cap = /framer|canva|beautifulai|pitch/.test(tool || '');
-    if (cap) return { verdict: 'ai_likely', toolGuess: tool, conf: 0.7, ev, pipeline: pipelineOf(tool) };
-    if (tool === 'webflow' || tool === 'wix') return { verdict: 'human_likely', toolGuess: tool, conf: 0.4, ev, pipeline: 'designer-tool' };
-    return { verdict: 'ai_confirmed', toolGuess: tool, conf: 0.93, ev, pipeline: pipelineOf(tool) };
+    if (/webflow|wix|framer|canva|pitch/.test(tool || '')) return out('human_likely', tool, 0.4, ev, 'designer-tool');
+    if (/beautifulai|decktopus|tome/.test(tool || '')) return out('ai_likely', tool, 0.7, ev, pipelineOf(tool));
+    return out('ai_confirmed', tool, 0.93, ev, pipelineOf(tool));
   }
   // designer-tool fingerprints never escalate toward AI — they point at a
   // human-pipeline (webflow/wix/etc built by hand)
   if (bAi.length >= 2) {
-    const tools = [...new Set(bAi.map(x => x.tool).filter(Boolean))];
-    return { verdict: 'ai_likely', toolGuess: tools[0] || null, conf: 0.72, ev, pipeline: tools[0] ? pipelineOf(tools[0]) : 'codegen' };
+    const tools = [...new Set(bAi.map(x => x.tool))];
+    return out('ai_likely', tools[0], 0.72, ev, pipelineOf(tools[0]));
   }
-  if (bAi.length === 1) {
-    const tool = bAi[0].tool;
-    return { verdict: 'uncertain', toolGuess: tool, conf: 0.5, ev, pipeline: tool ? pipelineOf(tool) : 'codegen' };
-  }
-  if (bDes.length) return { verdict: 'human_likely', toolGuess: bDes[0].tool, conf: 0.4, ev, pipeline: 'designer-tool' };
-  if (h.length) return { verdict: 'human_likely', toolGuess: null, conf: 0.35, ev, pipeline: null };
-  return { verdict: 'uncertain', toolGuess: null, conf: 0.2, ev: ev.length ? ev : ['no signals'], pipeline: null };
+  if (bAi.length === 1)
+    return out('uncertain', bAi[0].tool, 0.5, ev, pipelineOf(bAi[0].tool));
+  if (bDes.length) return out('human_likely', bDes[0].tool, 0.4, ev, 'designer-tool');
+  // generic vibe stack alone = production method observed, authorship undetermined
+  if (vibe) return out('uncertain', null, 0.45, ev, 'codegen-style stack (method only)');
+  if (h.length) return out('human_likely', null, 0.35, ev, null);
+  return out('uncertain', null, 0.2, ev.length ? ev : ['no signals'], null);
 }
 
 // image-model-derived vs coding-model-derived pipeline guess
@@ -189,6 +209,8 @@ function* metaRows(dir) {
 }
 
 const isTest = f => (createHash('sha1').update(f).digest()[0] % 10) >= 7;
+
+function run() {
 const corpus = [];
 for (const dir of Object.keys(LABELS)) {
   const label = LABELS[dir];
@@ -244,7 +266,7 @@ const aiN = sum('ai'), huN = sum('human'), tpN = sum('toolpage');
 const pred = (l, v) => conf[`${l}->${v}`] || 0;
 const aiCaught = pred('ai', 'ai_confirmed') + pred('ai', 'ai_likely');
 const fp = pred('human', 'ai_confirmed') + pred('human', 'ai_likely');
-const miss = pred('ai', 'human_likely');
+const miss = pred('ai', 'human_likely') + pred('ai', 'human_confirmed');
 const abst = pred('ai', 'uncertain') + pred('human', 'uncertain');
 console.log(`\n== metrics (${SPLIT}) ==`);
 console.log(`ai artifacts : n=${aiN}  caught=${aiCaught} (${(100 * aiCaught / aiN).toFixed(1)}%)  missed=${miss}  abstain=${pred('ai', 'uncertain')}`);
@@ -259,3 +281,7 @@ console.log(`\n== per-dir verdict distribution ==`);
 for (const k of Object.keys(perDir).sort()) console.log(`  ${k.padEnd(24)} ${JSON.stringify(perDir[k])}`);
 console.log(`\n== tool attribution (dir -> guessed tool) ==`);
 for (const k of Object.keys(toolConf).sort()) console.log(`  ${k.padEnd(30)} ${toolConf[k]}`);
+}
+
+export { classify, probeHTML, pipelineOf };
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) run();

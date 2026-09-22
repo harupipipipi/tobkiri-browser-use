@@ -11,6 +11,12 @@
     "unavailable": {
       "v3_015.png": "black 'framework' splash screen — no content rendered to judge",
       "v3_029.png": "SYFT nav bar on blank page — content unloaded, nothing to judge"
+    },
+    "contested": {
+      "v3_012.png": "gamma dir — AI-pipeline design hosting human-authored content (real person, real photos, real site); collector-provenance label only, composite authorship not binary-scoreable",
+      "v3_100.png": "gamma dir — SPACE 9 real Tokyo project content on Gamma host; same composite-authorship ambiguity",
+      "v3_105.png": "gamma dir — real Guru enterprise report (real named authors) hosted on Gamma; same ambiguity",
+      "v3_127.png": "gamma dir — real marketer portfolio (real brands/career) hosted on Gamma; same ambiguity"
     }
   },
   "overrides": {}

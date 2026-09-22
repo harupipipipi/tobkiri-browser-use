@@ -8,6 +8,17 @@ description: Judge whether a slide deck, site, or design artifact was AI-generat
 Decide whether an artifact (slide, site, landing page, document design) was produced by an
 AI generation tool — and, when the evidence allows, name the tool and its model pipeline.
 
+**Two separate questions — never merge them:**
+1. **Provenance**: which tool/pipeline produced or serves this artifact?
+   (host, badge, generator meta, CDN fingerprints)
+2. **Generation**: is there evidence the *design, text, or embedded media* were
+   actually AI-generated?
+
+A confirmed pipeline does NOT settle question 2 by itself for human-operated
+tools (Canva, Framer, Webflow, Wix, Pitch, Replit). It DOES settle the *design*
+question for generator-hosts (a `*.gamma.site` doc is a Gamma-generated design
+even when the text inside it is human-authored — report the scopes separately).
+
 Every verdict must trace to observed signals. Never infer a model from vibes alone.
 When only stylistic evidence exists, the ceiling is `uncertain` — say so.
 
@@ -25,40 +36,62 @@ Stop early when a higher tier is decisive.
 
 ## Tier A — Decisive provenance signals
 
-Any one of these, verified in the artifact itself, yields `ai_confirmed` for the tool named.
+Tier-A signals prove the **pipeline** (which tool produced/served the artifact).
+What they imply about *generation* depends on the tool class:
+
+- **Generator hosts** (`*.gamma.site`, `*.lovable.app`, `*.c.websim.com`,
+  `*.manus.space`, `*.base44.app`, `*.grok.me`, `*.emergent.host`,
+  `*.chatgpt.site`, `*.bolt.host`, `*.polsia.app`, `*.trickle.host`,
+  `*.butternut.ai`, `*.durable.co`, `*.mixo.io`, `*.blinkusercontent.com`,
+  `*.wegic.net`, presenton gallery, `*.ai.studio`) — the hosted artifact IS
+  the generator's output ⇒ `ai_confirmed` at **design/layout scope**.
+  This does NOT settle text/image *content* authorship (see `scope` field).
+- **Human-operated tool hosts** (`*.framer.website`/`framer.site`, `*.webflow.io`,
+  `*.wixsite.com`/wixstatic, `*.my.canva.site`, `*.pitch.com`, `*.replit.app`,
+  `*.beautiful.ai`) — pipeline confirmed, authorship undetermined ⇒
+  `uncertain` (lean `human_likely` only with additional human evidence).
+- **AI-first deck tools** (`*.decktopus.com`, `tome.app`) — hosted artifacts
+  are tool-generated ⇒ `ai_likely` (marketplace/vendor templates are a
+  known contamination class — verify it's an output page, not a template
+  listing).
 
 ### A1. Hosted-artifact domains (the artifact IS served by the generator)
 
 | Domain / URL pattern | Tool | Notes |
 |---|---|---|
-| `*.gamma.site` | Gamma | Public published docs/sites. Subpath pages = same doc. |
+| `*.gamma.site` | Gamma | Generator host — design is Gamma-generated; text/image authorship stays separate (scope). |
 | `gensparkpublicblob.blob.core.windows.net` | Genspark | Asset CDN. Path `user-upload-image/public-skills/prod/slide-agent/v2/i18n/<locale>/<deck-slug>/thumbnails/NN-NN-*.png` = slide-agent deck thumbnails. |
 | `manus.im/share/*`, `manus.im/app` artifacts on `files.manuscdn.com`; `*.manus.space` (8-char slug) | Manus | Share links + `files.manuscdn.com` media CDN; published sites on `*.manus.space`. |
-| `*.canva.com/design/*/view`, `*.my.canva.site` | Canva (Magic Design) | Canva hosts human-made designs too — host alone ⇒ `ai_likely` cap unless other signals. |
-| `*.beautiful.ai` share links | Beautiful.ai | AI-assisted deck tool; same caveat as Canva. |
-| `tome.app/*` public pages | Tome | AI deck tool. |
-| `*.decktopus.com` | Decktopus | AI deck tool. |
+| `*.canva.com/design/*/view`, `*.my.canva.site` | Canva | Human-operated design tool — host alone ⇒ `uncertain` (Magic Design is opt-in). |
+| `*.beautiful.ai` share links | Beautiful.ai | AI-assisted but human-operated deck tool — host alone ⇒ `uncertain`. |
+| `tome.app/*` public pages | Tome | AI deck tool — hosted artifact is generated ⇒ `ai_likely`. |
+| `*.decktopus.com` | Decktopus | AI deck tool ⇒ `ai_likely`; marketplace/vendor templates are label noise (seen in eval). |
 | `*.pitch.com` public decks | Pitch | Human deck tool with AI features — host alone ⇒ `uncertain`. |
-| `*.lovable.app`, `*.bolt.host`, `*.blinkusercontent.com`, `v0.app`/`*.v0.dev` chat-shared links | Lovable / Bolt / Blink / v0 | AI site builders. `*.vercel.app`/`*.netlify.app` alone are NOT evidence (generic hosts) — but the subdomain convention `v0-<slug>.vercel.app` is a weak v0 tell (observed in collector URL lists; UNVERIFIED against captured HTML). |
-| `*.durable.co`, `*.mixo.io`, `*.framer.website`/framer.site, `*.polsia.app`/`polsia.io` | Durable / Mixo / Framer / Polsia | Site builders; Framer + humans ⇒ cap `ai_likely`; Polsia = AI agent builder. |
+| `*.lovable.app`, `*.bolt.host`, `*.blinkusercontent.com`, `v0.app`/`*.v0.dev` chat-shared links | Lovable / Bolt / Blink / v0 | Generator hosts. `*.vercel.app`/`*.netlify.app` alone are NOT evidence (generic hosts) — but the subdomain convention `v0-<slug>.vercel.app` is a weak v0 tell (observed in collector URL lists; UNVERIFIED against captured HTML). |
+| `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI site builders — generator hosts. |
 | `*.base44.app` (+ `app.base44.com`, `media.base44.com` asset CDN in every page) | Base44 | AI app builder; `base44-edit-badge`/`base44-scale-in`/`base44-fade-in` classes. |
 | `*.chatgpt.site` | ChatGPT sites | ChatGPT-built sites; often semantic vanilla HTML+CSS (no React) — see Tier B. |
 | `*.emergent.host` | Emergent | AI builder; badge + scripts below. |
-| `*.wegic.net` demos, `*.framer.ai` | Wegic / Framer published | Wegic AI demos; `*.framer.ai` + "Made in Framer" boilerplate. |
+| `*.wegic.net` demos, `*.framer.ai` | Wegic / Framer published | Wegic AI demos; `*.framer.ai` + "Made in Framer" boilerplate ⇒ Framer-AI surface `ai_likely`. |
 | `*.grok.me` | Grok (xAI app builder) | + `<meta name="grok-project-id" content="<uuid>">` + `grok.com` script — decisive. |
-| `*.replit.app` | Replit | AI-capable IDE/host; humans deploy there too ⇒ `ai_likely` cap w/o other signals. |
+| `*.replit.app` | Replit | General IDE/host; humans deploy there constantly ⇒ `uncertain` w/o other signals. |
 | `*.ai.studio` site pages | AI Studio (Google) app hosting | Pages are Vite+React+Lucide SPAs w/ NO self-marker — host is the fingerprint; host+stack ⇒ `ai_likely`. |
 | `*.butternut.ai` | Butternut | AI site builder; `butternut.ai` refs throughout HTML. |
 | `*.trickle.host` | Trickle | AI site builder; `trickle`/`Trickle` markers in HTML. |
 | `*.c.websim.com` (artifact iframe host); `websim.com/@user/slug` project pages | Websim | Project page embeds the generated app in an iframe — the page is a shell, but the artifact is inside ⇒ still `ai_confirmed`. `__websim_origin`/`__websim_route` params + `__websim*` globals. Bare `websim.com` non-project paths = tool page. |
 | `presenton.ai/community/presentations/<id>` | Presenton | Public gallery — the page IS the generated deck (slide text embedded). |
 | `presenton.ai/community/presentations/<id>` | Presenton | Public gallery of AI-generated decks; HTML embeds full slide text. |
-| `*.webflow.io`/sites w/ `data-wf-site`+`data-wf-page`+`webflow.css`+`<meta generator content="Webflow">` | Webflow | Human designer tool — pipeline proven, authorship `uncertain`/`human_likely`. Custom domains hide the host: content fingerprints still identify the *pipeline* (eval: 10/10 custom-domain Webflow pages → `human_likely`). |
-| `wixstatic.com` assets, `X-Wix` markup on custom domains | Wix | Same rule — designer pipeline, `human_likely`. |
+| `*.webflow.io`/sites w/ `data-wf-site`+`data-wf-page`+`webflow.css`+`<meta generator content="Webflow">` | Webflow | Human designer tool — pipeline proven, authorship leans human ⇒ `human_likely` (not `uncertain`: designer tools are overwhelmingly human-edited; lean ≠ proof). Custom domains hide the host: content fingerprints still identify the *pipeline* (eval: 10/10 custom-domain Webflow pages → `human_likely`). |
+| `wixstatic.com` assets, `X-Wix` markup on custom domains | Wix | Same rule — designer pipeline, `human_likely` lean. |
 
 ### A2. Watermarks and badges
 
-Literal strings in HTML or visible as in-image corner pills (all observed bottom-right):
+Literal strings in HTML or visible as in-image corner pills (all observed bottom-right).
+A badge proves the *publishing pipeline*, i.e. that the design/artifact was emitted
+by that tool — for generator tools that is `ai_confirmed` at design scope; for
+human-operated tools (Framer "Made in Framer", Canva credit lines) it is a
+designer-tool tell only. It never proves the *text or image content* was
+AI-written.
 
 | Badge | Tool | Form observed |
 |---|---|---|
@@ -129,14 +162,21 @@ ground truth for *where the file was fetched*, not for what generated the pixels
 | `*.chatgpt.site` host + semantic vanilla HTML (no framework root — `<header>/<main>/<section>`, `style.css`, skip-links) + punchy GPT copy | ChatGPT site |
 | `*.wegic.net` host + `id="wegic-branding-badge"`/`wegic-badge` classes + `cdn.wegic.ai` assets + `wegic.ai/assets/onepage/agent/` paths | Wegic (agent one-pagers) |
 | `storage.googleapis.com/gpt-engineer-file-uploads/` asset bucket or `gpteng.co` refs or `lovable-badge*` classes + `id="root"` + Vite hash assets | Lovable (GPT Engineer backend) |
-| Vite+React SPA (`id="root"` + `/assets/index-<base62>.js`) + Tailwind utility soup (`max-w-6xl mx-auto px-6`, `rounded-lg`) + `class="lucide lucide-*"` SVGs (`stroke-linecap="round"`, `stroke-width="2"`) — no tool marker | unattributed vibe-code stack ⇒ `ai_likely`, tool unknown (this stack is also human-usable, so never `ai_confirmed` on it alone) |
-| Single-file page: Tailwind/Inter CDN + hero-gradient layout, no CMS chrome | AI site builder (generic — `ai_likely`, no tool attribution) |
+| Vite+React SPA (`id="root"` + `/assets/index-<base62>.js`) + Tailwind utility soup (`max-w-6xl mx-auto px-6`, `rounded-lg`) + `class="lucide lucide-*"` SVGs (`stroke-linecap="round"`, `stroke-width="2"`) — no tool marker | **production-method note, NOT an AI tell** — humans hand-write this stack daily. Alone ⇒ `uncertain` with `pipelineGuess:"codegen-style stack"` (method observed, authorship undetermined). Contributes toward `ai_likely` only together with tool-specific fingerprints or content anomalies. |
+| Single-file page: Tailwind/Inter CDN + hero-gradient layout, no CMS chrome | same caveat — generic scaffold, not provenance |
 
-Two or more independent Tier-B signals on the same artifact ⇒ `ai_likely` minimum.
+Two or more **tool-specific** Tier-B signals (rows naming a tool/CDN) on the same
+artifact ⇒ `ai_likely` minimum. Generic-stack signals (last two rows) do not count.
 
 ## Tier C — Visual heuristics (screenshots only — weakest tier)
 
-Positive tells (each is weak; need ≥3 for `ai_likely`, cap `uncertain` otherwise):
+Positive tells — two classes. **Layout/style tells** (grid uniformity, badge-like
+chrome, NN furniture, template skeletons, shared deck idioms) never reach
+`ai_likely` alone. **Content-anomaly tells** (invented entities with fake metrics,
+env/config leaks shipped in the UI, garbled in-image text, impossible details,
+in-artifact model claims, contradictory units, future-dated production data) are
+the strong class. Rule: `ai_likely` needs ≥2 independent content-anomaly tells,
+or ≥3 mixed tells of which ≥1 is content-anomaly; otherwise `uncertain`.
 - Uniform card grids: N identical rounded-corner cards, perfectly equal spacing/alignment.
 - Statement headline + tiny kicker ("04 / COMPETITORS & ADVANTAGES") + corner brand mark + footer furniture (page number, "Sources in speaker notes") — seen in ChatGPT-generated deck (`chatgpt-slides/`).
 - ChatGPT image-slides: whole slide is ONE generated image — flawless baked-in type, oversized bold headline ending in a colored square period (`Infercat` deck), `NN / NN` page footers, flat line-art/contour illustration, restrained 2-3 color palette, consistent corner labels + footer credits per deck.
@@ -237,20 +277,38 @@ bundle chunk filenames. `mixed` = both present.
 
 ## Verdicts
 
-| Verdict | Rule | Confidence |
-|---|---|---|
-| `ai_confirmed` | ≥1 Tier-A signal verified in the artifact | 0.9–1.0 |
-| `ai_likely` | ≥2 Tier-B, or ≥3 independent Tier-C | 0.6–0.85 |
-| `uncertain` | mixed or ≤2 weak signals | ≤0.5 |
-| `human_likely` | no AI signals AND multiple human tells | ≤0.5, say why |
+| Verdict | Rule | `aiGenerated` | Confidence grade |
+|---|---|---|---|
+| `ai_confirmed` | Tier-A provenance for a *generator* host/badge, or decisive in-artifact generation evidence (A4 dumps, embedded checkpoint names, safetensors grids) | `true` | high |
+| `ai_likely` | ≥2 tool-specific Tier-B, or Tier-C anomaly rule met, or AI-first deck-tool host | `true` | medium |
+| `uncertain` | evidence insufficient, mixed, or human-operated pipeline w/o authorship evidence | `null` — **NOT false** | low |
+| `human_likely` | human-side evidence (designer-tool pipeline, template placeholders, real-entity anchors) and no AI tells | `false` | low |
+| `human_confirmed` | decisive human evidence (SlidesGo credit line, literal unfilled placeholders, verifiable real publication) | `false` | high |
+| `unavailable` | blank/unloadable input | `null` | — |
+| `toolpage` | the tool's own marketing/chat UI, not an artifact | `null` | — |
+
+`aiGenerated` is **tri-state**: `true`/`false`/`null`. Consumers MUST treat
+`null` as "undetermined", never as "human-made". A missing verdict is not a
+negative finding.
+
+`confidence` is an **ordinal certainty grade**, not a calibrated probability —
+0.9+ means "provenance/decisive evidence observed", ~0.7 "multiple independent
+tells", ~0.5 "borderline", ≤0.4 "weak lean". Do not quote it as an accuracy.
 
 Hard rules:
-- Canva/Pitch/Beautiful.ai/Framer host-or-generator-meta alone ⇒ cap at `ai_likely`
-  (humans publish/design there too; the meta proves the pipeline, not AI authorship).
+- Generator-host (Tier A) ⇒ `ai_confirmed` for the design/layout scope; text and
+  embedded-image authorship stay `unknown` unless separately evidenced (scope field).
+- Human-operated-tool host/meta (Canva/Framer/Webflow/Wix/Pitch/Beautiful.ai/
+  Replit) alone ⇒ `uncertain`–`human_likely`; never `ai_confirmed`.
+- Production method ≠ AI involvement: a real DOM (React/Vite) does not prove a
+  coding model wrote it, and a full-raster slide does not prove an image model
+  rendered it. `pipelineGuess` records the *method family*; `modelGuess` and
+  AI-process claims stay `null` without per-asset evidence.
+- Generic layout, polished prose, real logos, placeholder copy, and even
+  shipped error messages are EACH non-proving alone — they are weak tells,
+  never provenance.
 - Screenshot-only input ⇒ cap at `ai_likely` unless a watermark/badge is visible.
 - Model attribution requires A4-style in-artifact evidence. Style-only guesses → `uncertain`.
-- "AI-generated tool" ≠ "AI-generated content": a Gamma site could host human-typed text.
-  Report what the signal proves (the *pipeline*), not what it implies.
 
 ## Model-level attribution (be honest)
 
@@ -281,15 +339,27 @@ Always report `modelGuess` separately from `toolGuess`; default it to `null`.
   "toolGuess": "gamma",
   "pipelineGuess": "mixed",
   "modelGuess": null,
+  "scope": { "design": "ai", "text": "unknown", "images": "ai-pool-unattributed" },
   "model_evidence": "embedded feature flags name DALL-E/Imagen3/Ideogram/Flux image pool + GPT-4 text gen",
   "evidence": ["A1: *.gamma.site host", "A2: Made-with-Gamma badge", "B: Next.js+Emotion+gamma-* classes"],
   "notes": "what would raise/lower confidence"
 }
 ```
 
-Field contract: `aiGenerated` = verdict ∈ {ai_confirmed, ai_likely}; `toolGuess`/`modelGuess`
-= null when not attributable; `pipelineGuess` ∈ {codegen, imagegen, mixed, designer-tool, null};
-`evidence[]` lists concrete observed markers (never vibes).
+Field contract:
+- `aiGenerated`: **tri-state** `true | false | null` — null = undetermined
+  (`uncertain`/`unavailable`/`toolpage`), never a synonym for human-made.
+- `verdict`: the graded call per the table above.
+- `confidence`: ordinal grade only — see Verdicts. Not a calibrated probability.
+- `toolGuess`/`modelGuess`: `null` when not attributable.
+- `pipelineGuess`: production-method family — `codegen | imagegen | mixed |
+  designer-tool | null`. It describes HOW the artifact was built, not whether
+  AI did it (a hand-written React site is also `codegen` method).
+- `scope`: per-component authorship — `design` (layout/structure), `text`
+  (copy), `images` (embedded media); each `ai | human | unknown`. Generator
+  hosts give `design:"ai"` while `text`/`images` may stay `unknown` or `human`
+  (e.g. a human-authored report published via Gamma).
+- `evidence[]`: concrete observed markers only (never vibes).
 
 ## Measured performance (dataset-internal eval)
 
@@ -297,22 +367,25 @@ Field contract: `aiGenerated` = verdict ∈ {ai_confirmed, ai_likely}; `toolGues
 and scores them against the collected corpus. Split is per-artifact hash
 (`sha1(path)` → 30% held-out test), so no artifact appears in both sides.
 
-Held-out test results (n=3,920 HTML records, 32 dirs):
+Held-out test results (n=4,201 HTML records scanned, 32 dirs):
 
 | Class | n | Caught | FP | Missed | Abstain |
 |---|---|---|---|---|---|
-| AI artifacts | 2,010 | 99.4% | — | 0 | 12 |
+| AI artifacts | 2,272 | 99.5% | — | 0 | 12 |
 | Human pages | 113 | — | 0 (0%) | — | 68 |
 | Tool pages | 1,447 | identified separately (not scored) | | | |
 
-Full-corpus sweep (n=21,603 scanned): AI caught 99.7% (11,003/11,039), missed 2,
-human FP 2 (0.5% — both are `*.gamma.site` files misfiled under `wix/`; the
-detector was right, the dir label was wrong).
-
 **No-host mode** (URL stripped — simulates bare HTML exports / offline captures):
-AI caught 84.9% full-corpus (76.1% held-out), human FP 0.5%/0%. The residual are
-stub shells and badge-less artifacts whose only tell was the host — abstain is
-correct there.
+AI caught 67.3% held-out, human FP 0%. Lower than the earlier 76.1% because the
+generic Vite/React/Tailwind stack no longer counts toward `ai_likely` (it is a
+production-method note, not an AI tell) — the tightening is intentional and the
+residual are stub shells whose only tell was the host. Abstain is correct there.
+
+**Contract check** (`scripts/detector-contract.mjs`, 8/8): gamma host ⇒
+`ai_confirmed` + `scope.design=ai`/`text=unknown`; framer ⇒ `human_likely`;
+hand-written React/Tailwind/Lucide SPA ⇒ `uncertain` + `aiGenerated=null`;
+bare URLs and generic hosts ⇒ `uncertain`+`null`. `aiGenerated` is tri-state
+and `null` propagates — consumers never see `uncertain` collapse to `false`.
 
 Honest caveats:
 - Selection bias: AI dirs were collected largely *via* their decisive surfaces
@@ -419,26 +492,34 @@ and designer-tool landings. Audit excluded 5: 2 cross-set same-deck
 
 | Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain | Decided |
 |---|---|---|---|---|---|---|
-| Full (n=141) | 64.7% (55/85) | 12.9% | 22.4% | **8.9% (5/56)** | 16.1% | 80.1% |
-| No-badge (n=117) | 51.6% (32/62) | 17.7% | 30.6% | 9.1% (5/55) | 16.4% | 74.4% |
+| Full (n=137) | 67.9% (55/81) | 8.6% | 23.5% | **8.9% (5/56)** | 16.1% | 79.6% |
+| No-badge (n=113) | 55.2% (32/58) | 12.1% | 32.8% | 9.1% (5/55) | 16.4% | 73.5% |
 
 Per-pipeline (full): codegen 37/40 caught (92.5%), imagegen 9/19 (47.4% —
-10 abstains are the photoreal/subtle cases), mixed 9/26 (34.6% — the
-template-mimicry + human-content-on-AI-host class), human/human 0 FP,
-human/designer 5 FP / 27.
+10 abstains are the photoreal/subtle cases), mixed 9/22 (40.9% — the
+template-mimicry class), human/human 0 FP, human/designer 5 FP / 27.
 
-**Before/after on the FP fix:** dev-set human FP was 22.0% (v2) / 21.7%
-(v2b); final-set FP is 8.9%. The cost is recall: catch fell to 64.7% as
-borderline cases correctly moved to `uncertain` instead of `ai_likely`.
-Abstentions are honest, not accuracy padding — decided rate is still 80%.
+Post-hoc label audit added 4 `contested` exclusions: Gamma-hosted
+human-authored content (real-person deck, Guru report, marketer portfolio,
+SPACE 9). Collector provenance says `gamma` but the artifact is a
+human-content/AI-layout composite — not binary-scoreable; excluded and
+re-aggregated rather than counted as AI misses.
 
-v3 miss analysis (all 11 are the two known hard classes):
-- **Gamma-hosted human content** (4): real-person decks/reports/portfolios
-  authored by humans and rendered by Gamma — content is human even though
-  the artifact pipeline is AI. Visually indistinguishable from real work.
-- **Template mimicry** (7): slidesai slides shipping literal placeholder
-  copy read as human templates; genspark JP decks with real citations
-  (Waseda lit seminar, Penguin-paperback bibliography) read as real docs.
+**Before/after on the FP fix — honest comparability:** v2/v3 are
+different-difficulty sets, so 22.0%→8.9% is NOT a clean rule-effect number.
+Mechanically re-mapping the *same* v2 judgments under the new rules
+(ai_likely without badge or content-anomaly evidence → uncertain) gives
+**~14.6% FP (6/41), catch 72.7%** — the rules cut dev-set FP by a third;
+the remaining gap to 8.9% is set composition, not the rules.
+
+v3 miss analysis (7 scored misses, all template mimicry):
+- slidesai slides shipping literal placeholder copy read as human templates;
+  genspark JP decks with real citations (Waseda comparative-lit seminar,
+  Penguin-paperback bibliography, dense internal report w/ revision table)
+  read as real work docs.
+- The 4 Gamma-hosted human-content items are **excluded as contested**, not
+  counted as misses: composite authorship (human text on AI layout) defeats
+  binary ground truth. Reported separately so the reader sees the floor.
 v3 FPs (5): webflow Nuvio/SPECODE (invented-brand + placeholder-demo data),
 framer SendRoq/DeserveOS (invented logo walls + self-referencing screenshots),
 beautifulai circular-diagram slide — the residual FP class is now narrow:

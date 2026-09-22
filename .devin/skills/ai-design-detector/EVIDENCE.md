@@ -471,3 +471,57 @@ Visual-only judgment separates into: (a) badge/chrome items ~sure,
 (b) codegen apps ~92%, (c) obvious imagegen ~sure, (d) subtle imagegen /
 template-mimic slides / human-content-on-AI-hosts = the abstention zone —
 and abstaining there is correct, not a failure of the rubric.
+
+## Contract refactor (provenance vs generation separation)
+
+User-identified inconsistency fixed across SKILL.md + detector-eval.mjs:
+
+1. **Two-question split**: Tier-A signals now prove the *pipeline* only.
+   Generator hosts (`*.gamma.site`, `*.lovable.app`, `*.c.websim.com`, ...)
+   yield `ai_confirmed` at design/layout scope; human-operated tool hosts
+   (framer.website, webflow.io, canva, pitch, replit, beautiful.ai) yield
+   `uncertain`/`human_likely` — pipeline confirmed, authorship undetermined.
+   `scope` field separates design / text / images authorship
+   (a Gamma-hosted human report: design=ai, text=unknown).
+2. **aiGenerated is tri-state**: `true | false | null`. uncertain /
+   unavailable / toolpage -> null, never false. Consumers must not read
+   null as "human-made".
+3. **Production method != AI involvement**: generic Vite+React+Tailwind+
+   Lucide stack is a method note (`pipelineGuess:"codegen-style stack"`),
+   excluded from the >=2 Tier-B escalation rule (tool-specific signals only).
+   Raster slide != imagegen, DOM != codegen — per-asset evidence required
+   for model claims (`modelGuess` stays null without it).
+4. **confidence is an ordinal grade**, not a calibrated probability —
+   documented in the Verdicts table.
+
+### Contract test (scripts/detector-contract.mjs, 8/8 pass)
+
+- gamma host page -> ai_confirmed, aiGenerated=true, scope.design=ai,
+  text=unknown
+- framer site -> human_likely, aiGenerated=false
+- hand-written React/Tailwind/Lucide SPA (no markers) -> uncertain,
+  aiGenerated=null
+- websim artifact -> ai_confirmed
+- human baseline -> uncertain
+- bare URL / pitch.com URL / generic vercel.app host -> uncertain + null
+
+### Re-scored eval under the refactor
+
+- detector-eval held-out test: AI 99.5% (2260/2272), human FP 0/113.
+- no-host: 67.3% (was 76.1%) — the drop is the intentional vibe-stack
+  demotion; borderline artifacts now abstain instead of overclaiming.
+- blindset3 re-aggregated after marking 4 Gamma-hosted human-content items
+  `contested` (composite authorship — collector-provenance-only labels):
+  Full n=137: AI 67.9% (55/81), miss 8.6%, abstain 23.5%;
+  human FP 8.9% (5/56). No-badge n=113: AI 55.2%, FP 9.1%.
+
+### FP-fix comparability (honest)
+
+v2 (dev) and v3 (final) are different-difficulty sets — 22.0% -> 8.9% is
+NOT a pure rule effect. Mechanical re-mapping of the same v2 judgments
+under the new rules (ai_likely lacking badge + content-anomaly evidence ->
+uncertain) gives **14.6% FP (6/41), catch 72.7%** on the identical dev set:
+the rules cut FP by ~a third on like-for-like data; the rest of the gap is
+set composition. Remaining v2 demoted-FPs show a new boundary: humans also
+ship invented demo metrics (real-estate/financial template slides) —
+"invented numbers" alone is not AI-exclusive either.
