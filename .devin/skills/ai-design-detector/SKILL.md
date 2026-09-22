@@ -34,64 +34,89 @@ When only stylistic evidence exists, the ceiling is `uncertain` — say so.
 Evaluate in this order: **provenance → construction fingerprints → visual heuristics**.
 Stop early when a higher tier is decisive.
 
-## Tier A — Decisive provenance signals
+## Tier A — Provenance signals (pipeline identification, NOT generation proof)
 
-Tier-A signals prove the **pipeline** (which tool produced/served the artifact).
-What they imply about *generation* depends on the tool class:
+Tier-A signals prove **where/how the artifact was published or rendered** —
+the pipeline — and nothing more. Publishing/rendering/import/manual-editing
+are different operations from AI generation: a user can import a hand-made
+PPTX into Gamma, hand-edit a Lovable app, or publish a human-written doc to
+`*.gamma.site`. **A host alone — even a generator's own artifact domain —
+never proves the individual design was AI-generated.**
 
-- **Generator hosts** (`*.gamma.site`, `*.lovable.app`, `*.c.websim.com`,
-  `*.manus.space`, `*.base44.app`, `*.grok.me`, `*.emergent.host`,
-  `*.chatgpt.site`, `*.bolt.host`, `*.polsia.app`, `*.trickle.host`,
-  `*.butternut.ai`, `*.durable.co`, `*.mixo.io`, `*.blinkusercontent.com`,
-  `*.wegic.net`, presenton gallery, `*.ai.studio`) — the hosted artifact IS
-  the generator's output ⇒ `ai_confirmed` at **design/layout scope**.
-  This does NOT settle text/image *content* authorship (see `scope` field).
-- **Human-operated tool hosts** (`*.framer.website`/`framer.site`, `*.webflow.io`,
-  `*.wixsite.com`/wixstatic, `*.my.canva.site`, `*.pitch.com`, `*.replit.app`,
-  `*.beautiful.ai`) — pipeline confirmed, authorship undetermined ⇒
-  `uncertain` (lean `human_likely` only with additional human evidence).
-- **AI-first deck tools** (`*.decktopus.com`, `tome.app`) — hosted artifacts
-  are tool-generated ⇒ `ai_likely` (marketplace/vendor templates are a
-  known contamination class — verify it's an output page, not a template
-  listing).
+Generation requires **per-item evidence** about the artifact itself:
 
-### A1. Hosted-artifact domains (the artifact IS served by the generator)
+- in-artifact generator markers emitted only in generated output (artifact
+  badge scripts/globals — `bolt.new/badge.js`, `lovable-badge`,
+  `v0-built-with-button`, `__websim_*` globals, `grok-project-id` meta,
+  `auto-engineer.js?projectId=`)
+- per-item generation records (a visible generation prompt, `<meta
+  name="generator" content="v0.app">` — the meta is a per-item "generated
+  by" claim; contrast `generator=Framer` which claims a human-operated tool)
+- author declarations ("built with X", "#AIイラスト")
+- asset-level generation metadata (safetensors names, EXIF/prompt fields)
 
-| Domain / URL pattern | Tool | Notes |
-|---|---|---|
-| `*.gamma.site` | Gamma | Generator host — design is Gamma-generated; text/image authorship stays separate (scope). |
-| `gensparkpublicblob.blob.core.windows.net` | Genspark | Asset CDN. Path `user-upload-image/public-skills/prod/slide-agent/v2/i18n/<locale>/<deck-slug>/thumbnails/NN-NN-*.png` = slide-agent deck thumbnails. |
-| `manus.im/share/*`, `manus.im/app` artifacts on `files.manuscdn.com`; `*.manus.space` (8-char slug) | Manus | Share links + `files.manuscdn.com` media CDN; published sites on `*.manus.space`. |
-| `*.canva.com/design/*/view`, `*.my.canva.site` | Canva | Human-operated design tool — host alone ⇒ `uncertain` (Magic Design is opt-in). |
-| `*.beautiful.ai` share links | Beautiful.ai | AI-assisted but human-operated deck tool — host alone ⇒ `uncertain`. |
-| `tome.app/*` public pages | Tome | AI deck tool — hosted artifact is generated ⇒ `ai_likely`. |
-| `*.decktopus.com` | Decktopus | AI deck tool ⇒ `ai_likely`; marketplace/vendor templates are label noise (seen in eval). |
-| `*.pitch.com` public decks | Pitch | Human deck tool with AI features — host alone ⇒ `uncertain`. |
-| `*.lovable.app`, `*.bolt.host`, `*.blinkusercontent.com`, `v0.app`/`*.v0.dev` chat-shared links | Lovable / Bolt / Blink / v0 | Generator hosts. `*.vercel.app`/`*.netlify.app` alone are NOT evidence (generic hosts) — but the subdomain convention `v0-<slug>.vercel.app` is a weak v0 tell (observed in collector URL lists; UNVERIFIED against captured HTML). |
-| `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI site builders — generator hosts. |
-| `*.base44.app` (+ `app.base44.com`, `media.base44.com` asset CDN in every page) | Base44 | AI app builder; `base44-edit-badge`/`base44-scale-in`/`base44-fade-in` classes. |
-| `*.chatgpt.site` | ChatGPT sites | ChatGPT-built sites; often semantic vanilla HTML+CSS (no React) — see Tier B. |
-| `*.emergent.host` | Emergent | AI builder; badge + scripts below. |
-| `*.wegic.net` demos, `*.framer.ai` | Wegic / Framer published | Wegic AI demos; `*.framer.ai` + "Made in Framer" boilerplate ⇒ Framer-AI surface `ai_likely`. |
-| `*.grok.me` | Grok (xAI app builder) | + `<meta name="grok-project-id" content="<uuid>">` + `grok.com` script — decisive. |
-| `*.replit.app` | Replit | General IDE/host; humans deploy there constantly ⇒ `uncertain` w/o other signals. |
-| `*.ai.studio` site pages | AI Studio (Google) app hosting | Pages are Vite+React+Lucide SPAs w/ NO self-marker — host is the fingerprint; host+stack ⇒ `ai_likely`. |
-| `*.butternut.ai` | Butternut | AI site builder; `butternut.ai` refs throughout HTML. |
-| `*.trickle.host` | Trickle | AI site builder; `trickle`/`Trickle` markers in HTML. |
-| `*.c.websim.com` (artifact iframe host); `websim.com/@user/slug` project pages | Websim | Project page embeds the generated app in an iframe — the page is a shell, but the artifact is inside ⇒ still `ai_confirmed`. `__websim_origin`/`__websim_route` params + `__websim*` globals. Bare `websim.com` non-project paths = tool page. |
-| `presenton.ai/community/presentations/<id>` | Presenton | Public gallery — the page IS the generated deck (slide text embedded). |
-| `presenton.ai/community/presentations/<id>` | Presenton | Public gallery of AI-generated decks; HTML embeds full slide text. |
-| `*.webflow.io`/sites w/ `data-wf-site`+`data-wf-page`+`webflow.css`+`<meta generator content="Webflow">` | Webflow | Human designer tool — pipeline proven, authorship leans human ⇒ `human_likely` (not `uncertain`: designer tools are overwhelmingly human-edited; lean ≠ proof). Custom domains hide the host: content fingerprints still identify the *pipeline* (eval: 10/10 custom-domain Webflow pages → `human_likely`). |
-| `wixstatic.com` assets, `X-Wix` markup on custom domains | Wix | Same rule — designer pipeline, `human_likely` lean. |
+With only a host/provenance signal ⇒ `provenance.confirmed` +
+`aiGenerated: null` + verdict `uncertain`. This applies symmetrically in the
+other direction: hosting on Framer/Webflow/Wix does NOT prove human
+authorship either (these tools ship AI features) ⇒ `uncertain`, not
+`human_likely`.
 
-### A2. Watermarks and badges
+Corollary for AI-feature pages: a product page that says "Powered by GPT-4"
+*uses* the model — it is not *generated by* it. Model names are authorship
+evidence only when they identify the artifact's own generation record.
 
-Literal strings in HTML or visible as in-image corner pills (all observed bottom-right).
-A badge proves the *publishing pipeline*, i.e. that the design/artifact was emitted
-by that tool — for generator tools that is `ai_confirmed` at design scope; for
-human-operated tools (Framer "Made in Framer", Canva credit lines) it is a
-designer-tool tell only. It never proves the *text or image content* was
-AI-written.
+### A1. Host/surface table — all rows are provenance only
+
+Every row below ⇒ `provenance: {tool, certainty:'confirmed', via:'host'}` and
+`uncertain`/`aiGenerated:null` **by itself**. Generation verdicts need the
+per-item evidence in the right column (or Tier-B/C evidence).
+
+| Domain / URL pattern | Tool | What the host proves | Per-item generation evidence |
+|---|---|---|---|
+| `*.gamma.site` | Gamma | Published via Gamma pipeline (generation, import, and manual docs all land here) | badge+config are still only pipeline; no reliable in-artifact generated-vs-imported marker known ⇒ stays `uncertain` unless external record/claim |
+| `gensparkpublicblob.blob.core.windows.net` | Genspark | slide-agent asset CDN | `.../slide-agent/v2/i18n/<locale>/<deck>/thumbnails/NN-NN-*.png` path = generated-deck thumbnails (pipeline is generation-only) ⇒ `ai_likely` |
+| `manus.im/share/*`, `*.manus.space` (8-char slug) | Manus | Manus-published surface | `manus-content-root`/`__manus_space_editor_info`/`__manus__global_env` artifact shell ⇒ `ai_confirmed` |
+| `*.canva.com/design/*/view`, `*.my.canva.site` | Canva | Human-operated design tool (Magic Design opt-in) | none known in-artifact ⇒ `uncertain` |
+| `*.beautiful.ai` | Beautiful.ai | AI-assisted, human-operated deck tool | none known ⇒ `uncertain` |
+| `tome.app/*` | Tome | AI deck tool surface | none verified ⇒ `uncertain` |
+| `*.decktopus.com` | Decktopus | AI deck tool + marketplace (vendor templates = human content hosted there — contamination class seen in eval) | none verified ⇒ `uncertain` |
+| `*.pitch.com` | Pitch | Human deck tool w/ AI features | none known ⇒ `uncertain` |
+| `*.lovable.app` | Lovable | Lovable-published app | `lovable-badge`/`gpteng.co`/`gpt-engineer-file-uploads` markers ⇒ `ai_confirmed` |
+| `*.bolt.host` | Bolt | Bolt-published app | `bolt.new/badge.js`/`Made in Bolt` ⇒ `ai_confirmed` |
+| `*.blinkusercontent.com` | Blink | Blink-published app | `blink-badge*` classes / `auto-engineer.js?projectId=` / default "Blink App" OG ⇒ `ai_confirmed` |
+| `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI-builder surface | in-artifact markers needed ⇒ `uncertain` w/o them |
+| `*.base44.app` | Base44 | Base44-published app | `base44-edit-badge`/`media.base44.com`/`app.base44.com` refs ⇒ `ai_confirmed` |
+| `*.chatgpt.site` | ChatGPT sites | ChatGPT-published site | semantic vanilla-HTML shell is pipeline evidence; generation markers unverified ⇒ `uncertain`+stack note |
+| `*.emergent.host` | Emergent | Emergent-published app | `id="emergent-badge"`/`A product of emergent.sh` meta ⇒ `ai_confirmed` |
+| `*.wegic.net` | Wegic | Wegic demo surface | `wegic-branding-badge`/`cdn.wegic.ai` ⇒ `ai_confirmed` |
+| `*.grok.me` | Grok | Grok-published app | `grok-project-id` meta (per-item record) ⇒ `ai_confirmed` |
+| `*.replit.app` | Replit | General IDE/host — humans deploy constantly | n/a ⇒ `uncertain` |
+| `*.ai.studio` | AI Studio hosting | Google AI-app hosting (Vite+React+Lucide SPAs, no self-marker) | none known ⇒ `uncertain` (host+stack is provenance, not generation) |
+| `*.butternut.ai` | Butternut | AI site builder | `butternut.ai` refs are pipeline; generation markers unverified ⇒ `uncertain` |
+| `*.trickle.host` | Trickle | AI site builder | `trickle` markers pipeline; unverified ⇒ `uncertain` |
+| `*.c.websim.com`, `websim.com/@user/slug` | Websim | Websim artifact/project surface | `__websim_origin`/`__websim_route`/`__websim*` globals in the artifact ⇒ `ai_confirmed`. Bare `websim.com` non-project = tool page. |
+| `presenton.ai/community/presentations/<id>` | Presenton | Public generated-deck gallery | page embeds deck + generation prompt ⇒ `ai_confirmed` when prompt/record visible |
+| `*.webflow.io`, `data-wf-*`/`webflow.css`/`generator=Webflow` markup | Webflow | Webflow pipeline — proves tool, not authorship (eval: 10/10 custom-domain Webflow pages identified as pipeline, all `uncertain`) | none — `uncertain` either way |
+| `wixstatic.com`, `X-Wix` markup | Wix | Wix pipeline | none — `uncertain` |
+| `*.framer.website`/`framer.site`/`framer.ai`, `framerusercontent.com`, `data-framer-*`, `generator=Framer <hash>` | Framer | Framer pipeline (human-operated tool w/ AI features) | none — `uncertain`; "Made in Framer" boilerplate is a publish badge, not a generation record |
+| `*.vercel.app`, `*.netlify.app` | generic hosts | **no provenance** — `v0-<slug>.vercel.app` subdomain convention is a weak unverified tell only | n/a |
+
+### A2. Watermarks and badges — two different evidence classes
+
+Literal strings in HTML or visible as in-image corner pills (all observed
+bottom-right). Split by what the badge actually attests:
+
+- **Artifact badges = generation evidence.** Badges/globals/scripts that ship
+  only inside generator output (`bolt.new/badge.js`, `lovable-badge`,
+  `v0-built-with-button-<uuid>`, `emergent-badge`, `wegic-branding-badge`,
+  `base44-edit-badge`, `blink-badge*`, `__websim_*` globals,
+  `grok-project-id` meta) ⇒ `ai_confirmed` at design scope. These mark *this
+  artifact* as generator output.
+- **Publish badges = provenance only.** Badges emitted on everything a tool
+  publishes (`Made with Gamma`, `Made in Framer`, Canva credit lines) mark
+  the pipeline, not the authorship — imported/hand-edited docs carry them
+  too ⇒ provenance confirmed, generation `uncertain`.
+- A badge never proves the *text or image content* was AI-written (scope).
 
 | Badge | Tool | Form observed |
 |---|---|---|
@@ -110,20 +135,23 @@ Absence of a badge means nothing (paid tiers remove them) — never use absence 
 
 ### A3. Generator/meta markup
 
-- `<meta name="generator" content="...">` naming an AI tool — decisive for the *pipeline*.
-  Observed: `<meta name="generator" content="v0.app">` (11/13 v0 files);
-  `<meta name="generator" content="Framer e0809aa">` (build-hash suffix; Framer ⇒ pipeline
-  only, humans design in it — cap `ai_likely`).
+- `<meta name="generator" content="v0.app">` (11/13 v0 files) — a per-item
+  "generated by" claim naming a generator ⇒ generation evidence.
+  `<meta name="generator" content="Framer e0809aa">` / `generator=Webflow` /
+  `generator=Wix.com` — same field, but the named tool is human-operated ⇒
+  **provenance only**.
 - Gamma quirk observed: `<meta name="robots" content=", ">` (malformed value) plus
-  `og:image`/`twitter:image` `content="null"` — sloppy meta generation, strong tell.
-- Blink default OG (conclusive when unedited): `og:title "Blink App"` +
-  `og:description "An app built with Blink."` (1,748/3,199 html in dataset; rest carry
-  `blink-badge*` classes or the `auto-engineer.js?projectId=` stub script instead).
+  `og:image`/`twitter:image` `content="null"` — sloppy meta pipeline ⇒ provenance.
+- Blink default OG (per-item "built with" claim when unedited): `og:title
+  "Blink App"` + `og:description "An app built with Blink."` (1,748/3,199
+  html in dataset) ⇒ generation evidence.
 - Manus shell: `csp-nonce` meta, `<meta name="theme-color" content="#f8f8f7">`,
-  `google: notranslate`, assets on `files.manuscdn.com`.
-- Emergent: `<meta name="description" content="A product of emergent.sh">`.
+  `google: notranslate`, assets on `files.manuscdn.com` — artifact-shell
+  markers ⇒ generation evidence.
+- Emergent: `<meta name="description" content="A product of emergent.sh">` ⇒
+  generation evidence.
 
-### A4. Embedded model-config dumps (identifies the model pipeline)
+### A4. Embedded model-config dumps (pipeline provenance, not generation proof)
 
 Gamma exports embed a client feature-flag/config object naming its generation stack.
 Observed keys (dataset `gamma/*.html`): `generatorGPT4`, `gpt4oMiniGenerate`,
@@ -134,7 +162,10 @@ Observed keys (dataset `gamma/*.html`): `generatorGPT4`, `gpt4oMiniGenerate`,
 
 Report as: "Gamma pipeline; flag set references GPT-4-class text gen and a multi-vendor
 image pool (DALL-E / Imagen 3 / Ideogram / Leonardo Phoenix / Recraft / Flux Schnell /
-SDXL)". Do NOT claim which vendor rendered a specific image unless per-asset metadata says so.
+SDXL)". The config is the app's runtime pool — present on generated AND
+imported/hand-edited docs alike — so it proves the *pipeline*, not that this
+document was AI-authored ⇒ provenance only. Do NOT claim which vendor rendered
+a specific image unless per-asset metadata says so.
 
 ### A5. Dataset provenance
 
@@ -165,8 +196,14 @@ ground truth for *where the file was fetched*, not for what generated the pixels
 | Vite+React SPA (`id="root"` + `/assets/index-<base62>.js`) + Tailwind utility soup (`max-w-6xl mx-auto px-6`, `rounded-lg`) + `class="lucide lucide-*"` SVGs (`stroke-linecap="round"`, `stroke-width="2"`) — no tool marker | **production-method note, NOT an AI tell** — humans hand-write this stack daily. Alone ⇒ `uncertain` with `pipelineGuess:"codegen-style stack"` (method observed, authorship undetermined). Contributes toward `ai_likely` only together with tool-specific fingerprints or content anomalies. |
 | Single-file page: Tailwind/Inter CDN + hero-gradient layout, no CMS chrome | same caveat — generic scaffold, not provenance |
 
-Two or more **tool-specific** Tier-B signals (rows naming a tool/CDN) on the same
-artifact ⇒ `ai_likely` minimum. Generic-stack signals (last two rows) do not count.
+Tier-B fingerprints identify the **pipeline** only — even several together
+stay provenance. A generation verdict needs the G-class markers listed in
+A2/A3 (artifact badges, globals, per-item generator claims) or the Tier-C
+content-anomaly rule. Rows above naming generator *artifact* markers
+(`blink-badge*`, `bolt.new/badge.js`, `v0-built-with-button`,
+`base44-edit-badge`, `grok-project-id`, `__websim_*`, manus shell globals,
+`generator=v0.app`) are the G-class; rows naming tool chrome (`data-wf-*`,
+`data-framer-*`, `gamma-*` DOM, `pitch-assets-*`) are pipeline only.
 
 ## Tier C — Visual heuristics (screenshots only — weakest tier)
 
@@ -279,10 +316,10 @@ bundle chunk filenames. `mixed` = both present.
 
 | Verdict | Rule | `aiGenerated` | Confidence grade |
 |---|---|---|---|
-| `ai_confirmed` | Tier-A provenance for a *generator* host/badge, or decisive in-artifact generation evidence (A4 dumps, embedded checkpoint names, safetensors grids) | `true` | high |
-| `ai_likely` | ≥2 tool-specific Tier-B, or Tier-C anomaly rule met, or AI-first deck-tool host | `true` | medium |
-| `uncertain` | evidence insufficient, mixed, or human-operated pipeline w/o authorship evidence | `null` — **NOT false** | low |
-| `human_likely` | human-side evidence (designer-tool pipeline, template placeholders, real-entity anchors) and no AI tells | `false` | low |
+| `ai_confirmed` | **per-item** generation evidence: A2 artifact badge/globals, per-item generation record or author claim, asset-level generation metadata (safetensors names, prompt fields). Host/provenance alone NEVER reaches this verdict. | `true` | high |
+| `ai_likely` | weaker generator-output markers (v0 design-system classes), or Tier-C content-anomaly rule met | `true` | medium |
+| `uncertain` | provenance only (host/tool identified, authorship undetermined), evidence insufficient, or mixed | `null` — **NOT false** | low |
+| `human_likely` | human-side content evidence (template signatures, real-entity anchors) and no AI tells. A designer-tool pipeline alone does NOT qualify — it proves tooling, not authorship | `false` | low |
 | `human_confirmed` | decisive human evidence (SlidesGo credit line, literal unfilled placeholders, verifiable real publication) | `false` | high |
 | `unavailable` | blank/unloadable input | `null` | — |
 | `toolpage` | the tool's own marketing/chat UI, not an artifact | `null` | — |
@@ -296,17 +333,21 @@ negative finding.
 tells", ~0.5 "borderline", ≤0.4 "weak lean". Do not quote it as an accuracy.
 
 Hard rules:
-- Generator-host (Tier A) ⇒ `ai_confirmed` for the design/layout scope; text and
-  embedded-image authorship stay `unknown` unless separately evidenced (scope field).
-- Human-operated-tool host/meta (Canva/Framer/Webflow/Wix/Pitch/Beautiful.ai/
-  Replit) alone ⇒ `uncertain`–`human_likely`; never `ai_confirmed`.
+- Host, publish badge, or DOM pipeline alone ⇒ `provenance.confirmed` +
+  `uncertain`/`aiGenerated:null`. This holds for generator hosts too —
+  hosting is publishing, not a generation record.
+- `scope.design="ai"` requires per-item generation evidence (artifact badge/
+  globals/records); `text`/`images` stay `unknown` unless separately
+  evidenced. Never infer all three from the host.
+- Designer-tool hosting (Canva/Framer/Webflow/Wix/Pitch/Beautiful.ai/Replit)
+  is symmetric: provenance only ⇒ `uncertain`, NOT `human_likely`.
 - Production method ≠ AI involvement: a real DOM (React/Vite) does not prove a
   coding model wrote it, and a full-raster slide does not prove an image model
   rendered it. `pipelineGuess` records the *method family*; `modelGuess` and
   AI-process claims stay `null` without per-asset evidence.
-- Generic layout, polished prose, real logos, placeholder copy, and even
-  shipped error messages are EACH non-proving alone — they are weak tells,
-  never provenance.
+- Generic layout, polished prose, real logos, placeholder copy, error
+  messages, and "Powered by <model>" feature claims are EACH non-proving —
+  a page *using* a model is not *generated by* it.
 - Screenshot-only input ⇒ cap at `ai_likely` unless a watermark/badge is visible.
 - Model attribution requires A4-style in-artifact evidence. Style-only guesses → `uncertain`.
 
@@ -335,14 +376,31 @@ Always report `modelGuess` separately from `toolGuess`; default it to `null`.
 {
   "aiGenerated": true,
   "verdict": "ai_confirmed",
-  "confidence": 0.95,
-  "toolGuess": "gamma",
-  "pipelineGuess": "mixed",
+  "confidence": 0.9,
+  "toolGuess": "websim",
+  "provenance": { "tool": "websim", "certainty": "confirmed", "via": "host" },
+  "pipelineGuess": "codegen",
   "modelGuess": null,
-  "scope": { "design": "ai", "text": "unknown", "images": "ai-pool-unattributed" },
-  "model_evidence": "embedded feature flags name DALL-E/Imagen3/Ideogram/Flux image pool + GPT-4 text gen",
-  "evidence": ["A1: *.gamma.site host", "A2: Made-with-Gamma badge", "B: Next.js+Emotion+gamma-* classes"],
+  "scope": { "design": "ai", "text": "unknown", "images": "unknown" },
+  "evidence": ["A1: host x.c.websim.com", "G: websim artifact globals (__websim_route)"],
   "notes": "what would raise/lower confidence"
+}
+```
+
+Provenance-only case — the same pipeline identified, authorship undetermined:
+
+```json
+{
+  "aiGenerated": null,
+  "verdict": "uncertain",
+  "confidence": 0.5,
+  "toolGuess": "gamma",
+  "provenance": { "tool": "gamma", "certainty": "confirmed", "via": "host" },
+  "pipelineGuess": "mixed/imagegen+codegen",
+  "modelGuess": null,
+  "scope": { "design": "unknown", "text": "unknown", "images": "unknown" },
+  "evidence": ["A1: host foo.gamma.site", "P: gamma DOM/CDN", "P: gamma app-config pool"],
+  "notes": "Gamma publishes generated, imported, and manual docs alike — no per-item generation evidence found. Author claim or generation record would be needed."
 }
 ```
 
@@ -352,14 +410,18 @@ Field contract:
 - `verdict`: the graded call per the table above.
 - `confidence`: ordinal grade only — see Verdicts. Not a calibrated probability.
 - `toolGuess`/`modelGuess`: `null` when not attributable.
+- `provenance`: `{tool, certainty: confirmed|likely, via: host|markup}` or
+  `null` — pipeline identification, orthogonal to authorship. Can be set
+  while `aiGenerated` is `null`.
 - `pipelineGuess`: production-method family — `codegen | imagegen | mixed |
   designer-tool | null`. It describes HOW the artifact was built, not whether
   AI did it (a hand-written React site is also `codegen` method).
 - `scope`: per-component authorship — `design` (layout/structure), `text`
-  (copy), `images` (embedded media); each `ai | human | unknown`. Generator
-  hosts give `design:"ai"` while `text`/`images` may stay `unknown` or `human`
-  (e.g. a human-authored report published via Gamma).
-- `evidence[]`: concrete observed markers only (never vibes).
+  (copy), `images` (embedded media); each `ai | human | unknown`. `design:"ai"`
+  only when per-item generation evidence covers the artifact design; never
+  inferred from the host.
+- `evidence[]`: concrete observed markers only (never vibes). `A1`/`P` lines
+  are provenance; `G` lines are generation evidence; `H` lines are human-side.
 
 ## Measured performance (dataset-internal eval)
 
@@ -367,30 +429,53 @@ Field contract:
 and scores them against the collected corpus. Split is per-artifact hash
 (`sha1(path)` → 30% held-out test), so no artifact appears in both sides.
 
-Held-out test results (n=4,201 HTML records scanned, 32 dirs):
+Held-out test results (n=4,201 HTML records scanned, 32 dirs). **Directory
+labels are collector provenance, not per-item generation ground truth** — so
+the table reports two different things: how often per-item generation evidence
+was found, and how often only the pipeline could be identified.
 
-| Class | n | Caught | FP | Missed | Abstain |
-|---|---|---|---|---|---|
-| AI artifacts | 2,272 | 99.5% | — | 0 | 12 |
-| Human pages | 113 | — | 0 (0%) | — | 68 |
-| Tool pages | 1,447 | identified separately (not scored) | | | |
+| AI-labeled dirs (n=2,272) | Outcome |
+|---|---|
+| Generation evidence found (`ai_confirmed`) | 1,719 (75.7%) |
+| Provenance only → `uncertain`/`null` | 552 (24.3%) |
+| Human verdict | 1 |
 
-**No-host mode** (URL stripped — simulates bare HTML exports / offline captures):
-AI caught 67.3% held-out, human FP 0%. Lower than the earlier 76.1% because the
-generic Vite/React/Tailwind stack no longer counts toward `ai_likely` (it is a
-production-method note, not an AI tell) — the tightening is intentional and the
-residual are stub shells whose only tell was the host. Abstain is correct there.
+| Human-labeled dirs (n=113) | Outcome |
+|---|---|
+| AI verdict (false positive) | 0 (0%) |
+| `uncertain` (designer-tool markup = provenance, not authorship) | 113 |
 
-**Contract check** (`scripts/detector-contract.mjs`, 8/8): gamma host ⇒
-`ai_confirmed` + `scope.design=ai`/`text=unknown`; framer ⇒ `human_likely`;
-hand-written React/Tailwind/Lucide SPA ⇒ `uncertain` + `aiGenerated=null`;
-bare URLs and generic hosts ⇒ `uncertain`+`null`. `aiGenerated` is tri-state
-and `null` propagates — consumers never see `uncertain` collapse to `false`.
+Tool pages: n=1,447 identified separately (not scored). Provenance
+identification: `toolGuess` matched the source directory on 2,477/3,836
+flagged items (unmatched = generic-host pages and tool-marketing chrome).
+
+Per-dir detail: websim splits 295 confirmed / 277 uncertain (project-shell
+pages without artifact globals carry host only ⇒ correctly `uncertain`);
+gamma dir → 104 `uncertain` (Gamma host+badge+config = pipeline, never
+per-item generation proof); blink 1,118/lovable 272/base44/grok/emergent
+confirmed via artifact badges/globals.
+
+**No-host mode** (URL stripped): generation-evidence rate identical at
+75.7% — the confirmed items carry in-artifact markers that don't depend on
+the URL. Human-labeled FP stays 0.
+
+**Contract check** (`scripts/detector-contract.mjs`, 9/9): gamma-hosted page
+⇒ `uncertain` + `aiGenerated=null` + `provenance{tool:gamma,confirmed}`;
+framer site ⇒ `uncertain`+`null` (designer hosting is not human evidence);
+hand-written React/Tailwind/Lucide SPA ⇒ `uncertain`+`null`; websim artifact
+with `__websim` globals ⇒ `ai_confirmed`+`scope.design=ai`; bare URLs,
+pitch.com, generic vercel.app, and a "Powered by GPT-4" page ⇒ all
+`uncertain`+`null`. Invariants asserted: `aiGenerated=true` requires a `G:`
+evidence line; `false` requires an `H:` line; `null` never collapses to
+`false`.
 
 Honest caveats:
-- Selection bias: AI dirs were collected largely *via* their decisive surfaces
-  (hosted-artifact domains), so URL-mode accuracy is partly tautological. Treat
-  no-host mode as the realistic bound for stripped inputs.
+- The 75.7% figure measures how often generator output *carries self-markers*
+  in this corpus — it is NOT a claim that 75.7% of hosted artifacts are
+  AI-generated. Items where only the pipeline is known are correctly
+  unresolved.
+- Selection bias: AI dirs were collected largely *via* their decisive
+  surfaces, so provenance-identification rates are partly tautological.
 - Labels are collector provenance, not independent annotation. Two train-split
   "FPs" were `*.gamma.site` files misfiled under `dataset/wix/` — the detector
   was right, the directory label was wrong. Dir labels are noisy; trust
@@ -565,11 +650,11 @@ Worked judgment examples (all re-checkable in `dataset/`):
 
 | File | Verdict | Evidence |
 |---|---|---|
-| `blink/<slug>.html` on `*.blinkusercontent.com` | ai_confirmed / blink | A1 host + `blink-badge*` classes + `auto-engineer.js?projectId=` stub variants |
-| `wix/9vibesuniversal-*.gamma.site-*.html` | ai_confirmed / **gamma** | A1 host overrides wrong dir label — dataset noise caught by in-artifact evidence |
-| `webflow/www.mainder.ai-*.html` (custom domain) | human_likely / webflow | `data-wf-*`+`webflow.css`+generator meta; designer-tool fingerprints never escalate to AI |
-| `websim/…@user/slug` | ai_confirmed / websim | shell page but artifact embedded via `*.c.websim.com` iframe |
-| `v0/v0.app-chat-*.html` | toolpage | v0's own chat UI (Next.js RSC payload) — provenance of the artifact, not the artifact itself |
+| `blink/<slug>.html` on `*.blinkusercontent.com` | ai_confirmed / blink | `blink-badge*` classes + `auto-engineer.js?projectId=` stub — per-item artifact markers (G) |
+| `wix/9vibesuniversal-*.gamma.site-*.html` | uncertain / **gamma** provenance | host+DOM identify the Gamma pipeline and correct the wrong dir label — but no per-item generation evidence ⇒ `aiGenerated=null` |
+| `webflow/www.mainder.ai-*.html` (custom domain) | uncertain / webflow provenance | `data-wf-*`+`webflow.css`+generator meta = pipeline only; designer tools prove neither human nor AI authorship |
+| `websim/…@user/slug` | ai_confirmed / websim | `__websim*` globals inside the artifact = per-item generation evidence |
+| `v0/v0.app-chat-*.html` | toolpage | v0's own chat UI (Next.js RSC payload) — provenance of the tool, not an artifact |
 | `deckgallery/*.html` | uncertain | human gallery chrome, no decisive markup — abstain is the honest answer |
 
 ## Extending this skill
