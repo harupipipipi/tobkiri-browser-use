@@ -180,19 +180,23 @@ for (let i = 0; i < rest.length; i++) {
 }
 const JOBS = +(opt.jobs || 4);
 const NORENDER = flags.has('--no-render');
+// --min-free-gb N: abort early when the target drive drops below N GiB free.
+// Default 8 protects against the multi-MB-per-page queues (v0 chats); tiny
+// batches may pass a lower floor deliberately.
+const MIN_FREE = +(opt['min-free-gb'] || 8) * 1024 ** 3;
 const lines = (await readFile(listfile, 'utf8')).split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
 const tasks = lines.map(l => { const [u, t] = l.split(/\t/); return { url: u.trim(), tool: (t || '').trim() || null }; });
 
 console.log(`collecting ${tasks.length} sites, jobs=${JOBS}`);
 let done = 0, ok = 0, diskFull = false;
 async function checkDisk() {
-  try { const f = await statfs(ROOT); if (f.bsize * f.bavail < 8 * 1024 ** 3) diskFull = true; } catch {}
+  try { const f = await statfs(ROOT); if (f.bsize * f.bavail < MIN_FREE) diskFull = true; } catch {}
 }
 const results = [];
 async function worker(w) {
   while (tasks.length) {
     if (done % 25 === 0) await checkDisk();
-    if (diskFull) { console.log(`[${done}] DISK GUARD: <8GB free — stopping early`); return; }
+    if (diskFull) { console.log(`[${done}] DISK GUARD: <${opt['min-free-gb'] || 8}GB free — stopping early`); return; }
     const t = tasks.shift();
     const res = await collect(t.url, t.tool, w);
     results.push(res); done++;

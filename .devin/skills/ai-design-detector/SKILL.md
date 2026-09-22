@@ -50,9 +50,11 @@ Any one of these, verified in the artifact itself, yields `ai_confirmed` for the
 | `*.ai.studio` site pages | AI Studio (Google) app hosting | Pages are Vite+React+Lucide SPAs w/ NO self-marker — host is the fingerprint; host+stack ⇒ `ai_likely`. |
 | `*.butternut.ai` | Butternut | AI site builder; `butternut.ai` refs throughout HTML. |
 | `*.trickle.host` | Trickle | AI site builder; `trickle`/`Trickle` markers in HTML. |
-| `*.c.websim.com` (artifact iframe host; `websim.com/@user/slug` is a shell page) | Websim | `__websim_origin`/`__websim_route` params + `__websim*` globals. |
+| `*.c.websim.com` (artifact iframe host); `websim.com/@user/slug` project pages | Websim | Project page embeds the generated app in an iframe — the page is a shell, but the artifact is inside ⇒ still `ai_confirmed`. `__websim_origin`/`__websim_route` params + `__websim*` globals. Bare `websim.com` non-project paths = tool page. |
+| `presenton.ai/community/presentations/<id>` | Presenton | Public gallery — the page IS the generated deck (slide text embedded). |
 | `presenton.ai/community/presentations/<id>` | Presenton | Public gallery of AI-generated decks; HTML embeds full slide text. |
-| `*.webflow.io`/sites w/ `data-wf-site`+`data-wf-page`+`webflow.css`+`<meta generator content="Webflow">` | Webflow | Human designer tool — pipeline proven, authorship `uncertain`/`human_likely`. |
+| `*.webflow.io`/sites w/ `data-wf-site`+`data-wf-page`+`webflow.css`+`<meta generator content="Webflow">` | Webflow | Human designer tool — pipeline proven, authorship `uncertain`/`human_likely`. Custom domains hide the host: content fingerprints still identify the *pipeline* (eval: 10/10 custom-domain Webflow pages → `human_likely`). |
+| `wixstatic.com` assets, `X-Wix` markup on custom domains | Wix | Same rule — designer pipeline, `human_likely`. |
 
 ### A2. Watermarks and badges
 
@@ -179,6 +181,23 @@ garden), real client-logo ribbons (MrBeast/Uber/Binance), 3D art direction, coor
 ticker bands. Very high polish + weirdness/real-brands leans human; polish + sameness
 leans AI.
 
+## Pipeline attribution: codegen vs imagegen
+
+Two distinct artifact families — report `pipelineGuess` separately from `toolGuess`:
+
+| Pipeline | Signature | Tools |
+|---|---|---|
+| `codegen` | HTML/JS authored by a coding model — React/Vite/Next stacks, utility-CSS class soup, component structure, lorem-free real copy in DOM | v0, Lovable, Bolt, Blink, Websim, Base44, Polsia, Trickle, Emergent, Replit, AI Studio |
+| `imagegen` | The artifact IS a rendered image — whole-slide-as-image decks, baked-in typography inside pixels, `slide-agent` thumbnail grids, DALL-E/Imagen-class pool flags | ChatGPT image-slides, Genspark thumbnails, Gamma image assets |
+| `mixed` | codegen skeleton + imagegen assets (most deck tools) | Gamma (React DOM + image pool flags), Presenton, Decktopus, SlidesAI |
+| `designer-tool` | Human-operated builder pipeline — proves tooling, not AI authorship | Webflow, Wix, Framer, Squarespace, Pitch |
+
+Imagegen tells (artifact itself): text lives inside the raster (flawless anti-aliased
+glyphs, no DOM text nodes), `NN-NN-*.png` slide sequences, `blob.core.windows.net`
+slide-agent paths, single `<img>`/`<canvas>` occupying the whole viewport.
+Codegen tells: real DOM tree, selectable text, framework hydration markers,
+bundle chunk filenames. `mixed` = both present.
+
 ## Verdicts
 
 | Verdict | Rule | Confidence |
@@ -223,6 +242,7 @@ Always report `modelGuess` separately from `toolGuess`; default it to `null`.
   "verdict": "ai_confirmed",
   "confidence": 0.95,
   "toolGuess": "gamma",
+  "pipelineGuess": "mixed",
   "modelGuess": null,
   "model_evidence": "embedded feature flags name DALL-E/Imagen3/Ideogram/Flux image pool + GPT-4 text gen",
   "evidence": ["A1: *.gamma.site host", "A2: Made-with-Gamma badge", "B: Next.js+Emotion+gamma-* classes"],
@@ -231,7 +251,57 @@ Always report `modelGuess` separately from `toolGuess`; default it to `null`.
 ```
 
 Field contract: `aiGenerated` = verdict ∈ {ai_confirmed, ai_likely}; `toolGuess`/`modelGuess`
-= null when not attributable; `evidence[]` lists concrete observed markers (never vibes).
+= null when not attributable; `pipelineGuess` ∈ {codegen, imagegen, mixed, designer-tool, null};
+`evidence[]` lists concrete observed markers (never vibes).
+
+## Measured performance (dataset-internal eval)
+
+`scripts/detector-eval.mjs` implements these rules deterministically (no model calls)
+and scores them against the collected corpus. Split is per-artifact hash
+(`sha1(path)` → 30% held-out test), so no artifact appears in both sides.
+
+Held-out test results (n=3,920 HTML records, 32 dirs):
+
+| Class | n | Caught | FP | Missed | Abstain |
+|---|---|---|---|---|---|
+| AI artifacts | 2,010 | 99.4% | — | 0 | 12 |
+| Human pages | 113 | — | 0 (0%) | — | 68 |
+| Tool pages | 1,447 | identified separately (not scored) | | | |
+
+**No-host mode** (URL stripped — simulates bare HTML exports / offline captures):
+AI caught 76.1%, human FP 0%. The ~24% residual are stub shells and badge-less
+artifacts whose only tell was the host — abstain is correct there.
+
+Honest caveats:
+- Selection bias: AI dirs were collected largely *via* their decisive surfaces
+  (hosted-artifact domains), so URL-mode accuracy is partly tautological. Treat
+  no-host mode as the realistic bound for stripped inputs.
+- Labels are collector provenance, not independent annotation. Two train-split
+  "FPs" were `*.gamma.site` files misfiled under `dataset/wix/` — the detector
+  was right, the directory label was wrong. Dir labels are noisy; trust
+  in-artifact evidence.
+- The screenshot/visual tier is documented but NOT covered by this harness
+  (no vision in the scorer) — Tier-C precision is unmeasured.
+- deckgallery abstentions (68) are intentional: human gallery HTML carries no
+  decisive markup and abstain beats guessing.
+
+Usage:
+
+```bash
+node scripts/detector-eval.mjs --split test --cap 4000   # held-out metrics
+node scripts/detector-eval.mjs --split all              # full sweep incl. unlabeled dirs
+```
+
+Worked judgment examples (all re-checkable in `dataset/`):
+
+| File | Verdict | Evidence |
+|---|---|---|
+| `blink/<slug>.html` on `*.blinkusercontent.com` | ai_confirmed / blink | A1 host + `blink-badge*` classes + `auto-engineer.js?projectId=` stub variants |
+| `wix/9vibesuniversal-*.gamma.site-*.html` | ai_confirmed / **gamma** | A1 host overrides wrong dir label — dataset noise caught by in-artifact evidence |
+| `webflow/www.mainder.ai-*.html` (custom domain) | human_likely / webflow | `data-wf-*`+`webflow.css`+generator meta; designer-tool fingerprints never escalate to AI |
+| `websim/…@user/slug` | ai_confirmed / websim | shell page but artifact embedded via `*.c.websim.com` iframe |
+| `v0/v0.app-chat-*.html` | toolpage | v0's own chat UI (Next.js RSC payload) — provenance of the artifact, not the artifact itself |
+| `deckgallery/*.html` | uncertain | human gallery chrome, no decisive markup — abstain is the honest answer |
 
 ## Extending this skill
 
