@@ -28,11 +28,14 @@ const TMP = path.join(ROOT, 'dataset', '_tmp');
 const setArg = process.argv.includes('--set') ? process.argv[process.argv.indexOf('--set') + 1] : 'v1';
 const base = setArg === 'v1' ? 'blindset' : 'blindset' + setArg.replace(/^v/, ''); // v2 -> blindset2, v2b -> blindset2b
 const dir = fs.existsSync(path.join(EVAL, `${base}-key.json`)) ? EVAL : TMP;
-const judgeFile = fs.existsSync(path.join(dir, `${base}-judgments.jsonl`))
-  ? path.join(dir, `${base}-judgments.jsonl`)
-  : fs.existsSync(path.join(dir, 'judgments.jsonl'))
-    ? path.join(dir, 'judgments.jsonl')
-    : path.join(TMP, `${base}-judge.jsonl`);
+const judgeArg = process.argv.includes('--judge') ? process.argv[process.argv.indexOf('--judge') + 1] : null;
+const judgeFile = judgeArg
+  ? path.resolve(judgeArg)
+  : fs.existsSync(path.join(dir, `${base}-judgments.jsonl`))
+    ? path.join(dir, `${base}-judgments.jsonl`)
+    : fs.existsSync(path.join(dir, 'judgments.jsonl'))
+      ? path.join(dir, 'judgments.jsonl')
+      : path.join(TMP, `${base}-judge.jsonl`);
 const noBadge = process.argv.includes('--no-badge');
 const audit = process.argv.includes('--audit');
 

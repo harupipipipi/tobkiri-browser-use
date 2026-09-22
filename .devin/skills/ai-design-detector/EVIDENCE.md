@@ -728,3 +728,35 @@ blink markers only 985/28,522 files (~3.5% — badge is minority).
 Trickle markers were inconsistent -> pool downgraded to host-only.
 Civitai basis is public post+model metadata (bounded generation record,
 not a full production audit).
+
+## Contract-v3.1 consistency pass (v4 dev set, 2026-09-23)
+
+v4 became a **dev set** — judged once, then re-judged on the same images
+after a rule inconsistency was found: the Verdicts table let `human_likely`
+rest on "real-entity anchors" and `human_confirmed` on SlidesGo credits /
+placeholders, while Tier C declared real content neutral and C2-only
+insufficient. v3.1 makes insufficiency symmetric (`uncertain`/`null` BOTH
+directions): human_likely now requires an identifiable real entity's own
+publication or >=2 independent negative tells; ai_likely requires >=2 C1
+defects or C1+dense C2 (aesthetic similarity alone never qualifies).
+
+Same-set before/after (audited n=123, truth re-labeled: 17 human-basis
+items without verifiable production records downgraded to unknown;
+ai 60 / human 32 / unknown 31):
+- v1 pass: AI catch 50.0%, miss 6.7%; human FP 0%; unknown overclaim 41.9%.
+- v2 pass: AI catch 36.7% (22/60), miss 0%; human FP 0%, correct 50%/
+  abstain 50%; unknown overclaim **0%**. No-badge: AI catch 7.3% (3/41),
+  abstain 92.7% — visual-only detection is now essentially
+  marker/record-driven; imagegen catch 0/15 without defects or records.
+
+Re-judgment detail (39 verdicts changed): 11 C2/aesthetic ai_likely and 1
+C1-defect ai_confirmed downgraded; 27 human_likely calls on real-content /
+template-look / placeholder grounds moved to uncertain. The 4 "AI misses"
+were real-content mimics (LIXIL, UTokyo, Hokkaido essay, template) — now
+correctly abstained, not called human.
+
+Production-record verification: Presenton community pages embed literal
+`prompt="..."` attributes on slide `<img>` elements in the saved HTML
+(e.g., #461 "Cinematic aerial photograph of Pune Metro...") — per-asset
+generation records, a solid `genrecord` basis. Live DOM doesn't expose
+them (deck viewer data), so this evidence lives in the captured source.

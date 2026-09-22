@@ -1,8 +1,95 @@
 {
-  "note": "v4 audit — contract-v3 frozen rules; exclusions for duplicate artifacts",
-  "excluded": {
-    "dup-artifact": {
-      "v4_084.png": "same Canva eXp Realty Brazil deck as v4_002.png (second capture)"
-    }
+ "note": "v4 audit v2 — contract v3.1: unverified human-basis items downgraded to unknown; v4 audit — contract-v3 frozen rules; exclusions for duplicate artifacts",
+ "excluded": {
+  "dup-artifact": {
+   "v4_084.png": "same Canva eXp Realty Brazil deck as v4_002.png (second capture)"
   }
+ },
+ "overrides": {
+  "v4_001.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: canva-hosted user doc, publisher unverifiable — dir/basis classification is not independent production proof"
+  },
+  "v4_002.jpg": {
+   "label": "unknown",
+   "pipe": "human",
+   "note": "v3.1: unprovenanced capture, generic cover, no production record — dir/basis classification is not independent production proof"
+  },
+  "v4_017.jpg": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: beautifulai user page, unidentifiable publisher — dir/basis classification is not independent production proof"
+  },
+  "v4_019.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: framer-hosted product page, unverified entity — dir/basis classification is not independent production proof"
+  },
+  "v4_034.jpg": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: beautifulai user page, unidentifiable publisher — dir/basis classification is not independent production proof"
+  },
+  "v4_040.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: canva-hosted org flyer — real group identifiable but Canva Magic path unverifiable — dir/basis classification is not independent production proof"
+  },
+  "v4_050.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: webflow-hosted, fictional-sounding entity unverified — dir/basis classification is not independent production proof"
+  },
+  "v4_053.png": {
+   "label": "unknown",
+   "pipe": "human",
+   "note": "v3.1: unprovenanced design study, no named author — dir/basis classification is not independent production proof"
+  },
+  "v4_056.png": {
+   "label": "unknown",
+   "pipe": "human",
+   "note": "v3.1: unprovenanced, fictional-sounding agency — dir/basis classification is not independent production proof"
+  },
+  "v4_063.jpg": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: beautifulai user page, unidentifiable publisher — dir/basis classification is not independent production proof"
+  },
+  "v4_066.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: webflow-hosted, unverified entity — dir/basis classification is not independent production proof"
+  },
+  "v4_074.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: framer-hosted, unverified product — dir/basis classification is not independent production proof"
+  },
+  "v4_084.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: canva-hosted user doc (dup of 002 artifact) — dir/basis classification is not independent production proof"
+  },
+  "v4_087.png": {
+   "label": "unknown",
+   "pipe": "mixed",
+   "note": "v3.1: wix-hosted, unverified entity — dir/basis classification is not independent production proof"
+  },
+  "v4_113.png": {
+   "label": "unknown",
+   "pipe": "human",
+   "note": "v3.1: unprovenanced poster design study — dir/basis classification is not independent production proof"
+  },
+  "v4_114.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: canva-hosted doc, empty capture, unverifiable — dir/basis classification is not independent production proof"
+  },
+  "v4_123.png": {
+   "label": "unknown",
+   "pipe": "designer",
+   "note": "v3.1: pitch-hosted edu slide, unidentifiable author — dir/basis classification is not independent production proof"
+  }
+ }
 }

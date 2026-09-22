@@ -111,7 +111,7 @@ narrows the prior but remains circumstantial, not a per-item generation record
 | `*.figma.site` | Figma Make/Sites | Figma-published site (AI + manual mix) | none known ⇒ `uncertain` |
 | `*.created.app` | Anything (create.xyz rebrand) | Anything-published app | "Anything branding" on free tier ⇒ `ai_confirmed` when badge present; else `uncertain` |
 | `*.mocha.app`, `*.capacity.studio`, `*.floot.app`, `*.orchids.app` | Mocha / Capacity / Floot / Orchids | AI-builder published apps | in-artifact markers needed ⇒ `uncertain` w/o them |
-| `*.hostingersite.com`, `*.10web.site`, `*.hocoos.com`, `*.softr.io`, `*.softr.app`, `*.bubbleapps.io`, `*.dora.run`, `s.dora.run/*`, `*.gradio.live` | Hostinger AI / 10Web / Hocoos / Softr / Bubble / Dora / Gradio | Builder-published surfaces (10Web output = WordPress/Elementor markup; Bubble = `data-bubble-*`) | in-artifact markers needed ⇒ `uncertain` w/o them |
+| `*.hostingersite.com`, `*.10web.site` (UNVERIFIED), `*.hocoos.com`, `*.softr.io`, `*.softr.app`, `*.bubbleapps.io`, `*.dora.run`, `s.dora.run/*`, `*.gradio.live` | Hostinger AI / 10Web / Hocoos / Softr / Bubble / Dora / Gradio | Builder-published surfaces (10Web output = WordPress/Elementor markup; Bubble = `data-bubble-*`) | in-artifact markers needed ⇒ `uncertain` w/o them |
 | `*.notion.site`, `*.spark.github.io` (UNVERIFIED), `poe.com/{AppName}` apps, `opal.google`, `notebooklm.google.com` | Notion / GH Spark / Poe / Opal / NotebookLM | AI-assisted or AI-generated surfaces | none known in-artifact ⇒ `uncertain`; NotebookLM slide decks carry visible watermark ⇒ see asset-level rules |
 | `app.getalai.com/view/*` | Alai | AI deck tool (was alai.io) | none verified ⇒ `uncertain` |
 | `app.chroniclehq.com/share/*`, `stories.storydoc.com/*`, `view.storydoc.com/*`, `*.storydoc.com`, `wonderslide.com/s/*`, `my.visme.co/view/*`, `view.genial.ly/*`, `prezi.com/p/*`, `app.ludus.one/*`, `show.zoho.com/*`, `kimi.com/slides` | Chronicle / Storydoc / Wonderslide / Visme / Genially / Prezi / Ludus / Zoho Show / Kimi | Deck-tool share surfaces | publish badges only (`Made with VISME`, Wonderslide free watermark) ⇒ provenance; generation `uncertain` |
@@ -352,7 +352,11 @@ inconsistent hand spacing/alignment; dated CMS theme chrome (WordPress
 template + mismatched plugins); skeuomorphic/dated styling; **surviving
 template placeholder copy** ("Here is where your presentation begins",
 "20XX" year slots) — a process tell: AI emits finished copy, human template
-users leave placeholders. None are proof.
+users leave placeholders. **All are weak and all are mimicked** —
+SlidesAI/Decktopus ship literal SlidesGo-style placeholders, AI writes
+about real entities, and humans ship typos. A single negative tell never
+reaches `human_likely`; ≥2 independent ones may support it at low
+confidence.
 
 Observed human-side examples: iPhone product shot (`human/8e869c32b6917d93.png`),
 idiosyncratic art direction (weather widgets, personal listicles), slidesgo
@@ -403,13 +407,26 @@ teacher-app UIs). When "polished" is the only signal, prefer `uncertain` over `a
   not prove AI either. Judge construction defects and tool signatures,
   not realism.
 
-**Screenshot-only verdict rule:**
+**Screenshot-only verdict rule (symmetric — insufficient evidence abstains
+BOTH ways):**
 - `ai_confirmed`: in-frame artifact badge/watermark (A2 artifact class) or a
-  C1 generation-record leak.
+  C1 generation-record leak. (Pervasive gibberish text = C1 defect, caps at
+  `ai_likely` — it is a defect, not a generation record.)
 - `ai_likely` (conf ≤0.65): ≥2 independent C1 defects, OR ≥1 C1 defect +
-  one dense C2 signature match.
+  one dense C2 signature match. Aesthetic/style match alone NEVER reaches
+  this — "looks AI" is not evidence.
+- `human_likely` (conf ≤0.6): the artifact is the identifiable real
+  entity's own publication (© corporate doc, named verifiable creator,
+  official institutional material), on a non-generation-first surface or
+  none — OR ≥2 independent negative tells. Real entities merely depicted,
+  template-look, placeholder furniture, credits, typos, and polish NEVER
+  qualify — all are mimicked or brief-determined.
+- `human_confirmed`: verifiable production record (dated official
+  publication with edition identity, externally confirmable). Rare from
+  pixels alone — don't reach for it.
 - `uncertain`: everything else — including a dense C2 signature alone, any
-  amount of C3 grammar, and any amount of fictional or realistic content.
+  amount of C3 grammar, real content on generation-capable hosts, and any
+  amount of fictional or realistic content.
 
 ## Pipeline attribution: codegen vs imagegen
 
@@ -435,8 +452,8 @@ bundle chunk filenames. `mixed` = both present.
 | `ai_confirmed` | **per-item** generation evidence: A2 artifact badge/globals, per-item generation record or author claim, asset-level generation metadata (safetensors names, prompt fields). Host/provenance alone NEVER reaches this verdict. | `true` | high |
 | `ai_likely` | weaker generator-output markers (v0 design-system classes), or Tier-C rule met (≥2 C1 defects, or ≥1 C1 defect + dense C2 signature) | `true` | medium |
 | `uncertain` | provenance only (host/tool identified, authorship undetermined), evidence insufficient, or mixed | `null` — **NOT false** | low |
-| `human_likely` | human-side content evidence (template signatures, real-entity anchors) and no AI tells. A designer-tool pipeline alone does NOT qualify — it proves tooling, not authorship | `false` | low |
-| `human_confirmed` | decisive human evidence (SlidesGo credit line, literal unfilled placeholders, verifiable real publication) | `false` | high |
+| `human_likely` | human-side *production* evidence — the artifact itself is the identifiable real entity's own publication (corporate doc/site with ©/official furniture, named verifiable creator or studio, established publisher's catalog product, dated institutional material). Real entities merely *depicted* in content do NOT qualify — that is brief-determined (symmetric to invented content). Designer-tool hosting alone does NOT qualify | `false` | low |
+| `human_confirmed` | verifiable production record: dated pre-generative-era artifact, externally confirmable publication (official report/book/brand standard with edition identity), or explicit authorship record. Rare from pixels alone | `false` | high |
 | `unavailable` | blank/unloadable input | `null` | — |
 | `toolpage` | the tool's own marketing/chat UI, not an artifact | `null` | — |
 
@@ -547,15 +564,15 @@ Field contract:
 and scores them against the collected corpus. Split is per-artifact hash
 (`sha1(path)` → 30% held-out test), so no artifact appears in both sides.
 
-Held-out test results (n=4,201 HTML records scanned, 32 dirs). **Directory
+Held-out test results (n=4,254 HTML records scanned, 32 dirs). **Directory
 labels are collector provenance, not per-item generation ground truth** — so
 the table reports two different things: how often per-item generation evidence
 was found, and how often only the pipeline could be identified.
 
-| AI-labeled dirs (n=2,272) | Outcome |
+| AI-labeled dirs (n=2,325) | Outcome |
 |---|---|
-| Generation evidence found (`ai_confirmed`) | 1,719 (75.7%) |
-| Provenance only → `uncertain`/`null` | 552 (24.3%) |
+| Generation evidence found (`ai_confirmed`) | 2,032 (87.4%) |
+| Provenance only → `uncertain`/`null` | 292 (12.6%) |
 | Human verdict | 1 |
 
 | Human-labeled dirs (n=113) | Outcome |
@@ -564,17 +581,18 @@ was found, and how often only the pipeline could be identified.
 | `uncertain` (designer-tool markup = provenance, not authorship) | 113 |
 
 Tool pages: n=1,447 identified separately (not scored). Provenance
-identification: `toolGuess` matched the source directory on 2,477/3,836
+identification: `toolGuess` matched the source directory on 2,528/3,891
 flagged items (unmatched = generic-host pages and tool-marketing chrome).
 
-Per-dir detail: websim splits 295 confirmed / 277 uncertain (project-shell
-pages without artifact globals carry host only ⇒ correctly `uncertain`);
-gamma dir → 104 `uncertain` (Gamma host+badge+config = pipeline, never
-per-item generation proof); blink 1,118/lovable 272/base44/grok/emergent
+Per-dir detail: websim 572 confirmed / 1 uncertain (expanded artifact
+internals — `websim.com/v1/project/<id>` + `websim-injected` are per-item
+records embedded inside artifact captures; the bare outer shell still
+abstains); gamma dir → 104 `uncertain` (Gamma host+badge+config = pipeline,
+never per-item generation proof); blink/lovable/base44/grok/emergent
 confirmed via artifact badges/globals.
 
 **No-host mode** (URL stripped): generation-evidence rate identical at
-75.7% — the confirmed items carry in-artifact markers that don't depend on
+87.4% — the confirmed items carry in-artifact markers that don't depend on
 the URL. Human-labeled FP stays 0.
 
 **Contract check** (`scripts/detector-contract.mjs`, 14/14): gamma-hosted page
@@ -749,58 +767,70 @@ Consistent failure taxonomy across both sets:
   (Note: "invented-consulting case-study scroll pages" was listed here under
   the old rules; fictional-subject furniture is demoted to neutral in v3.)
 
-#### Contract-v3 evaluation set (v4, n=124 → audited n=123 — current rules)
+#### Contract-v3 evaluation set (v4, n=124 → audited n=123 — DEV SET, not a held-out test)
 
-v4 is the first set judged under the *current* contract: fictional
-content/metrics neutral (not a generation tell), C1 limited to process
-defects and generation-record leaks, C2 needs ≥3 signature elements, and
-host/badge = provenance only. Truth labels are by *basis*, not collector
-dir alone: `marker` (in-artifact generation evidence), `genrecord`
-(per-item generation record — Civitai post/model metadata, Presenton
-prompt embeds), `real`/`template`/`tool-gallery` (human-side evidence),
-`host-only` (provenance visible, authorship unverified → truth `unknown`).
-Audit excluded 1 duplicate artifact (two captures of one Canva deck).
+v4 was judged once under contract v3, then the v3.1 consistency pass
+(symmetric insufficiency → `uncertain` both directions; real content /
+template-look / placeholders / credits / typos never confirm either way;
+C2-only never reaches `ai_likely`) re-judged the SAME images and
+re-audited truth labels: 17 human-basis items without a verifiable
+production record were downgraded to `unknown` (dir classification alone
+is not human-production proof). v4 is therefore a **development set** —
+the judge has seen it; numbers below are a same-set before/after of the
+rule correction, not an independent measurement.
 
-| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain | Unknown overclaim |
+Basis labels: `marker` (in-artifact generation evidence), `genrecord`
+(per-item record — Civitai post/model metadata, Presenton prompt embeds),
+`real`/`template`/`tool-gallery` (human production record — publisher
+catalog, named creator, identifiable real-entity publication),
+`host-only`/downgraded (provenance or unverifiable → truth `unknown`).
+Truth after audit v3.1: ai 60, human 32, unknown 31 (+1 dup excluded).
+
+| Judgment pass | AI catch | AI miss | AI abstain | Human FP | Human correct/abstain | Unknown overclaim |
 |---|---|---|---|---|---|---|
-| Full (n=123) | 50.0% (30/60) | 6.7% | 43.3% | **0.0% (0/47)** | 27.7% | 56.3% (9/16) |
-| No-badge (n=98) | 26.8% (11/41) | 9.8% | 63.4% | **0.0% (0/41)** | 24.4% | 56.3% (9/16) |
+| v1 (contract v3 as-written) | 50.0% (30/60) | 6.7% | 43.3% | 0% (0/32) | 93.8% / 6.3% | 41.9% (13/31) |
+| **v2 (v3.1 corrected)** | 36.7% (22/60) | **0%** | 63.3% | 0% (0/32) | 50.0% / 50.0% | **0% (0/31)** |
+| v2 no-badge (n=98) | 7.3% (3/41) | 0% | 92.7% | 0% (0/30) | 46.7% / 53.3% | 0% (0/27) |
 
-Per-pipeline (full): codegen/marker 22/32 caught, imagegen/genrecord 6/15
-(the photoreal abstain wall again), mixed/genrecord 2/13, human 0 FP.
+What the correction changed:
+- **13 unknown overclaims → abstain.** The 5 "evidence-backed
+  human_likely" calls on gamma-hosted real-org docs (BCREA, Gerd
+  Leonhard, NSO/CNA, designer portfolio) were still overclaims under the
+  rules: real-entity *content* is neutral — the org's doc on a
+  generation-capable host can't be shown human-made. Same for the 3
+  C2-signature `ai_likely` calls on aistudio/decktopus items and the
+  websim-community meta-app (topical self-reference is content, not a
+  generation record).
+- **4 AI "misses" → abstain, 0 real misses.** LIXIL/UTokyo/Hokkaido/
+  template-mimic items were called `human_likely` on real-content grounds
+  — now `uncertain` both ways.
+- **Cost: catch halves.** imagegen catch dropped to 0/15 (aesthetic
+  similarity alone is C3, never sufficient — photoreal images without
+  defects or records are honestly undecidable from pixels). Badge-free
+  codegen catches nearly vanish (3/41): the visual-only detector is now
+  essentially marker/record-driven.
+- **human_likely that survived** (16 calls): identifiable real-entity
+  publications only — corporate docs (Upwork ©2021, Coldwell Banker
+  standards, OpenAI brand book), named creators (Reece Evans, Elena
+  Evdokimova, MOR*Z Studio), real-company sites (Charly, Shoplazza, Anam,
+  Katalyst, Vivien's), vendor products (Pixelz, Pitch's own page, FUTR,
+  Koto deck, Canva attribution page, grief-group flyer→later uncertain).
 
-**How to read the unknown overclaims (9/16)** — the manifest's `unknown`
-means *generation provenance unverified*, not "unknowable":
-- 5 calls were `human_likely` on host-only items carrying real-entity
-  content evidence (BCREA webinar, Gerd Leonhard's site, an NSO/CNA claim
-  report, a named designer portfolio, a template page). These are
-  evidence-backed *authorship* calls — arguably correct about the content,
-  scored as overclaim only because provenance alone can't verify the tool.
-- 3 were `ai_likely` on aistudio/decktopus items via C2 signature density
-  (websim-style HUD chrome) — signature guesses, defensible but unverifiable.
-- 1 websim-community meta-app (decktopus dir) — likely correct in substance.
-Honest count of *unsupported* overclaims: ≤4/16; evidence-backed calls on
-unknown-provenance items are a legitimate gray zone, not blind guesses.
+Caveats on markers: websim artifact markers (`websim-injected`,
+`websim.com/v1/project/<id>`) appearing only in the websim sample dir is
+*in-sample provenance identification*, NOT proof the marker is exclusive
+to generated output — the outer shell page contains neither, and a
+hand-authored page could theoretically embed the same URLs. G markers are
+generation *records* by platform semantics, kept honest by per-item
+presence, not by a global exclusivity proof.
 
-**Misses (4)**: all mixed-pipe genspark/presenton items mimicking real
-institutional content (LIXIL ESG data, a UTokyo defense announcement, a
-personal Hokkaido photo-essay) — the known real-content-on-AI-host
-boundary. Note the collector dir says `genspark` but these may genuinely
-be human-authored docs hosted there — a dir-label limitation, not a
-verifiable judge error.
-
-**vs v3** (different set, older rules): v3 had 8.9% FP / 67.9% catch;
-v4 has 0% FP / 50% catch on a smaller, differently-composed set with an
-explicit unknown class. Treat as "rules got stricter, abstention
-absorbed the middle", not a clean before/after. n=124 is too small for
-broad accuracy claims.
-
-Reproduce:
+Reproduce (dev set — same-set before/after only):
 
 ```bash
-node scripts/blindset-build4.mjs          # v4 contract-v3 set (124 imgs)
-node scripts/blindset-score.mjs --set v4 --audit           # audited
-node scripts/blindset-score.mjs --set v4 --audit --no-badge # strict visual
+node scripts/blindset-build4.mjs          # v4 set build (124 imgs)
+node scripts/blindset-score.mjs --set v4 --audit --judge eval/blindset/blindset4-judgments.jsonl    # v1 pass
+node scripts/blindset-score.mjs --set v4 --audit --judge eval/blindset/blindset4-judgments-v2.jsonl # v3.1 pass
+node scripts/blindset-score.mjs --set v4 --audit --judge eval/blindset/blindset4-judgments-v2.jsonl --no-badge
 ```
 
 Reproduce:
