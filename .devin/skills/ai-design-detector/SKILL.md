@@ -149,6 +149,11 @@ Positive tells (each is weak; need ≥3 for `ai_likely`, cap `uncertain` otherwi
 - Gamma slide look: dark gradient bg, big-stat rows (`87% / 0 / ∞`), italic parenthetical subtitles ("(Plot twist: I'm the main character)"), You-vs-Me comparisons, timeline chips (`reddit-ai/*.png` w/ badge).
 - v0 style (limited data): black bg + single saturated accent, heavy display headline, step-indicator pills, card UI; badge "Built with v0" bottom-right (`v0/v0-ai-food-order-bot*.png`).
 - Fake product UIs: mock dashboards/chat/terminals drawn as illustration — humans screenshot real product, AI invents pixel-perfect fakes.
+- Invented-world furniture: fictional platforms with live-looking metrics ("2.4M Pulses", "42.8K conversations"), fake verified-celebrity cards, trending tags, premium upsells ("Turbo $7.99/mo"), trust chrome ("end-to-end encrypted") — AI builders stock a whole fake ecosystem.
+- Production-error leaks: env-var/config errors rendered into the shipped UI ("ANAM_API_KEY is not set in the server environment"), typo'd metrics ("Revenue Genereted") — humans QA these away; builders ship them.
+- In-artifact model claims: "Powered by Gemini 3 Flash", "GEMINI 3.1 TTS" chips baked into header/footer — Tier-A-adjacent (content-level, not markup).
+- Impossible details: wrong unit conversions on product labels ("32 OZ (901g)" — 32oz is ~907g), fake date stamps, future-dated calendars.
+- AI-vs-AI comparison artifacts: side-by-side images literally labeled "chatgpt" / "nano banana".
 - Thin-stroke flat illustrations, single accent color, stock 3D/icon imagery, emoji-as-bullets.
 - Typography: Inter/geometric sans at consistent scale; zero widows, zero overflow — suspiciously polished.
 - Visible generator watermark/badge in-frame (see A2 pill table).
@@ -180,6 +185,14 @@ shots in `human/`) is MORE idiosyncratic: weird compositions (site on a monitor 
 garden), real client-logo ribbons (MrBeast/Uber/Binance), 3D art direction, coordinates
 ticker bands. Very high polish + weirdness/real-brands leans human; polish + sameness
 leans AI.
+
+**Measured false-positive class (blind eval, see below):** polished systematic HUMAN
+decks are the #1 visual FP source — Beautiful.ai/Pitch/SlidesCarnival template slides
+with stat cards, pyramid diagrams, and app-mockup illustrations get called `ai_likely`
+because they match the "AI-deck idiom". The reverse also happens: a human template
+slide that embeds an app-screenshot illustration reads as an invented AI app
+(`img_088` vs `img_089` — a Beautiful.ai template and a Blink app showing near-identical
+teacher-app UIs). When "polished" is the only signal, prefer `uncertain` over `ai_likely`.
 
 ## Pipeline attribution: codegen vs imagegen
 
@@ -285,10 +298,52 @@ Honest caveats:
   "FPs" were `*.gamma.site` files misfiled under `dataset/wix/` — the detector
   was right, the directory label was wrong. Dir labels are noisy; trust
   in-artifact evidence.
-- The screenshot/visual tier is documented but NOT covered by this harness
-  (no vision in the scorer) — Tier-C precision is unmeasured.
 - deckgallery abstentions (68) are intentional: human gallery HTML carries no
   decisive markup and abstain beats guessing.
+
+### Visual-only blind evaluation (Tier C, measured)
+
+`scripts/blindset-build.mjs` samples screenshots into neutral names
+(`img_NNN.ext`) under `dataset/_tmp/blindset/`; `scripts/blindset-score.mjs`
+scores a `blindset-judge.jsonl` of pixel-only verdicts against the key. The
+judge saw ONLY the image — no filename, URL, host, or source dir.
+
+Blind run (n=108, stratified across 23 source dirs; 67 AI / 41 human before
+audit). Ground truth audited after judging — 3 items were label contamination
+the visual judge got *right* (gamma.site artifact and bidriot.lol app misfiled
+under `wix/`; Presenton deck screenshot under `human/`), 2 items were genuinely
+contested (chatgpt-slides entries containing human-made Canva templates) and
+excluded:
+
+| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain |
+|---|---|---|---|---|---|
+| Full visual (n=106, badges in-frame allowed) | 88.2% (60/68) | 8.8% | 2.9% | 13.2% (5/38) | 2.6% |
+| No-badge subset (n=74, badge/chrome items removed) | 77.8% (28/36) | 16.7% | 5.6% | 13.2% (5/38) | 2.6% |
+
+Per-pipeline (audited, badge-allowed): codegen 47/50 caught, mixed 12/15,
+imagegen 1/3 (small n — the two contested exclusions were imagegen).
+
+Failure taxonomy observed:
+- **AI misses**: human-authored-looking content ON AI platforms (gamma.site
+  event/report pages read as human editorial); AI slides indistinguishable
+  from hand-set decks; a Lovable clone of a real brand report.
+- **Human FPs**: polished template decks (Beautiful.ai "SaaS Pitch Deck",
+  SlidesCarnival stat slides, Pitch slide containing an app-mockup design) —
+  systematic polish is shared between human templates and AI output.
+- **Dedup hole**: near-duplicate pairs leaked into the set (two Presenton
+  community shots of one deck; img_061/062 same Canva template family;
+  img_088/089 same app concept across different sources) — filename-level
+  grouping is insufficient; content-hash dedup needed for future sets.
+- imagegen sample too small (n=3 after audit) to bound — do not quote a rate.
+
+Reproduce:
+
+```bash
+node scripts/blindset-build.mjs          # rebuild set + key (seeded)
+# judge images visually -> dataset/_tmp/blindset-judge.jsonl
+node scripts/blindset-score.mjs --audit            # audited metrics
+node scripts/blindset-score.mjs --audit --no-badge # strict no-watermark subset
+```
 
 Usage:
 

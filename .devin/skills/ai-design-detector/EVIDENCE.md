@@ -298,3 +298,29 @@ samples on 2026-09-21. Every Tier-A/B criterion in SKILL.md traces to an observa
   webflow-built (51 files). Pipeline proven ≠ AI authored.
 - butternut artifact on custom domain (journeysutra.com) carries webflow markup —
   likely rebuilt post-export; host erasure degrades to human_likely. Honest miss.
+
+## Visual blind eval (2026-09-22, scripts/blindset-score.mjs, eval/blindset/)
+
+108 images judged pixel-only (no filename/URL/host). Audited n=106 after fixing
+3 label-contamination items and excluding 2 contested (AI decks embedding human
+Canva templates).
+
+- Full visual mode: AI caught 88.2% (60/68), missed 8.8%, abstain 2.9%;
+  human FP 13.2% (5/38). No-badge subset (n=74): AI caught 77.8%.
+- Strongest visual AI tells observed: invented-ecosystem furniture (fake
+  metrics/verified-cards/trending), env-var leaks in prod UI
+  ("ANAM_API_KEY is not set"), in-artifact model claims ("Powered by Gemini 3
+  Flash"), wrong unit conversions ("32 OZ (901g)"), typo'd metrics in polished
+  UI, AI-vs-AI comparison images ("chatgpt" vs "nano banana" labels).
+- Main FP class: polished human template decks (Beautiful.ai SaaS-pitch
+  template, SlidesCarnival stat slides, Pitch slide w/ app-mockup) read as
+  "AI-deck idiom". Polish alone is not sufficient evidence.
+- Main miss class: human-authored content on AI platforms (gamma.site event
+  pages, Lovable clone of Filmsupply report) — platform≠authorship cuts both
+  ways visually.
+- Label contamination found BY the eval: gamma.site artifact + bidriot.lol
+  app misfiled under wix/; Presenton community screenshot under human/.
+- Dedup hole: filename-level grouping let near-dup pairs into the set
+  (same Presenton deck twice; Canva template family; same app concept across
+  blink/beautifulai). Future sets need content-hash dedup.
+- imagegen n=3 post-audit — too small to bound a rate.

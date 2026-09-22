@@ -1,0 +1,11 @@
+{
+  "_comment": "Label audit for blindset-key.json. Overrides applied by blindset-score.mjs --audit. 'contested' items are excluded from scoring (genuinely ambiguous ground truth).",
+  "overrides": {
+    "img_004.png": { "label": "ai", "pipe": "mixed", "note": "file=wix/wise-nbps-model-i594a00.gamma.site-*.png — gamma.site artifact misfiled under wix/; judge saw 'Made with Gamma' badge and was correct" },
+    "img_050.png": { "label": "ai", "pipe": "codegen", "note": "file=wix/bidriot.lol-*.png — bidriot.lol is an AI-built arena app misfiled under wix/; judge ai_likely was correct" },
+    "img_048.jpg": { "label": "ai", "pipe": "mixed", "note": "file=human/95fe201897e9a6d2.jpg — screenshot of a Presenton community deck misfiled under human/; visible artifact is AI-generated" },
+    "img_051.png": { "contested": true, "note": "chatgpt-slides/* file whose content is a human-made Canva flyer inside Canva publish chrome — deck-level AI vs slide-level human; unmeasurable" },
+    "img_086.png": { "contested": true, "note": "chatgpt-slides/chatgpt_deck_01.png contains a Canva 'Resource Page' template slide — AI deck embedding human template; unmeasurable" },
+    "img_089.webp": { "label": "ai", "pipe": "codegen", "note": "blink teacher-notes-senegal shot — near-dup of img_088 (beautifulai human template w/ similar app mockup); keep, flagged as pair" }
+  }
+}

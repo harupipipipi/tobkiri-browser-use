@@ -1,0 +1,650 @@
+{
+ "img_001.webp": {
+  "dir": "deckgallery",
+  "file": "dg-satrio-arkan-graphic-2022-andreas-maris-capabilities-deck-2025-001.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_002.jpg": {
+  "dir": "human",
+  "file": "9351c53d47ccd57b.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_003.png": {
+  "dir": "base44",
+  "file": "pod-quest-sync.base44.app-1d4a8a303c.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_004.png": {
+  "dir": "wix",
+  "file": "wise-nbps-model-i594a00.gamma.site-fc0bb188ee.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_005.webp": {
+  "dir": "blink",
+  "file": "octa-social-app-45a6754p.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_006.png": {
+  "dir": "bolt",
+  "file": "the-legendarium-comp-xm70.bolt.host-a1c4fe44e7.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_007.webp": {
+  "dir": "deckgallery",
+  "file": "dg-klarna-visual-identity-2019-klarna-visual-identity-guidelines-2019-003.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_008.jpg": {
+  "dir": "human",
+  "file": "8adf8d32834747ad.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_009.png": {
+  "dir": "gamma",
+  "file": "generative-ai-bias-trust-tcd745b.gamma.site_generative-ai-bias-trust-and-brand-advantage-6518665dcd.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_010.png": {
+  "dir": "chatgpt-slides",
+  "file": "6e165a63a3bb8798.png",
+  "label": "ai",
+  "pipe": "imagegen"
+ },
+ "img_011.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_461-34cfefbab2.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_012.png": {
+  "dir": "websim",
+  "file": "epscaueu4x1ge03nmzoh.c.websim.com-acce2588a4.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_013.webp": {
+  "dir": "human",
+  "file": "2e83d5e6e9acb854.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_014.png": {
+  "dir": "lovable",
+  "file": "offline-phone-fixer.lovable.app-7471eda8cf.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_015.webp": {
+  "dir": "blink",
+  "file": "flipper-art-gen-s9yrlr87.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_016.png": {
+  "dir": "bolt",
+  "file": "garciacode-terminalcollective.bolt.host-3593914da2.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_017.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Illustrated-Cyber-Security-Training-Online-2-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_018.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Cute-Animated-Countdown-Clock-Theme-14-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_019.png": {
+  "dir": "polsia",
+  "file": "quorvane-vmtdbc.polsia.app-8eead99550.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_020.webp": {
+  "dir": "blink",
+  "file": "plusone-escape-key-0nm0lu54.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_021.png": {
+  "dir": "gamma",
+  "file": "get-booked-to-speak-nhsbm9c.gamma.site-eb19fb49e1.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_022.png": {
+  "dir": "aistudio",
+  "file": "repurpr.ai.studio-a67cf98c1b.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_023.webp": {
+  "dir": "deckgallery",
+  "file": "dg-overcommited-report-2024-accept-and-proceed-impact-report-2022-001.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_024.png": {
+  "dir": "lovable",
+  "file": "pdf-joy-sign.lovable.app-7d304a11e2.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_025.png": {
+  "dir": "websim",
+  "file": "kyqrjmij7xijb64zmmez.c.websim.com-30fdd99cdf.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_026.png": {
+  "dir": "v0",
+  "file": "v0-event-crawling-platform.vercel.app-e5c8a5ef6b.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_027.png": {
+  "dir": "websim",
+  "file": "58utjzlrw7l5wdtr2agx.c.websim.com-3437503556.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_028.webp": {
+  "dir": "blink",
+  "file": "jjk-char-spinner-o7i45sek.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_029.webp": {
+  "dir": "blink",
+  "file": "ironman-dashboard-hd2qumzb.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_030.png": {
+  "dir": "base44",
+  "file": "instantlylive.base44.app-918b562eb4.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_031.png": {
+  "dir": "lovable",
+  "file": "kulima-hub.lovable.app-cd5f530548.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_032.webp": {
+  "dir": "deckgallery",
+  "file": "dg-studio-freight-capabilities-deck-2023-capabilities-deck-from-studio-freight-005.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_033.png": {
+  "dir": "chatgpt-slides",
+  "file": "7ab186661d80eac0.png",
+  "label": "ai",
+  "pipe": "imagegen"
+ },
+ "img_034.jpg": {
+  "dir": "pitch",
+  "file": "pitch-front-slide-3.jpg",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_035.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Blue-Yellow-and-Green-Illustrative-School-Icebreakers-3-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_036.png": {
+  "dir": "webflow",
+  "file": "composite-2025.webflow.io-aff1e8549c.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_037.png": {
+  "dir": "gamma",
+  "file": "hrp-2025-report-gr0mhl0.gamma.site-36b52f040c.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_038.webp": {
+  "dir": "blink",
+  "file": "quotex-ohlc-analyzer-iyq56fp3.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_039.png": {
+  "dir": "websim",
+  "file": "5xmaqdg8jpkz8uzaxdim.c.websim.com-3525354990.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_040.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_466-90705d8140.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_041.jpg": {
+  "dir": "human",
+  "file": "bb94b55c38c2536d.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_042.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_8o7jKw7qwlb-fac6cf488f.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_043.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Pink-Blue-and-Yellow-Cute-Retro-Illustrative-Web-Project-Proposal-Presentation-4-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_044.png": {
+  "dir": "aistudio",
+  "file": "pulse-social-1.ai.studio-846bdac02e.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_045.jpg": {
+  "dir": "human",
+  "file": "9306a069d33189ac.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_046.png": {
+  "dir": "human",
+  "file": "91bce6717b44dd72.png",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_047.png": {
+  "dir": "emergent",
+  "file": "snap2admin-rebrand.emergent.host-33d5b56f7e.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_048.jpg": {
+  "dir": "human",
+  "file": "95fe201897e9a6d2.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_049.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_187-426f47d317.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_050.png": {
+  "dir": "wix",
+  "file": "bidriot.lol-7b38b67a32.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_051.png": {
+  "dir": "chatgpt-slides",
+  "file": "53fe73eb86046289.png",
+  "label": "ai",
+  "pipe": "imagegen"
+ },
+ "img_052.png": {
+  "dir": "chatgpt",
+  "file": "www.canva.com_design_DAGo236i-sw_AuHkNrdQ3-AeXmCQyjkYLg_view-e963d06023.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_053.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_28-b7ffb460bd.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_054.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-4067-Talbot-Slide1.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_055.png": {
+  "dir": "aistudio",
+  "file": "docuvoiceafrica.ai.studio-a87dc367e6.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_056.png": {
+  "dir": "websim",
+  "file": "t4hru8pl3z3j7497wvhi.c.websim.com-90adeaea74.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_057.png": {
+  "dir": "emergent",
+  "file": "pro-content-6.emergent.host-fbb1d5a06c.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_058.jpg": {
+  "dir": "pitch",
+  "file": "pitch-front-slide-8.jpg",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_059.png": {
+  "dir": "chatgpt",
+  "file": "kaigong-yixia.mofan9005.chatgpt.site-42eb09f630.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_060.png": {
+  "dir": "chatgpt-slides",
+  "file": "af6732e6ceebe09e.png",
+  "label": "ai",
+  "pipe": "imagegen"
+ },
+ "img_061.png": {
+  "dir": "chatgpt",
+  "file": "reset-device.csweichel429437.chatgpt.site-7a8a11c45f.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_062.jpg": {
+  "dir": "human",
+  "file": "f9e9687ae2b3d683.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_063.png": {
+  "dir": "grok",
+  "file": "zambo.grok.me-def797e923.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_064.webp": {
+  "dir": "blink",
+  "file": "babysyllab-web-app-5sy4a41p.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_065.png": {
+  "dir": "webflow",
+  "file": "simplyhra.com-c1d86d971b.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_066.png": {
+  "dir": "lovable",
+  "file": "vinilson.lovable.app-4fc1731a68.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_067.png": {
+  "dir": "bolt",
+  "file": "aquamarine-muffin-7bdd42.netlify.app-cc0c68b0d9.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_068.png": {
+  "dir": "grok",
+  "file": "apex-app.grok.me-c908445c5e.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_069.jpg": {
+  "dir": "pitch",
+  "file": "pitch-front-slide-10.jpg",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_070.png": {
+  "dir": "gamma",
+  "file": "dr-sabu-abraham-3-0-jpd8h4b.gamma.site-dd88ca61eb.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_071.png": {
+  "dir": "polsia",
+  "file": "whiteknightos.polsia.app-2c4e8300d7.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_072.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Agriculture-Major-for-College-Environmental-Science-4-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_073.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_qK8iWfx4VMX-85688f7e1d.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_074.webp": {
+  "dir": "blink",
+  "file": "clipbattle-arena-w8e63j6c.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_075.jpg": {
+  "dir": "human",
+  "file": "1d1cc600908aae77.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_076.png": {
+  "dir": "trickle",
+  "file": "c04ehmd8ia6z.trickle.host-a7fa622508.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_077.webp": {
+  "dir": "deckgallery",
+  "file": "dg-opera-design-guide-2023-byd-oversea-vi-2023-001.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_078.png": {
+  "dir": "webflow",
+  "file": "www.mainder.ai-5df908ccd7.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_079.jpg": {
+  "dir": "human",
+  "file": "c90c398951194c78.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_080.png": {
+  "dir": "lovable",
+  "file": "rdc-send-compare.lovable.app-09d3a05988.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_081.png": {
+  "dir": "webflow",
+  "file": "8020.webflow.io-df4abb1437.png",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_082.png": {
+  "dir": "lovable",
+  "file": "kodierenterprise.lovable.app-4b56a99387.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_083.png": {
+  "dir": "base44",
+  "file": "vudas.base44.app-454cda3415.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_084.png": {
+  "dir": "lovable",
+  "file": "touristtown.lovable.app-b57fbea159.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_085.webp": {
+  "dir": "deckgallery",
+  "file": "dg-commercial-filmmaking-tr-2026-commercial-filmmaking-tr-2026-003.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_086.png": {
+  "dir": "chatgpt-slides",
+  "file": "chatgpt_deck_01.png",
+  "label": "ai",
+  "pipe": "imagegen"
+ },
+ "img_087.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-Dark-Gray-Neon-Green-and-Orange-Illustrative-Exploring-Science-Museum-Field-Trip-15-720x405.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_088.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b56db0c1edd634a8def5_SaaS-20Pitch-20Deck-20--20Slide-202.jpeg.jpg",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_089.webp": {
+  "dir": "blink",
+  "file": "teacher-notes-senegal-dwqbodt8.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_090.webp": {
+  "dir": "deckgallery",
+  "file": "dg-snapchat-the-friendship-2019-snapchat-the-friendship-report-2019-001.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_091.webp": {
+  "dir": "deckgallery",
+  "file": "dg-future-snoops-the-2026-future-snoops-the-future-of-home-and-lifestyle-2026-002.webp.webp",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_092.png": {
+  "dir": "reddit-ai",
+  "file": "10a5257ed41e2f1d.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_093.jpg": {
+  "dir": "human",
+  "file": "da4bf3df09fffe07.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_094.png": {
+  "dir": "human",
+  "file": "de49e33a61be2195.png",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_095.png": {
+  "dir": "lovable",
+  "file": "scrum-and-scotland.lovable.app-72eaca533a.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_096.png": {
+  "dir": "gamma",
+  "file": "nonprofitai-event-ovirze1.gamma.site_events-98ed555e74.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_097.png": {
+  "dir": "websim",
+  "file": "2nw369v1_0eu8g0ag5a2.c.websim.com-b49f571fa3.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_098.jpg": {
+  "dir": "human",
+  "file": "afa8c9dfbf9e1ddf.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_099.jpg": {
+  "dir": "reddit-ai",
+  "file": "3e668f39b6e2a068.jpg",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_100.jpg": {
+  "dir": "beautifulai",
+  "file": "bai-6a95b8245a681ae8dc631eee_AI-20Startup-20Business-20Plan-20Presentation.jpg",
+  "label": "human",
+  "pipe": "designer"
+ },
+ "img_101.png": {
+  "dir": "trickle",
+  "file": "8ys9ssux7evv.trickle.host-9b2eac775a.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_102.png": {
+  "dir": "v0",
+  "file": "v0.app_templates_mE2nwltmoDT-dd34bd385d.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_103.jpg": {
+  "dir": "human",
+  "file": "56c701bae14e6b15.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_104.png": {
+  "dir": "presenton",
+  "file": "presenton.ai_community_presentations_219-80304530b2.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_105.jpg": {
+  "dir": "slidescarnival",
+  "file": "sc-1828-Hecate-Slide2.jpg.jpg",
+  "label": "human",
+  "pipe": "human"
+ },
+ "img_106.png": {
+  "dir": "bolt",
+  "file": "jnyambane-portfolio.bolt.host-36464baf95.png",
+  "label": "ai",
+  "pipe": "codegen"
+ },
+ "img_107.png": {
+  "dir": "reddit-ai",
+  "file": "ac5d4d7e420791cd.png",
+  "label": "ai",
+  "pipe": "mixed"
+ },
+ "img_108.webp": {
+  "dir": "blink",
+  "file": "biere-sur-mesure-9pgk7pt9.shot.webp",
+  "label": "ai",
+  "pipe": "codegen"
+ }
+}
