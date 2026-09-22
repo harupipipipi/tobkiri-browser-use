@@ -563,30 +563,35 @@ hosting/publishing is not a generation record. Final semantics:
   provenance/P only => uncertain+null. `provenance` field can be set while
   `aiGenerated=null` (markup provenance recorded as `certainty:likely`).
 
-### Contract test (9/9)
+### Contract test (14/14)
 
 Assertions now encode the contract, not implementation guesses:
 `aiGenerated=true` REQUIRES a `G:` evidence line; `false` requires `H:`;
 tri-state always. Cases: gamma-hosted page => uncertain+null+prov gamma;
 framer => uncertain+null+prov framer; hand-written React SPA => null;
 websim artifact with `__websim` globals => ai_confirmed; bare URL /
-pitch.com / vercel.app / "Powered by GPT-4" page => all null.
+pitch.com / vercel.app / "Powered by GPT-4" page => all null;
+claude.site artifact URL / gamma.app root (toolpage) / created.app /
+vusercontent.net / chat.z.ai `*-ppt` => uncertain+null(+prov) —
+generation-only surfaces still never pass on host alone.
 
-### Corpus re-score (held-out test, n=4,201)
+### Corpus re-score (held-out test, n=4,254 — after websim marker expansion)
 
-- ai-labeled 2,272: generation-evidence 1,719 (75.7%), provenance-only
-  552, human-verdict 1. The 75.7% measures self-marker coverage, NOT the
+- ai-labeled 2,325: generation-evidence 2,032 (87.4%), provenance-only
+  292, human-verdict 1. The 87.4% measures self-marker coverage, NOT the
   share of hosted artifacts that are AI-generated.
 - human-labeled 113: ai-verdict 0 (0% FP); all 113 uncertain — designer
   markup no longer pretends to confirm human authorship either.
-- provenance identification: toolGuess matched source dir 2,477/3,836
+- provenance identification: toolGuess matched source dir 2,528/3,891
   (rest are generic hosts / marketing chrome with no provenance).
-- per-dir: websim 295 confirmed vs 277 uncertain (project shells w/o
-  artifact globals = host only, correctly abstains); gamma dir 104
-  uncertain (no generated-vs-imported marker exists); slidebean toolpages
-  identify as webflow (their marketing IS webflow-built — pipeline
-  attribution is correct even when the dir label differs).
-- no-host mode identical 75.7% — confirmed items carry in-artifact markers.
+- per-dir: websim 572 confirmed vs 1 uncertain — the expanded websim
+  internals (`websim.com/v1/project/` + `websim-injected`, both embedded
+  per-item records inside artifact captures) flipped the artifact pages
+  that previously abstained on host-only; gamma dir 104 uncertain (no
+  generated-vs-imported marker exists); slidebean toolpages identify as
+  webflow (their marketing IS webflow-built — pipeline attribution is
+  correct even when the dir label differs).
+- no-host mode identical 87.4% — confirmed items carry in-artifact markers.
 
 ### Residual limits
 
@@ -597,3 +602,129 @@ pitch.com / vercel.app / "Powered by GPT-4" page => all null.
 - Platform-semantic surfaces (websim/lovable artifacts exist only via
   their generator) are strong circumstantial evidence, but we still require
   the in-artifact marker rather than trusting the domain alone.
+
+## Design-vs-content separation (contract v3)
+
+User-review correction (2026-09-22): the previous Tier-C "content-anomaly"
+class counted *fictional-content furniture* (invented logo walls, fabricated
+metrics, anonymous testimonials, mock product UIs) as strong AI evidence.
+That is wrong: fictionality is **brief-determined**, not author-determined.
+A human designer given "make a demo deck for a fictional product" ships the
+same invented content an AI does — and an AI given "use real data" ships
+real entities. Content realism is symmetrically non-probative.
+
+Revised Tier C:
+
+- **C1 — process defects / generation leaks** (strong): garbled in-image
+  text, env/config errors shipped in UI, impossible/self-contradicting
+  details vs the artifact's own claims, in-artifact generation records
+  (visible prompts, model-claim chips, AI-vs-AI labels), artifact badges.
+  These are things no brief requests — the only content-level AI evidence.
+- **C2 — tool style signatures** (moderate): per-tool default themes
+  (Lovable dark-dev, Bolt skeleton, Gamma slide look, etc.). A dense match
+  (>=3 elements of one signature) supports `ai_likely` ONLY with a C1
+  defect; alone => `uncertain`.
+- **C3 — shared design grammar** (weak): card grids, kicker+headline
+  skeletons, gradient accent words, pill badges, bento stats, zero-widow
+  polish. Never sufficient.
+- **Demoted to NOT evidence**: invented brands/logos/metrics/testimonials/
+  fake ecosystems (fictional briefs require them) AND, symmetrically, real
+  brands/real citations (prompted AI emits real entities). Content realism
+  is neutral both directions; only construction defects and tool
+  signatures are judged.
+
+### Triggering test case
+
+Hand-authored-by-LLM fictional deck `deck.html`/`deck.png` (Meridian —
+invented async-standup SaaS, 4 slides, dark navy + violet->cyan accent):
+judged `ai_likely` (conf 0.6-0.7) under old rules on the strength of the
+invented logo wall ("NORTHWIND/Klarheit/Vantage Labs/loopward" — Northwind
+is literally the MS sample-DB name), fabricated stat row, anonymous
+testimonial and mock terminal. All of those are brief-required fiction —
+under v3 they are neutral; the residual is a dense C2 Lovable-signature
+match + C3 grammar => `uncertain` with style-match noted. The old verdict
+demonstrated exactly the misapplication the rewrite removes.
+
+## 2026-09-22 — fingerprint refresh (web research sweep) + live samples
+
+Research sweep (X/Reddit/dev.to/vendor docs) added ~35 host patterns to A1:
+chatbot artifact hosts (`claude.site/artifacts`, `chatgpt.com/share`,
+`g.co/gemini/share`, `aistudio.google.com/apps/drive`, `poe.com` apps,
+`chat.z.ai/space/*-ppt`), builder hosts (`*.created.app` = Anything/create.xyz
+rebrand, `*.figma.site`, `*.lovable.dev`+`*.lovableproject.com`, `*.wegic.app`,
+`*.vusercontent.net`, `*.mocha.app`, `*.capacity.studio`, `*.floot.app`,
+`*.orchids.app`, `*.hostingersite.com`, `*.10web.site`, `*.hocoos.com`,
+`*.softr.io/app`, `*.bubbleapps.io`, `*.dora.run`/`s.dora.run`,
+`*.hf.space`/`deepsite.hf.co`, `*.gradio.live`, `*.notion.site`, `opal.google`,
+`notebooklm.google.com`), and deck share hosts (`app.getalai.com/view`,
+`app.chroniclehq.com/share`, `*.storydoc.com`, `wonderslide.com/s`,
+`my.visme.co/view`, `view.genial.ly`, `prezi.com/p`, `app.ludus.one`,
+`show.zoho.com`, `kimi.com`). Deprecated: `tome.app` (product sunset
+2025-04). UNVERIFIED: `*.spark.github.io`, `*.10web.site` pattern, Macaron,
+MagicPath, a0.dev/Rork hosts — confirm against a live sample before weighting.
+
+New evidence class A6 (asset-level): `dc:subject="PptxGenJS Presentation"`
+in pptx docProps (Copilot/Claude Cowork exports), Copilot speaker-note
+`"AI-generated" image source`, C2PA manifests, visible `NotebookLM` slide
+watermark (free tier, every slide), Gemini sparkle corner mark, SynthID
+(reported unverifiable in-place).
+
+**Badge is a *visual* marker too**: `dataset/lovable/mathgym*.png`
+(screenshot-only) shows the "Made with ⚡Lovable" dark pill bottom-right —
+readable without DOM. Same evidence class as `lovable-badge` in markup.
+Counter-example `dataset/lovable/taleora*.png`: badge removed (paid tier),
+custom serif+illustrated design, zero "slop" look — tool ≠ default style.
+
+Third-party detectors cross-checked for method parity: aiwebsitedetector.com
+(263-builder fingerprint DB — host/script/data-attr/header approach = our
+Tier A/B), Slopdar (open-source rule matcher — markup fingerprints +
+layout tropes + boilerplate copy), madewithjev (rendered-style measurement —
+gradient/pill/glass CSS properties — complements our Tier C), Sailop
+(21-signal checklist incl. `color-tailwind-default`, `gradient-ai-band`).
+Reddit-mined tell taxonomies exist (vibecoded-design-tells, anti-slop-kit)
+— usable as C2/C3 vocabulary, not as evidence.
+
+## Contract-v3 blind evaluation (v4, 2026-09-23)
+
+First blind set judged under contract v3 (fictionality neutral, C1 =
+process defects/record leaks only, C2 >=3 signature elements, host/badge
+= provenance). `scripts/blindset-build4.mjs` built n=124 across
+ai/marker 32, ai/genrecord 28 (civitai post+model metadata, presenton
+prompt embeds), human/real 10, human/template 18, human/tool-gallery 20,
+unknown/host-only 16. Zero sha1 overlap with v1-v3; author/deck/template
+dedup applied. Audit excluded 1 duplicate artifact (second capture of the
+same Canva deck).
+
+Judged blind (filenames/URLs/labels hidden), one image at a time, with
+per-item observation notes in `eval/blindset/blindset4-judgments.jsonl`.
+Scored by `blindset-score.mjs --set v4 --audit` (now with separate
+`unknown` denominators and per-basis breakdown).
+
+Results (audited n=123): AI catch 50.0% (30/60), miss 6.7%, abstain
+43.3%; human FP **0%** (0/47); unknown correct-abstain 43.8%,
+overclaim 56.3% (9/16). No-badge mode: AI catch 26.8% (11/41), FP 0%.
+
+Interpretation notes (important):
+- The 0% FP is real but partly a product of higher abstention (27.7% of
+  humans abstained) — the contract traded decisiveness for precision.
+- Of the 9 unknown "overclaims", 5 were `human_likely` calls backed by
+  real-entity content evidence (BCREA webinar, Gerd Leonhard site,
+  NSO/CNA claim report, named designer portfolio, template page) —
+  evidence-backed authorship calls on provenance-ambiguous items, not
+  blind guesses. 3 were C2-signature `ai_likely` calls on aistudio/
+  decktopus hosts. Unsupported overclaims: <=4/16.
+- The 4 AI misses are all genspark/presenton items imitating real
+  institutional documents (LIXIL, UTokyo, personal travel essay) — the
+  real-content-on-AI-host boundary again; dir labels may themselves be
+  wrong on some of these.
+- imagegen remains the hard wall: 6/15 caught, 9 abstain — all
+  photoreal/subtle cases where honesty requires abstention.
+
+Marker specificity checks done this round: websim artifact markers
+(`websim-injected`, `websim.com/v1/project/<id>`) appear in 0 non-websim
+dirs; lovable-badge 46/60 lovable, bolt badge.js 39/48, v0 button 19/60,
+base44 edit badge 41/60, grok-project-id 16/22, emergent-badge 4/10,
+blink markers only 985/28,522 files (~3.5% — badge is minority).
+Trickle markers were inconsistent -> pool downgraded to host-only.
+Civitai basis is public post+model metadata (bounded generation record,
+not a full production audit).

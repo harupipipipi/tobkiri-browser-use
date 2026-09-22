@@ -24,6 +24,11 @@
 //   G. pitch.com URL    -> uncertain + null
 //   H. vercel.app host  -> uncertain + null
 //   I. "Powered by GPT-4" product page              -> uncertain + null
+//   J. claude.site artifact URL                     -> uncertain + null
+//   K. gamma.app root                               -> toolpage
+//   L. created.app app                              -> uncertain + null
+//   M/N. generation-only surfaces (vusercontent,    -> uncertain + null
+//        chat.z.ai) still provenance only
 //
 // Usage: node scripts/detector-contract.mjs
 import { readFileSync, existsSync } from 'node:fs';
@@ -108,6 +113,21 @@ push('H. vercel.app generic host', { url: 'https://my-app.vercel.app/', html: ''
   push('I. "Powered by GPT-4" product page', { url: 'https://acme.example.com/', html },
     { verdict: 'uncertain', aiGeneratedNull: true });
 }
+// J. claude.site/artifacts — Claude artifact surface, provenance only
+push('J. claude.site artifact URL', { url: 'https://claude.site/artifacts/1229a009-df4e-406e-9a5e-eed22f353844', html: '' },
+  { verdict: 'uncertain', aiGeneratedNull: true, provenanceTool: 'claude-artifact' });
+// K. gamma.app marketing root — tool page, not an artifact
+push('K. gamma.app root (tool page)', { url: 'https://gamma.app/', html: '' },
+  { verdict: 'toolpage', provenanceTool: 'gamma-toolpage' });
+// L. created.app (Anything) published app — provenance only
+push('L. created.app published app', { url: 'https://myapp.created.app/', html: '' },
+  { verdict: 'uncertain', aiGeneratedNull: true, provenanceTool: 'anything' });
+// M. vusercontent.net — generation-only surface in practice, still provenance
+push('M. vusercontent.net preview host', { url: 'https://preview-abc123.vusercontent.net/', html: '' },
+  { verdict: 'uncertain', aiGeneratedNull: true, provenanceTool: 'v0' });
+// N. chat.z.ai slide-agent path — surface marks the pipeline, not a record
+push('N. chat.z.ai slide space URL', { url: 'https://chat.z.ai/space/abc123-ppt', html: '' },
+  { verdict: 'uncertain', aiGeneratedNull: true, provenanceTool: 'zai-slides' });
 
 let fail = 0;
 for (const c of cases) {

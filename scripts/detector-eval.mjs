@@ -89,6 +89,41 @@ const HOST_RULES = [
   [/\.replit\.app$/, null, 'replit', 'prov'],
   [/\.ai\.studio$/, null, 'aistudio', 'prov'],
   [/\.webflow\.io$/, null, 'webflow', 'prov'],
+  // 2026-09 refresh (web-verified hosts; all provenance-only)
+  [/\.lovable\.dev$|\.lovableproject\.com$/, null, 'lovable', 'prov'],
+  [/\.wegic\.app$/, null, 'wegic', 'prov'],
+  [/\.vusercontent\.net$/, null, 'v0', 'prov'],
+  [/^claude\.site$/, /^\/artifacts\//, 'claude-artifact', 'prov'],
+  [/\.figma\.site$/, null, 'figma', 'prov'],
+  [/\.created\.app$/, null, 'anything', 'prov'],
+  [/\.hf\.space$|\.static\.hf\.space$/, null, 'huggingface', 'prov'],
+  [/^deepsite\.hf\.co$/, null, 'deepsite', 'prov'],
+  [/^chat\.z\.ai$/, /-ppt$/, 'zai-slides', 'prov'],
+  [/\.mocha\.app$/, null, 'mocha', 'prov'],
+  [/\.capacity\.studio$/, null, 'capacity', 'prov'],
+  [/\.floot\.app$/, null, 'floot', 'prov'],
+  [/\.orchids\.app$/, null, 'orchids', 'prov'],
+  [/\.hostingersite\.com$|\.cdn\.hstgr\.net$/, null, 'hostinger', 'prov'],
+  [/\.10web\.site$/, null, '10web', 'prov'],
+  [/\.hocoos\.com$/, null, 'hocoos', 'prov'],
+  [/\.softr\.io$|\.softr\.app$/, null, 'softr', 'prov'],
+  [/\.bubbleapps\.io$/, null, 'bubble', 'prov'],
+  [/\.dora\.run$/, null, 'dora', 'prov'],
+  [/\.gradio\.live$/, null, 'gradio', 'prov'],
+  [/\.notion\.site$/, null, 'notion', 'prov'],
+  [/^gamma\.app$/, /^\/(docs|public)\//, 'gamma', 'prov'],
+  [/^gamma\.app$/, null, 'gamma-toolpage', 'toolpage'],
+  [/^app\.getalai\.com$/, /^\/view\//, 'alai', 'prov'],
+  [/^app\.chroniclehq\.com$/, /^\/share\//, 'chronicle', 'prov'],
+  [/\.storydoc\.com$/, null, 'storydoc', 'prov'],
+  [/^wonderslide\.com$/, /^\/s\//, 'wonderslide', 'prov'],
+  [/^my\.visme\.co$/, /^\/view\//, 'visme', 'prov'],
+  [/^view\.genial\.ly$|^view\.genially\.com$/, null, 'genially', 'prov'],
+  [/^prezi\.com$/, /^\/p\//, 'prezi', 'prov'],
+  [/\.ludus\.one$/, null, 'ludus', 'prov'],
+  [/^show\.zoho\.(com|eu|in|jp)$/, null, 'zoho-show', 'prov'],
+  [/^notebooklm\.google\.com$/, null, 'notebooklm', 'prov'],
+  [/^opal\.google$/, null, 'opal', 'prov'],
 ];
 
 function hostOf(url) { try { return new URL(url).hostname.toLowerCase(); } catch { return ''; } }
@@ -123,7 +158,10 @@ function probeHTML(html) {
   has(/base44-edit-badge|base44-scale-in|media\.base44\.com|app\.base44\.com/, 'base44 artifact markers', 'G', 'base44');
   has(/<meta name="grok-project-id"/, 'grok project-id meta (generation record)', 'G', 'grok');
   has(/files\.manuscdn\.com|manus-content-root|__manus_space_editor_info|__manus__global_env/, 'manus artifact shell', 'G', 'manus');
-  has(/__websim_origin|__websim_route|__websim/, 'websim artifact globals', 'G', 'websim');
+  // websim artifact internals: injected runtime class + per-item project
+  // record URLs (websim.com/v1/project/<id>/revision/<n>) — both only exist
+  // inside websim-generated artifacts
+  has(/__websim_origin|__websim_route|__websim|websim-injected|websim\.com\/v1\/project\/|websim\.postComment/, 'websim artifact internals', 'G', 'websim');
   has(/v0-gray-|v0-alpha-|v0-blue-|v0-caveat-/, 'v0 design-system classes', 'G-', 'v0');
   // P — provenance / pipeline only (tool identified, authorship undetermined)
   has(/Made with Gamma|css-1fr8asy/, 'gamma publish badge (on all published docs)', 'P', 'gamma');

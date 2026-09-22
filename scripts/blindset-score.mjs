@@ -63,25 +63,33 @@ function score(items) {
     n: items.length,
     ai: { n: 0, caught: 0, missed: 0, abstain: 0 },
     human: { n: 0, fp: 0, correct: 0, abstain: 0 },
-    byPipe: {},
-    misses: [], fps: [], abstains: [],
+    unknown: { n: 0, overclaim: 0, abstain: 0 },   // host-only: abstain is correct
+    byPipe: {}, byBasis: {},
+    misses: [], fps: [], abstains: [], overclaims: [],
   };
   for (const it of items) {
-    const truth = it.truth.label;              // 'ai' | 'human'
+    const truth = it.truth.label;              // 'ai' | 'human' | 'unknown'
     const call = aiCall(it.judge.v) ? 'ai' : (it.judge.v === 'human_likely' || it.judge.v === 'human_confirmed') ? 'human' : 'abstain';
     const pk = `${it.truth.label}/${it.truth.pipe}`;
-    r.byPipe[pk] ??= { n: 0, caught: 0, fp: 0, abstain: 0 };
+    const bk = `${it.truth.label}/${it.truth.basis || 'na'}`;
+    r.byPipe[pk] ??= { n: 0, caught: 0, fp: 0, abstain: 0, overclaim: 0 };
     r.byPipe[pk].n++;
+    r.byBasis[bk] ??= { n: 0, caught: 0, fp: 0, abstain: 0, overclaim: 0 };
+    r.byBasis[bk].n++;
     if (truth === 'ai') {
       r.ai.n++;
-      if (call === 'ai') { r.ai.caught++; r.byPipe[pk].caught++; }
-      else if (call === 'abstain') { r.ai.abstain++; r.byPipe[pk].abstain++; r.abstains.push(it); }
+      if (call === 'ai') { r.ai.caught++; r.byPipe[pk].caught++; r.byBasis[bk].caught++; }
+      else if (call === 'abstain') { r.ai.abstain++; r.byPipe[pk].abstain++; r.byBasis[bk].abstain++; r.abstains.push(it); }
       else { r.ai.missed++; r.misses.push(it); }
+    } else if (truth === 'unknown') {
+      r.unknown.n++;
+      if (call === 'abstain') { r.unknown.abstain++; r.byPipe[pk].abstain++; r.byBasis[bk].abstain++; }
+      else { r.unknown.overclaim++; r.byPipe[pk].overclaim++; r.byBasis[bk].overclaim++; r.overclaims.push(it); }
     } else {
       r.human.n++;
-      if (call === 'ai') { r.human.fp++; r.byPipe[pk].fp++; r.fps.push(it); }
-      else if (call === 'abstain') { r.human.abstain++; r.byPipe[pk].abstain++; r.abstains.push(it); }
-      else r.human.correct++;
+      if (call === 'ai') { r.human.fp++; r.byPipe[pk].fp++; r.byBasis[bk].fp++; r.fps.push(it); }
+      else if (call === 'abstain') { r.human.abstain++; r.byPipe[pk].abstain++; r.byBasis[bk].abstain++; r.abstains.push(it); }
+      else { r.human.correct++; r.byBasis[bk].caught++; }
     }
   }
   return r;
@@ -90,9 +98,17 @@ function score(items) {
 function report(title, r) {
   const pct = (a, b) => b ? (100 * a / b).toFixed(1) + '%' : '-';
   console.log(`\n=== ${title} (n=${r.n}) ===`);
-  console.log(`AI    n=${r.ai.n}: caught ${r.ai.caught} (${pct(r.ai.caught, r.ai.n)}), missed ${r.ai.missed} (${pct(r.ai.missed, r.ai.n)}), abstain ${r.ai.abstain} (${pct(r.ai.abstain, r.ai.n)})`);
-  console.log(`HUMAN n=${r.human.n}: false-positive ${r.human.fp} (${pct(r.human.fp, r.human.n)}), correct ${r.human.correct} (${pct(r.human.correct, r.human.n)}), abstain ${r.human.abstain} (${pct(r.human.abstain, r.human.n)})`);
+  console.log(`AI      n=${r.ai.n}: caught ${r.ai.caught} (${pct(r.ai.caught, r.ai.n)}), missed ${r.ai.missed} (${pct(r.ai.missed, r.ai.n)}), abstain ${r.ai.abstain} (${pct(r.ai.abstain, r.ai.n)})`);
+  console.log(`HUMAN   n=${r.human.n}: false-positive ${r.human.fp} (${pct(r.human.fp, r.human.n)}), correct ${r.human.correct} (${pct(r.human.correct, r.human.n)}), abstain ${r.human.abstain} (${pct(r.human.abstain, r.human.n)})`);
+  if (r.unknown.n)
+    console.log(`UNKNOWN n=${r.unknown.n}: correct-abstain ${r.unknown.abstain} (${pct(r.unknown.abstain, r.unknown.n)}), overclaim ${r.unknown.overclaim} (${pct(r.unknown.overclaim, r.unknown.n)})`);
   console.log('by pipeline:', JSON.stringify(r.byPipe));
+  if (Object.keys(r.byBasis).length > 1)
+    console.log('by label basis:', JSON.stringify(r.byBasis));
+  if (r.overclaims.length) {
+    console.log('UNKNOWN OVERCLAIMS (host-only items called ai/human):');
+    for (const m of r.overclaims) console.log(`  ${m.f} truth=${m.truth.dir} call=${m.judge.v} ev=${m.judge.ev}`);
+  }
   if (r.misses.length) {
     console.log('AI MISSES (called human):');
     for (const m of r.misses) console.log(`  ${m.f} truth=${m.truth.dir}/${m.truth.pipe} ev=${m.judge.ev}`);

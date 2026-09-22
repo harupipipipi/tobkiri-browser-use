@@ -1,0 +1,8 @@
+{
+  "note": "v4 audit — contract-v3 frozen rules; exclusions for duplicate artifacts",
+  "excluded": {
+    "dup-artifact": {
+      "v4_084.png": "same Canva eXp Realty Brazil deck as v4_002.png (second capture)"
+    }
+  }
+}

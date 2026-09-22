@@ -14,10 +14,10 @@ AI generation tool — and, when the evidence allows, name the tool and its mode
 2. **Generation**: is there evidence the *design, text, or embedded media* were
    actually AI-generated?
 
-A confirmed pipeline does NOT settle question 2 by itself for human-operated
-tools (Canva, Framer, Webflow, Wix, Pitch, Replit). It DOES settle the *design*
-question for generator-hosts (a `*.gamma.site` doc is a Gamma-generated design
-even when the text inside it is human-authored — report the scopes separately).
+A confirmed pipeline NEVER settles question 2 by itself — not even on a
+generator's own artifact host. Gamma publishes generated, imported, and
+hand-edited docs alike; hosting is publishing, not a generation record
+(see Tier A). Generation needs per-item evidence.
 
 Every verdict must trace to observed signals. Never infer a model from vibes alone.
 When only stylistic evidence exists, the ceiling is `uncertain` — say so.
@@ -69,7 +69,10 @@ evidence only when they identify the artifact's own generation record.
 
 Every row below ⇒ `provenance: {tool, certainty:'confirmed', via:'host'}` and
 `uncertain`/`aiGenerated:null` **by itself**. Generation verdicts need the
-per-item evidence in the right column (or Tier-B/C evidence).
+per-item evidence in the right column (or Tier-B/C evidence). **Generation-only
+surfaces are still only provenance** — a host with no manual publish path
+narrows the prior but remains circumstantial, not a per-item generation record
+(contract v2).
 
 | Domain / URL pattern | Tool | What the host proves | Per-item generation evidence |
 |---|---|---|---|
@@ -78,17 +81,17 @@ per-item evidence in the right column (or Tier-B/C evidence).
 | `manus.im/share/*`, `*.manus.space` (8-char slug) | Manus | Manus-published surface | `manus-content-root`/`__manus_space_editor_info`/`__manus__global_env` artifact shell ⇒ `ai_confirmed` |
 | `*.canva.com/design/*/view`, `*.my.canva.site` | Canva | Human-operated design tool (Magic Design opt-in) | none known in-artifact ⇒ `uncertain` |
 | `*.beautiful.ai` | Beautiful.ai | AI-assisted, human-operated deck tool | none known ⇒ `uncertain` |
-| `tome.app/*` | Tome | AI deck tool surface | none verified ⇒ `uncertain` |
+| `tome.app/*` | Tome | **DEPRECATED 2026** — slides product sunset Apr 2025 (company now Lightfield); legacy links only, no new artifacts | none verified ⇒ `uncertain` |
 | `*.decktopus.com` | Decktopus | AI deck tool + marketplace (vendor templates = human content hosted there — contamination class seen in eval) | none verified ⇒ `uncertain` |
 | `*.pitch.com` | Pitch | Human deck tool w/ AI features | none known ⇒ `uncertain` |
-| `*.lovable.app` | Lovable | Lovable-published app | `lovable-badge`/`gpteng.co`/`gpt-engineer-file-uploads` markers ⇒ `ai_confirmed` |
+| `*.lovable.app`, `*.lovable.dev`, `*.lovableproject.com` (legacy) | Lovable | Lovable-published app | `lovable-badge`/`gpteng.co`/`gpt-engineer-file-uploads` markers ⇒ `ai_confirmed` |
 | `*.bolt.host` | Bolt | Bolt-published app | `bolt.new/badge.js`/`Made in Bolt` ⇒ `ai_confirmed` |
 | `*.blinkusercontent.com` | Blink | Blink-published app | `blink-badge*` classes / `auto-engineer.js?projectId=` / default "Blink App" OG ⇒ `ai_confirmed` |
 | `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI-builder surface | in-artifact markers needed ⇒ `uncertain` w/o them |
 | `*.base44.app` | Base44 | Base44-published app | `base44-edit-badge`/`media.base44.com`/`app.base44.com` refs ⇒ `ai_confirmed` |
 | `*.chatgpt.site` | ChatGPT sites | ChatGPT-published site | semantic vanilla-HTML shell is pipeline evidence; generation markers unverified ⇒ `uncertain`+stack note |
 | `*.emergent.host` | Emergent | Emergent-published app | `id="emergent-badge"`/`A product of emergent.sh` meta ⇒ `ai_confirmed` |
-| `*.wegic.net` | Wegic | Wegic demo surface | `wegic-branding-badge`/`cdn.wegic.ai` ⇒ `ai_confirmed` |
+| `*.wegic.net`, `*.wegic.app` | Wegic | Wegic-published surface | `wegic-branding-badge`/`cdn.wegic.ai` ⇒ `ai_confirmed` |
 | `*.grok.me` | Grok | Grok-published app | `grok-project-id` meta (per-item record) ⇒ `ai_confirmed` |
 | `*.replit.app` | Replit | General IDE/host — humans deploy constantly | n/a ⇒ `uncertain` |
 | `*.ai.studio` | AI Studio hosting | Google AI-app hosting (Vite+React+Lucide SPAs, no self-marker) | none known ⇒ `uncertain` (host+stack is provenance, not generation) |
@@ -99,7 +102,19 @@ per-item evidence in the right column (or Tier-B/C evidence).
 | `*.webflow.io`, `data-wf-*`/`webflow.css`/`generator=Webflow` markup | Webflow | Webflow pipeline — proves tool, not authorship (eval: 10/10 custom-domain Webflow pages identified as pipeline, all `uncertain`) | none — `uncertain` either way |
 | `wixstatic.com`, `X-Wix` markup | Wix | Wix pipeline | none — `uncertain` |
 | `*.framer.website`/`framer.site`/`framer.ai`, `framerusercontent.com`, `data-framer-*`, `generator=Framer <hash>` | Framer | Framer pipeline (human-operated tool w/ AI features) | none — `uncertain`; "Made in Framer" boilerplate is a publish badge, not a generation record |
-| `*.vercel.app`, `*.netlify.app` | generic hosts | **no provenance** — `v0-<slug>.vercel.app` subdomain convention is a weak unverified tell only | n/a |
+| `*.vercel.app`, `*.netlify.app`, `*.web.app`, `*.firebaseapp.com`, `*.run.app` | generic hosts | **no provenance** — `v0-<slug>.vercel.app` subdomain convention is a weak unverified tell only; Bolt/same.new/Stitch→Netlify/v0 all land on shared hosts | n/a — pair with stack/style tells only |
+| `claude.site/artifacts/{uuid}` | Claude artifacts | Claude-published artifact page | "Remix this Artifact" chrome is publish-shell chrome (P-tier, like `Made with Gamma`) ⇒ `uncertain`; artifacts have no manual publish path, but that is surface semantics — a per-item in-artifact marker is still required |
+| `chatgpt.com/share/*`, `g.co/gemini/share/*` → `gemini.google.com` | ChatGPT / Gemini canvas | Shared-conversation or canvas surface | a share page that embeds *this item's* canvas/conversation payload is a per-item generation record ⇒ `ai_likely` at canvas scope; URL/wrapper alone = pipeline chrome ⇒ `uncertain` |
+| `aistudio.google.com/apps/drive/*`, `*.hf.space`, `*.static.hf.space`, `deepsite.hf.co/projects/*` | AI Studio / HF DeepSite | AI-app hosting (DeepSite = DeepSeek builder on HF) | all provenance ⇒ `uncertain`; DeepSite project pages wrap a generated artifact, but the project URL is still provenance — needs in-artifact markers |
+| `chat.z.ai/space/*-ppt` | Z.ai (GLM) Slides | GLM slide-agent output surface | provenance only ⇒ `uncertain`; the `*-ppt` path marks the surface, not a per-item record — no verified in-artifact marker |
+| `*.vusercontent.net`, `*.lite.vusercontent.net`, `generated.vusercontent.net` | v0 preview/deploy | v0 preview host (generation-only surface in practice — still provenance per contract) | `generator=v0.app` meta ⇒ `ai_confirmed`; `v0-built-with` badge / `v0-*` design-system classes ⇒ per G/G- tiers; host alone ⇒ `uncertain` |
+| `*.figma.site` | Figma Make/Sites | Figma-published site (AI + manual mix) | none known ⇒ `uncertain` |
+| `*.created.app` | Anything (create.xyz rebrand) | Anything-published app | "Anything branding" on free tier ⇒ `ai_confirmed` when badge present; else `uncertain` |
+| `*.mocha.app`, `*.capacity.studio`, `*.floot.app`, `*.orchids.app` | Mocha / Capacity / Floot / Orchids | AI-builder published apps | in-artifact markers needed ⇒ `uncertain` w/o them |
+| `*.hostingersite.com`, `*.10web.site`, `*.hocoos.com`, `*.softr.io`, `*.softr.app`, `*.bubbleapps.io`, `*.dora.run`, `s.dora.run/*`, `*.gradio.live` | Hostinger AI / 10Web / Hocoos / Softr / Bubble / Dora / Gradio | Builder-published surfaces (10Web output = WordPress/Elementor markup; Bubble = `data-bubble-*`) | in-artifact markers needed ⇒ `uncertain` w/o them |
+| `*.notion.site`, `*.spark.github.io` (UNVERIFIED), `poe.com/{AppName}` apps, `opal.google`, `notebooklm.google.com` | Notion / GH Spark / Poe / Opal / NotebookLM | AI-assisted or AI-generated surfaces | none known in-artifact ⇒ `uncertain`; NotebookLM slide decks carry visible watermark ⇒ see asset-level rules |
+| `app.getalai.com/view/*` | Alai | AI deck tool (was alai.io) | none verified ⇒ `uncertain` |
+| `app.chroniclehq.com/share/*`, `stories.storydoc.com/*`, `view.storydoc.com/*`, `*.storydoc.com`, `wonderslide.com/s/*`, `my.visme.co/view/*`, `view.genial.ly/*`, `prezi.com/p/*`, `app.ludus.one/*`, `show.zoho.com/*`, `kimi.com/slides` | Chronicle / Storydoc / Wonderslide / Visme / Genially / Prezi / Ludus / Zoho Show / Kimi | Deck-tool share surfaces | publish badges only (`Made with VISME`, Wonderslide free watermark) ⇒ provenance; generation `uncertain` |
 
 ### A2. Watermarks and badges — two different evidence classes
 
@@ -132,6 +147,15 @@ bottom-right). Split by what the badge actually attests:
 | "Built with Lovable", Canva/Beautiful.ai credit lines, Genspark logo lockup | various | Expected; verify in-artifact. |
 
 Absence of a badge means nothing (paid tiers remove them) — never use absence as a human signal.
+
+**Badges are also visual evidence.** The artifact badges above render as a
+small dark pill fixed to the bottom-right corner — visible in a plain
+screenshot, no DOM needed (observed 2026-09: `dataset/lovable/mathgym*.png`
+shows "Made with ⚡Lovable" bottom-right). On image-only input, a readable
+`Made with <tool>` pill counts as the same evidence class as its DOM marker.
+Conversely `taleora.lovable.app` (badge removed, custom serif/illustrated
+design) shows Lovable output is NOT always the "purple-gradient" stereotype —
+style inference must not assume a tool's default look.
 
 ### A3. Generator/meta markup
 
@@ -172,6 +196,20 @@ a specific image unless per-asset metadata says so.
 `dataset/*/metadata.jsonl` `tool` + `assetUrl` fields are collector labels — treat as
 ground truth for *where the file was fetched*, not for what generated the pixels.
 
+### A6. Asset-level fingerprints (PPTX/PDF/images)
+
+Per-asset metadata is generation evidence about *that asset* (scope it to
+`images`/`document`, not the whole design):
+
+| Signal | Points to |
+|---|---|
+| `docProps/core.xml` `dc:subject="PptxGenJS Presentation"` in .pptx | Copilot Cowork / Claude Cowork export pipeline (PptxGenJS) — per-file generation marker |
+| Speaker-note text like `"AI-generated" image source` / alt-text declaring AI origin in .pptx | Copilot-injected provenance note |
+| C2PA Content Credentials manifest on an embedded image | Asset-level generation/edit record — check the *claim generator* field for which tool |
+| Visible `NotebookLM` watermark on every slide (free tier) | NotebookLM Slide Decks — slides are non-editable generated images ⇒ `ai_confirmed` at image scope |
+| Gemini sparkle corner watermark on an image (free tier) | Google image-gen output — image scope only |
+| SynthID invisible watermark | Google-AI images (verify only via Gemini app — report as "unverifiable here") |
+
 ## Tier B — Strong construction fingerprints (HTML/assets only)
 
 | Signal | Points to |
@@ -199,7 +237,7 @@ ground truth for *where the file was fetched*, not for what generated the pixels
 Tier-B fingerprints identify the **pipeline** only — even several together
 stay provenance. A generation verdict needs the G-class markers listed in
 A2/A3 (artifact badges, globals, per-item generator claims) or the Tier-C
-content-anomaly rule. Rows above naming generator *artifact* markers
+defect/signature rule. Rows above naming generator *artifact* markers
 (`blink-badge*`, `bolt.new/badge.js`, `v0-built-with-button`,
 `base44-edit-badge`, `grok-project-id`, `__websim_*`, manus shell globals,
 `generator=v0.app`) are the G-class; rows naming tool chrome (`data-wf-*`,
@@ -207,43 +245,118 @@ content-anomaly rule. Rows above naming generator *artifact* markers
 
 ## Tier C — Visual heuristics (screenshots only — weakest tier)
 
-Positive tells — two classes. **Layout/style tells** (grid uniformity, badge-like
-chrome, NN furniture, template skeletons, shared deck idioms) never reach
-`ai_likely` alone. **Content-anomaly tells** (invented entities with fake metrics,
-env/config leaks shipped in the UI, garbled in-image text, impossible details,
-in-artifact model claims, contradictory units, future-dated production data) are
-the strong class. Rule: `ai_likely` needs ≥2 independent content-anomaly tells,
-or ≥3 mixed tells of which ≥1 is content-anomaly; otherwise `uncertain`.
-- Uniform card grids: N identical rounded-corner cards, perfectly equal spacing/alignment.
-- Statement headline + tiny kicker ("04 / COMPETITORS & ADVANTAGES") + corner brand mark + footer furniture (page number, "Sources in speaker notes") — seen in ChatGPT-generated deck (`chatgpt-slides/`).
-- ChatGPT image-slides: whole slide is ONE generated image — flawless baked-in type, oversized bold headline ending in a colored square period (`Infercat` deck), `NN / NN` page footers, flat line-art/contour illustration, restrained 2-3 color palette, consistent corner labels + footer credits per deck.
-- ChatGPT site style (`*.chatgpt.site`, e.g. `chatgpt/variantforge*.png`): light neutral bg, single accent color, brand lockup w/ `<small>` tagline, eyebrow + 2-line sans headline w/ accent on second line, promise panel ("Your catalog stays with you."), numbered `01/02/03` steps, FAQ accordions, GPT-punchy short sentences — and NOTE the HTML is semantic vanilla (no React/Tailwind) unlike the vibe-stack builders.
-- Editorial-template look: hairline rules, small-caps metadata bands (セクション / 発行番号 / 日付 / ページ番号), oversized serif display type on cream stock — Genspark "一流レビュー誌" template (`genspark/`).
-- Genspark consulting look: white bg, navy/ink text, KPI strip row of 4-5 metrics separated by thin dividers (`$4.2M · 138% · 82%`), status-dot tables (●●), footnote lines — typeset, not illustrated.
-- Bolt light-landing skeleton: fixed translucent nav → 2-col hero w/ fake product UI → small-caps sections `THE PROBLEM`/`THE SOLUTION`/`PROCESS` → 3+2 icon-card grid → black pill CTA; Inter; lucide icons in gray rounded squares (`bolt/anshuranwa*.png`).
-- Lovable dark-dev style: dark navy + single accent, subtle grid bg, pill badge ("Free — no signup required", "AI-Powered X Generator"), centered headline with ONE accent-colored or gradient word ("...in **minutes**"), gradient CTA button + "Free • No account required" microcopy, terminal/code mockups (`$ cat intro.md`), JSON blocks, fake status bars ("Synced 12ms"), metric chips (`<1ms`, `12+`), "How it works" + STEP 1/2/3 icon cards.
-- Blink premium-editorial style: dark luxe bg, serif-italic display headline, numbered eyebrow `01 / THE COLLECTION`, single bold accent color, spec/configurator panels (`blink/3d-car-showroom*.png`).
-- Gamma slide look: dark gradient bg, big-stat rows (`87% / 0 / ∞`), italic parenthetical subtitles ("(Plot twist: I'm the main character)"), You-vs-Me comparisons, timeline chips (`reddit-ai/*.png` w/ badge).
-- v0 style (limited data): black bg + single saturated accent, heavy display headline, step-indicator pills, card UI; badge "Built with v0" bottom-right (`v0/v0-ai-food-order-bot*.png`).
-- Fake product UIs: mock dashboards/chat/terminals drawn as illustration — humans screenshot real product, AI invents pixel-perfect fakes.
-- Invented-world furniture: fictional platforms with live-looking metrics ("2.4M Pulses", "42.8K conversations"), fake verified-celebrity cards, trending tags, premium upsells ("Turbo $7.99/mo"), trust chrome ("end-to-end encrypted") — AI builders stock a whole fake ecosystem.
-- Production-error leaks: env-var/config errors rendered into the shipped UI ("ANAM_API_KEY is not set in the server environment"), typo'd metrics ("Revenue Genereted") — humans QA these away; builders ship them.
-- In-artifact model claims: "Powered by Gemini 3 Flash", "GEMINI 3.1 TTS" chips baked into header/footer — Tier-A-adjacent (content-level, not markup).
-- Impossible details: wrong unit conversions on product labels ("32 OZ (901g)" — 32oz is ~907g), fake date stamps, future-dated calendars.
-- AI-vs-AI comparison artifacts: side-by-side images literally labeled "chatgpt" / "nano banana".
-- Thin-stroke flat illustrations, single accent color, stock 3D/icon imagery, emoji-as-bullets.
-- Typography: Inter/geometric sans at consistent scale; zero widows, zero overflow — suspiciously polished.
-- Visible generator watermark/badge in-frame (see A2 pill table).
+**Judge the design, not the truth of the content.** Fictionality is
+*brief-determined*, not author-determined: a human told "make a demo deck for
+a fictional product" ships the same invented logo wall, fake metrics and
+anonymous testimonial an AI does — and an AI told "use real data" ships real
+entities. Content realism carries NO authorship signal in either direction.
+The only content-level signals that count are **process defects** (things no
+brief asks for) and **generation-record leaks**.
 
-Negative tells (human-likely, weak): real photography w/ shadows+reflections (iPhone product
-shots, `human/8e869c32b6917d93.png`); REAL third-party assets — actual book covers, actual
-brand logos (React/Arc/Notion on `human/97bb83fc0123c4cd.png`); idiosyncratic content an AI
-wouldn't invent unprompted (weather widgets, personal listicles); inconsistent
-spacing/alignment, dated CMS theme chrome (WordPress template + mismatched plugins),
-skeuomorphic/dated styling, raster noise of real captures. Strong human-template tell:
-placeholder copy survives — "Here is where your presentation begins", "20XX" year slots
-(slidesgo themes in `human/`); AI emits finished copy, templates keep placeholders.
-None are proof — humans use templates too, and AI tools can embed real logos when asked.
+Three evidence classes, strongest first:
+
+### C1 — Process defects / generation leaks (strong class)
+
+- Garbled/mangled in-image text ("FREES USE PECH" shirt), pseudo-script or
+  broken-glyph headers — imagegen signature.
+- Env-var/config errors rendered into the shipped UI ("ANAM_API_KEY is not
+  set in the server environment"), stub markup leaking into view, typo'd
+  shipped metrics ("Revenue Genereted") — pipelines ship what humans QA away.
+- Impossible/contradictory details *relative to the artifact's own claims*:
+  wrong unit conversions on labels ("32 OZ (901g)" — 32oz ≈ 907g),
+  self-contradicting figures. Internal inconsistency, not mere fiction.
+- In-artifact generation records: visible prompt text, "Powered by Gemini 3
+  Flash" / "GEMINI 3.1 TTS" chips baked into chrome, side-by-side images
+  literally labeled "chatgpt" / "nano banana".
+- Visible generator watermark/badge in-frame (see A2 — artifact badges only;
+  publish badges are provenance).
+
+### C2 — Tool style signatures (moderate — only DENSE matches count)
+
+Each row is a per-tool default theme: more specific than generic polish, but
+still imitable by humans. Counts only when **≥3 listed elements of ONE
+signature** are present; partial matches degrade to C3.
+
+- Lovable dark-dev: dark navy + single accent, subtle grid bg, pill badge
+  ("Free — no signup required", "AI-Powered X Generator"), centered headline
+  with ONE accent/gradient word ("...in **minutes**"), gradient CTA +
+  "Free • No account required" microcopy, terminal/code mockups
+  (`$ cat intro.md`), JSON blocks, fake status bars ("Synced 12ms"), metric
+  chips (`<1ms`, `12+`), "How it works" STEP 1/2/3 icon cards.
+- Bolt light-landing skeleton: fixed translucent nav → 2-col hero w/ fake
+  product UI → small-caps sections `THE PROBLEM`/`THE SOLUTION`/`PROCESS` →
+  3+2 icon-card grid → black pill CTA; Inter; lucide icons in gray rounded
+  squares (`bolt/anshuranwa*.png`).
+- ChatGPT image-slide: whole slide is ONE generated image — flawless baked-in
+  type, oversized bold headline ending in a colored square period
+  (`Infercat`), `NN / NN` page footers, flat line-art/contour illustration,
+  restrained 2-3 color palette, consistent corner labels + footer credits.
+- ChatGPT site style (`*.chatgpt.site`, e.g. `chatgpt/variantforge*.png`):
+  light neutral bg, single accent color, brand lockup w/ `<small>` tagline,
+  eyebrow + 2-line sans headline w/ accent on second line, promise panel,
+  numbered `01/02/03` steps, FAQ accordions, GPT-punchy short sentences —
+  and NOTE the HTML is semantic vanilla (no React/Tailwind) unlike the
+  vibe-stack builders.
+- Gamma slide look: dark gradient bg, big-stat rows (`87% / 0 / ∞`), italic
+  parenthetical subtitles ("(Plot twist: I'm the main character)"), You-vs-Me
+  comparisons, timeline chips (`reddit-ai/*.png` w/ badge).
+- Genspark editorial: hairline rules, small-caps metadata bands
+  (セクション / 発行番号 / 日付 / ページ番号), oversized serif display on
+  cream stock ("一流レビュー誌" template). Consulting variant: navy/ink on
+  white, KPI strip of 4-5 metrics separated by thin dividers
+  (`$4.2M · 138% · 82%`), status-dot tables (●●), footnote lines — typeset,
+  not illustrated.
+- Blink premium-editorial: dark luxe bg, serif-italic display headline,
+  numbered eyebrow `01 / THE COLLECTION`, single bold accent color,
+  spec/configurator panels (`blink/3d-car-showroom*.png`).
+- v0 style (limited data): black bg + single saturated accent, heavy display
+  headline, step-indicator pills, card UI.
+- ChatGPT-deck furniture idiom: statement headline + tiny kicker
+  ("04 / COMPETITORS & ADVANTAGES") + corner brand mark + footer furniture
+  (page number, "Sources in speaker notes") (`chatgpt-slides/`).
+
+### C3 — Shared design grammar (weak — NEVER sufficient alone)
+
+Uniform card grids, perfectly equal spacing, kicker→statement-headline→
+card-grid skeletons, one-gradient-word headlines, pill badges, bento-stat
+rows, mock dashboards/charts as illustration, thin-stroke flat illustration,
+emoji-as-bullets, single-accent palettes, Inter/geometric sans, zero
+widows/overflow ("suspiciously polished"). Human templates ship all of these
+daily — weight as support only, never toward a verdict.
+
+### NOT evidence — demoted classes
+
+- **Invented content is not an AI tell.** Fictional brands, logo walls,
+  metrics, testimonials, fake product UIs, premium upsells ("Turbo $7.99/mo"),
+  trust chrome ("end-to-end encrypted"), whole fake ecosystems — a
+  fictional/demo brief requires them regardless of author. They only mean
+  "no real anchor exists": neutral, never toward `ai_likely`. (v3 measured
+  exactly this class as the residual human-FP source — Framer/Webflow
+  landings with invented logo walls.)
+- **Real content is not a human tell** (symmetric demotion): verifiable
+  brands, real logos, named people, working contact paths, real citations
+  are equally brief-determined — an AI asked for a real subject emits real
+  entities. Neutral context; never toward `human_likely` on content realism
+  alone.
+- Polish, "competent-but-generic" sameness, emoji-free punchy copy — vibes,
+  not evidence.
+- In-artifact "Powered by <model>" feature claims describe what the page
+  *uses*, not what *generated* it — provenance note only (contrast C1's
+  generation-record leaks baked into the artifact's own chrome).
+
+### Negative tells (human-leaning, weak — design/craft level only)
+
+Real photography with natural shadows/reflections and sensor noise;
+idiosyncratic art direction an unprompted generator wouldn't produce;
+inconsistent hand spacing/alignment; dated CMS theme chrome (WordPress
+template + mismatched plugins); skeuomorphic/dated styling; **surviving
+template placeholder copy** ("Here is where your presentation begins",
+"20XX" year slots) — a process tell: AI emits finished copy, human template
+users leave placeholders. None are proof.
+
+Observed human-side examples: iPhone product shot (`human/8e869c32b6917d93.png`),
+idiosyncratic art direction (weather widgets, personal listicles), slidesgo
+placeholder themes in `human/`.
 
 **AI-builder UI chrome** (recognize, don't misjudge): screenshots of the *builders
 themselves* — bolt.new's "What do you want to build?" prompt box, token counters
@@ -259,9 +372,9 @@ artifact, not the ad: marketing polish ≠ AI generation.
 **Calibration insight:** AI output sits at "competent-but-generic" — conventional polish,
 safe palettes, template skeletons. Award-winning HUMAN work (awwwards/httpster/cssnectar
 shots in `human/`) is MORE idiosyncratic: weird compositions (site on a monitor in a
-garden), real client-logo ribbons (MrBeast/Uber/Binance), 3D art direction, coordinates
-ticker bands. Very high polish + weirdness/real-brands leans human; polish + sameness
-leans AI.
+garden), 3D art direction, coordinates ticker bands. Very high polish +
+weirdness leans human (design-level idiosyncrasy, still weak); polish +
+sameness leans AI — both are C3-grade context, never decisive.
 
 **Measured false-positive class (blind eval, see below):** polished systematic HUMAN
 decks are the #1 visual FP source — Beautiful.ai/Pitch/SlidesCarnival template slides
@@ -271,29 +384,32 @@ slide that embeds an app-screenshot illustration reads as an invented AI app
 (`img_088` vs `img_089` — a Beautiful.ai template and a Blink app showing near-identical
 teacher-app UIs). When "polished" is the only signal, prefer `uncertain` over `ai_likely`.
 
-**FP-control rules (added after v2/v2b dev-set analysis, human FP was 22%):**
-- "Invented brand + polish" is NOT sufficient — human designers invent brands too
-  (Boc.Studio, EverSwap, Studio Minds, Mockly were all human FPs). A landing page
-  needs ≥2 *content-anomaly* tells (fake-ecosystem furniture, env/config leaks,
-  garbled text, impossible details, model claims) to reach `ai_likely`; layout
-  polish + invented brand alone = `uncertain`.
-- Bento-stat rows, NN section furniture, icon-card grids, gradient CTAs are
-  SHARED grammar — human templates and AI decks both ship them. Count them as
-  weak signals only.
-- Real-entity anchors weigh human: verifiable company/brand names, real product
-  logos, named real people + working contact paths, dated/filing content
-  (SEC boilerplate, real grant IDs) — unless the in-artifact content is
-  self-evidently fabricated (invented firm + invented metrics + no verifiable
-  anchor = AI-leaning).
-- Template placeholder copy ("Here is where your presentation begins",
-  "Elaborate on what you want to discuss", "20XX") is a HUMAN-template tell.
-  slidesai/decktopus outputs mimic exactly this — a slide that looks like a
-  template with placeholder copy = `uncertain`, not human_likely, when the
-  deck could be generated; but do not call it AI either.
-- Deliberately naive/hand-drawn style does not prove human — image models
-  mimic it (Krea_2 wolf example). Style authenticity is not evidence either way.
-- Conversely AI-looking polish does not prove AI: judge *content provenance
-  signals*, not vibes.
+**FP-control rules (v3 — fictionality demoted after user review):**
+- Content realism is never the question. Fictional furniture in a
+  fictional/demo artifact is neutral; fabricated data on an artifact that
+  claims to be real is a content-integrity issue, not authorship evidence.
+  Weight toward `ai_likely`: zero, either way.
+- The only content-level signals that count toward `ai_likely` are C1
+  process defects and in-frame generation records.
+- A dense C2 signature match alone ⇒ `uncertain` + note the matched style;
+  it supports `ai_likely` only together with ≥1 C1 defect.
+- C3 grammar + invented brand = `uncertain`. Full stop. (Boc.Studio,
+  EverSwap, Studio Minds, Mockly were all human FPs on this pattern.)
+- Template placeholder copy = human-template tell; slidesai/decktopus mimic
+  it — `uncertain` either way.
+- Deliberately naive/hand-drawn style proves neither direction (Krea_2 wolf;
+  X hand-drawn FP both ways). Style authenticity is not evidence.
+- AI-looking polish does not prove AI — and fictional-looking content does
+  not prove AI either. Judge construction defects and tool signatures,
+  not realism.
+
+**Screenshot-only verdict rule:**
+- `ai_confirmed`: in-frame artifact badge/watermark (A2 artifact class) or a
+  C1 generation-record leak.
+- `ai_likely` (conf ≤0.65): ≥2 independent C1 defects, OR ≥1 C1 defect +
+  one dense C2 signature match.
+- `uncertain`: everything else — including a dense C2 signature alone, any
+  amount of C3 grammar, and any amount of fictional or realistic content.
 
 ## Pipeline attribution: codegen vs imagegen
 
@@ -317,7 +433,7 @@ bundle chunk filenames. `mixed` = both present.
 | Verdict | Rule | `aiGenerated` | Confidence grade |
 |---|---|---|---|
 | `ai_confirmed` | **per-item** generation evidence: A2 artifact badge/globals, per-item generation record or author claim, asset-level generation metadata (safetensors names, prompt fields). Host/provenance alone NEVER reaches this verdict. | `true` | high |
-| `ai_likely` | weaker generator-output markers (v0 design-system classes), or Tier-C content-anomaly rule met | `true` | medium |
+| `ai_likely` | weaker generator-output markers (v0 design-system classes), or Tier-C rule met (≥2 C1 defects, or ≥1 C1 defect + dense C2 signature) | `true` | medium |
 | `uncertain` | provenance only (host/tool identified, authorship undetermined), evidence insufficient, or mixed | `null` — **NOT false** | low |
 | `human_likely` | human-side content evidence (template signatures, real-entity anchors) and no AI tells. A designer-tool pipeline alone does NOT qualify — it proves tooling, not authorship | `false` | low |
 | `human_confirmed` | decisive human evidence (SlidesGo credit line, literal unfilled placeholders, verifiable real publication) | `false` | high |
@@ -421,7 +537,9 @@ Field contract:
   only when per-item generation evidence covers the artifact design; never
   inferred from the host.
 - `evidence[]`: concrete observed markers only (never vibes). `A1`/`P` lines
-  are provenance; `G` lines are generation evidence; `H` lines are human-side.
+  are provenance; `G` lines are generation evidence; `H` lines are human-side;
+  `C1` lines are visual process defects/leaks, `C2`/`C3` are style-tier
+  (never sufficient alone).
 
 ## Measured performance (dataset-internal eval)
 
@@ -459,7 +577,7 @@ confirmed via artifact badges/globals.
 75.7% — the confirmed items carry in-artifact markers that don't depend on
 the URL. Human-labeled FP stays 0.
 
-**Contract check** (`scripts/detector-contract.mjs`, 9/9): gamma-hosted page
+**Contract check** (`scripts/detector-contract.mjs`, 14/14): gamma-hosted page
 ⇒ `uncertain` + `aiGenerated=null` + `provenance{tool:gamma,confirmed}`;
 framer site ⇒ `uncertain`+`null` (designer hosting is not human evidence);
 hand-written React/Tailwind/Lucide SPA ⇒ `uncertain`+`null`; websim artifact
@@ -484,6 +602,12 @@ Honest caveats:
   decisive markup and abstain beats guessing.
 
 ### Visual-only blind evaluation (Tier C, measured)
+
+> **Historical — pre-contract-v3 rules.** All blind numbers below were
+> measured while fictional-content furniture still counted as a content
+> anomaly. Under the current rules (fictionality neutral; only C1 defects
+> + C2 signatures) both catch rate AND human FP drop — see the v4 section
+> below for current-rule numbers. Do not mix the two.
 
 `scripts/blindset-build.mjs` samples screenshots into neutral names
 (`img_NNN.ext`) under `dataset/_tmp/blindset/`; `scripts/blindset-score.mjs`
@@ -620,9 +744,64 @@ Consistent failure taxonomy across both sets:
   human).
 - **Style mimicry both ways**: AI hand-drawn-style wolf called human;
   human hand-drawn art (X claim) called AI.
-- New visual tells worth weighting: garbled in-image text
-  ("FREES USE PECH" shirt), pseudo-Japanese headers, invented-consulting
-  case-study scroll pages.
+- Visual tells worth weighting under contract v3: garbled in-image text
+  ("FREES USE PECH" shirt), pseudo-Japanese headers — C1 process defects.
+  (Note: "invented-consulting case-study scroll pages" was listed here under
+  the old rules; fictional-subject furniture is demoted to neutral in v3.)
+
+#### Contract-v3 evaluation set (v4, n=124 → audited n=123 — current rules)
+
+v4 is the first set judged under the *current* contract: fictional
+content/metrics neutral (not a generation tell), C1 limited to process
+defects and generation-record leaks, C2 needs ≥3 signature elements, and
+host/badge = provenance only. Truth labels are by *basis*, not collector
+dir alone: `marker` (in-artifact generation evidence), `genrecord`
+(per-item generation record — Civitai post/model metadata, Presenton
+prompt embeds), `real`/`template`/`tool-gallery` (human-side evidence),
+`host-only` (provenance visible, authorship unverified → truth `unknown`).
+Audit excluded 1 duplicate artifact (two captures of one Canva deck).
+
+| Mode | AI catch | AI miss | AI abstain | Human FP | Human abstain | Unknown overclaim |
+|---|---|---|---|---|---|---|
+| Full (n=123) | 50.0% (30/60) | 6.7% | 43.3% | **0.0% (0/47)** | 27.7% | 56.3% (9/16) |
+| No-badge (n=98) | 26.8% (11/41) | 9.8% | 63.4% | **0.0% (0/41)** | 24.4% | 56.3% (9/16) |
+
+Per-pipeline (full): codegen/marker 22/32 caught, imagegen/genrecord 6/15
+(the photoreal abstain wall again), mixed/genrecord 2/13, human 0 FP.
+
+**How to read the unknown overclaims (9/16)** — the manifest's `unknown`
+means *generation provenance unverified*, not "unknowable":
+- 5 calls were `human_likely` on host-only items carrying real-entity
+  content evidence (BCREA webinar, Gerd Leonhard's site, an NSO/CNA claim
+  report, a named designer portfolio, a template page). These are
+  evidence-backed *authorship* calls — arguably correct about the content,
+  scored as overclaim only because provenance alone can't verify the tool.
+- 3 were `ai_likely` on aistudio/decktopus items via C2 signature density
+  (websim-style HUD chrome) — signature guesses, defensible but unverifiable.
+- 1 websim-community meta-app (decktopus dir) — likely correct in substance.
+Honest count of *unsupported* overclaims: ≤4/16; evidence-backed calls on
+unknown-provenance items are a legitimate gray zone, not blind guesses.
+
+**Misses (4)**: all mixed-pipe genspark/presenton items mimicking real
+institutional content (LIXIL ESG data, a UTokyo defense announcement, a
+personal Hokkaido photo-essay) — the known real-content-on-AI-host
+boundary. Note the collector dir says `genspark` but these may genuinely
+be human-authored docs hosted there — a dir-label limitation, not a
+verifiable judge error.
+
+**vs v3** (different set, older rules): v3 had 8.9% FP / 67.9% catch;
+v4 has 0% FP / 50% catch on a smaller, differently-composed set with an
+explicit unknown class. Treat as "rules got stricter, abstention
+absorbed the middle", not a clean before/after. n=124 is too small for
+broad accuracy claims.
+
+Reproduce:
+
+```bash
+node scripts/blindset-build4.mjs          # v4 contract-v3 set (124 imgs)
+node scripts/blindset-score.mjs --set v4 --audit           # audited
+node scripts/blindset-score.mjs --set v4 --audit --no-badge # strict visual
+```
 
 Reproduce:
 
