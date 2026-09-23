@@ -39,12 +39,16 @@ const LABELS = {
   blink: 'ai', lovable: 'ai', websim: 'ai', base44: 'ai', bolt: 'ai',
   emergent: 'ai', grok: 'ai', polsia: 'ai', trickle: 'ai', butternut: 'ai',
   gamma: 'ai', chatgpt: 'ai', aistudio: 'ai', presenton: 'ai',
+  manus: 'ai', wegic: 'ai', 'lovable.app': 'ai',
   slidescarnival: 'human', deckgallery: 'human', webflow: 'human', wix: 'human',
   'human-baseline': 'human',
   v0: 'toolpage', decktopus: 'toolpage', slidebean: 'toolpage',
   slidesai: 'toolpage', beautifulai: 'toolpage', pitch: 'toolpage',
+  'blink.new': 'toolpage', 'bolt.new': 'toolpage', 'trickle.so': 'toolpage',
+  'v0.app': 'toolpage', 'gamma.app': 'toolpage', 'v0 by vercel': 'toolpage',
   framer: 'skip', replit: 'skip', mixed: 'skip', 'sites-mixed': 'skip',
   hostinger: 'skip', softr: 'skip', createxyz: 'skip',
+  'websim.com': 'skip', canva: 'skip', 'misc-deployed': 'skip', storyd: 'skip',
 };
 
 // ---- feature extraction ---------------------------------------------------
@@ -62,6 +66,7 @@ const HOST_RULES = [
   [/\.blinkusercontent\.com$/, null, 'blink', 'prov'],
   [/\.lovable\.app$/, null, 'lovable', 'prov'],
   [/\.c\.websim\.com$/, null, 'websim', 'prov'],
+  [/\.on\.websim\.com$/, null, 'websim', 'prov'], // deployed artifact surface; internals carry __websim* + v1/project/<id> records
   [/^websim\.com$|^websim\.ai$/, /^\/@[^/]+\//, 'websim', 'prov'], // project page; artifact iframe carries globals
   [/\.gamma\.site$/, null, 'gamma', 'prov'],
   [/\.manus\.space$/, null, 'manus', 'prov'],
@@ -94,6 +99,9 @@ const HOST_RULES = [
   [/\.wegic\.app$/, null, 'wegic', 'prov'],
   [/\.vusercontent\.net$/, null, 'v0', 'prov'],
   [/^claude\.site$/, /^\/artifacts\//, 'claude-artifact', 'prov'],
+  [/^chatgpt\.com$/, /^\/share\//, 'chatgpt', 'prov'],
+  [/^g\.co$/, /^\/gemini\/share/, 'gemini', 'prov'],
+  [/^aistudio\.google\.com$/, /^\/apps\/drive\//, 'aistudio', 'prov'],
   [/\.figma\.site$/, null, 'figma', 'prov'],
   [/\.created\.app$/, null, 'anything', 'prov'],
   [/\.hf\.space$|\.static\.hf\.space$/, null, 'huggingface', 'prov'],
@@ -104,7 +112,7 @@ const HOST_RULES = [
   [/\.floot\.app$/, null, 'floot', 'prov'],
   [/\.orchids\.app$/, null, 'orchids', 'prov'],
   [/\.hostingersite\.com$|\.cdn\.hstgr\.net$/, null, 'hostinger', 'prov'],
-  [/\.10web\.site$/, null, '10web', 'prov'],
+  // *.10web.site intentionally omitted — pattern unverified (EVIDENCE.md)
   [/\.hocoos\.com$/, null, 'hocoos', 'prov'],
   [/\.softr\.io$|\.softr\.app$/, null, 'softr', 'prov'],
   [/\.bubbleapps\.io$/, null, 'bubble', 'prov'],
@@ -122,8 +130,22 @@ const HOST_RULES = [
   [/^prezi\.com$/, /^\/p\//, 'prezi', 'prov'],
   [/\.ludus\.one$/, null, 'ludus', 'prov'],
   [/^show\.zoho\.(com|eu|in|jp)$/, null, 'zoho-show', 'prov'],
+  [/^kimi\.com$/, /^\/slides/, 'kimi', 'prov'],
   [/^notebooklm\.google\.com$/, null, 'notebooklm', 'prov'],
   [/^opal\.google$/, null, 'opal', 'prov'],
+  // tool marketing/login domains — surface identification only (toolpage),
+  // EXCEPT manus.im/share/* which wraps a per-item artifact (prov).
+  [/^manus\.im$/, /^\/share\//, 'manus', 'prov'],
+  [/^manus\.im$/, null, 'manus', 'toolpage'],
+  [/^emergent\.sh$/, null, 'emergent', 'toolpage'],
+  [/^blink\.new$/, null, 'blink', 'toolpage'],
+  [/^bolt\.new$/, null, 'bolt', 'toolpage'],
+  [/^trickle\.so$/, null, 'trickle', 'toolpage'],
+  [/(^|\.)slidesai\.io$/, null, 'slidesai', 'toolpage'],
+  [/(^|\.)genspark\.ai$/, null, 'genspark', 'toolpage'],
+  [/^replit\.com$/, null, 'replit', 'toolpage'],
+  [/^vercel\.com$/, null, 'vercel', 'toolpage'],
+  [/(^|\.)storyd\.ai$/, null, 'storyd', 'prov'],
 ];
 
 function hostOf(url) { try { return new URL(url).hostname.toLowerCase(); } catch { return ''; } }
@@ -162,6 +184,13 @@ function probeHTML(html) {
   // record URLs (websim.com/v1/project/<id>/revision/<n>) — both only exist
   // inside websim-generated artifacts
   has(/__websim_origin|__websim_route|__websim|websim-injected|websim\.com\/v1\/project\/|websim\.postComment/, 'websim artifact internals', 'G', 'websim');
+  // trickle injected badge div + "Built with Trickle AI" link (verified in
+  // trickle/*.trickle.host captures) — per-item generator output marker
+  has(/proto-trickle-badge-element|Built with Trickle AI/, 'trickle artifact badge', 'G', 'trickle');
+  // butternut in-artifact badge anchor "Built on <span>Butternut AI</span>"
+  has(/Built on\s*<[^>]*>\s*Butternut AI|Built on Butternut AI/, 'butternut artifact badge', 'G', 'butternut');
+  // emergent runtime assets survive on off-platform deploys (netlify etc.)
+  has(/assets\.emergent\.sh\/scripts\/emergent-main\.js|ap\.emergent\.sh\/static\//, 'emergent runtime scripts (off-host)', 'G', 'emergent');
   has(/v0-gray-|v0-alpha-|v0-blue-|v0-caveat-/, 'v0 design-system classes', 'G-', 'v0');
   // P — provenance / pipeline only (tool identified, authorship undetermined)
   has(/Made with Gamma|css-1fr8asy/, 'gamma publish badge (on all published docs)', 'P', 'gamma');
@@ -176,6 +205,11 @@ function probeHTML(html) {
   has(/wixstatic\.com|X-Wix/, 'wix assets', 'P', 'wix');
   has(/pitch\.com\/static\/platform\/asset\/|pitch-assets-|\| Pitch</, 'pitch assets', 'P', 'pitch');
   has(/cdn\.prod\.website-files\.com/, 'webflow cdn', 'P', 'webflow');
+  has(/media-prod\.butternut\.ai/, 'butternut media cdn (covers custom domains)', 'P', 'butternut');
+  has(/[a-z0-9-]+\.lovable\.cloud|[a-z0-9-]+-prod\.lovable\.cloud/, 'lovable cloud storage back-ref', 'P', 'lovable');
+  has(/blink\.new\/preview-access/, 'blink gated preview wall', 'P', 'blink');
+  has(/polsia\.com\/api\/beacon|polsia_vid/, 'polsia beacon', 'P', 'polsia');
+  has(/<meta name="netlify-deploy"|netlify\.new\/\?utm_campaign/, 'netlify deploy meta (pipeline only)', 'P', null);
   has(/squarespace|static\.squarespace/, 'squarespace markup', 'P', 'squarespace');
   has(/wp-content|wp-includes|woocommerce/i, 'wordpress markup', 'P', 'wordpress');
   // unattributed stack = production method note, not authorship evidence
@@ -206,8 +240,24 @@ const scopeFor = verdict =>
     : HU_V.has(verdict)
       ? { design: 'human', text: 'unknown', images: 'unknown' }
       : { design: 'unknown', text: 'unknown', images: 'unknown' };
-const out = (verdict, toolGuess, conf, ev, pipeline, provenance) =>
-  ({ verdict, aiGenerated: aiGen(verdict), toolGuess, provenance, conf, ev, pipeline, scope: scopeFor(verdict) });
+// Element-level evidence tags — WHERE the AI signal lives, independent of the
+// overall verdict (a human page can still contain an injected AI badge/image).
+function elementsFor(html, hits) {
+  const el = new Set();
+  const n = new Set(hits.map(h => h.name));
+  if (hits.some(h => /badge/i.test(h.name))) el.add('badge');
+  if (hits.some(h => /meta|record|stub|shell|globals|project-id|editor_info/i.test(h.name))) el.add('genrecord');
+  if (/Made with NotebookLM/i.test(html)) el.add('watermark');
+  if (/<img[^>]+prompt="/i.test(html)) el.add('genrecord'); // presenton per-asset prompt records
+  if (/images\.openai\.com|oaidalleapiprodscus|dalle-|seedream|imagefx|imagen-|media-prod\.butternut|lovable-uploads|gptengineer.*uploads/i.test(html)) el.add('images');
+  if (/lucide(-react)?['"\/]|class="lucide|stroke-linecap="round"/.test(html)) el.add('icons');
+  if (/font-family[^;]*(Inter|Geist|Space Grotesk)/i.test(html) || /@font-face[^}]*?(Inter|Geist|Space Grotesk)/i.test(html)) el.add('font');
+  if (/is not set in the (server )?environment|process\.env\.[A-Z_]+ (is|was) (not|missing)|__NEXT_DATA__.*error/i.test(html)) el.add('corrupt');
+  if (!el.size) el.add('none');
+  return [...el];
+}
+const out = (verdict, toolGuess, conf, ev, pipeline, provenance, elements) =>
+  ({ verdict, aiGenerated: aiGen(verdict), toolGuess, provenance, conf, ev, pipeline, scope: scopeFor(verdict), elements });
 
 function classify({ url, html }) {
   const host = hostOf(url);
@@ -230,6 +280,7 @@ function classify({ url, html }) {
   const p = hits.filter(x => x.tier === 'P');          // provenance only
   const hTier = hits.filter(x => x.tier === 'H');      // human-side evidence
   for (const x of hits) ev.push(`${x.tier}: ${x.name}`);
+  const elements = html ? elementsFor(html, hits) : ['none'];
   // markup can also establish provenance (weaker than host evidence)
   if (!provenance) {
     const pt = g[0]?.tool || gWeak[0]?.tool || p.find(x => x.tool)?.tool;
@@ -237,15 +288,15 @@ function classify({ url, html }) {
   }
   const toolGuess = g[0]?.tool || gWeak[0]?.tool || provenance?.tool || p.find(x => x.tool)?.tool || null;
   // generation evidence decides; provenance alone never does
-  if (g.length) return out('ai_confirmed', toolGuess, g.length > 1 ? 0.95 : 0.9, ev, pipelineOf(toolGuess), provenance);
-  if (gWeak.length) return out('ai_likely', toolGuess, 0.7, ev, pipelineOf(toolGuess), provenance);
+  if (g.length) return out('ai_confirmed', toolGuess, g.length > 1 ? 0.95 : 0.9, ev, pipelineOf(toolGuess), provenance, elements);
+  if (gWeak.length) return out('ai_likely', toolGuess, 0.7, ev, pipelineOf(toolGuess), provenance, elements);
   // human-side content evidence (template signatures etc.) — a lean, not proof
-  if (hTier.length) return out('human_likely', toolGuess, 0.4, ev, toolGuess ? pipelineOf(toolGuess) : null, provenance);
+  if (hTier.length) return out('human_likely', toolGuess, 0.4, ev, toolGuess ? pipelineOf(toolGuess) : null, provenance, elements);
   // provenance only — pipeline/surface identified, authorship undetermined
   if (provenance || p.some(x => x.tool))
-    return out('uncertain', toolGuess, 0.5, ev, toolGuess ? pipelineOf(toolGuess) : null, provenance);
-  if (p.length) return out('uncertain', null, 0.45, ev, 'codegen-style stack (method only)', provenance);
-  return out('uncertain', null, 0.2, ev.length ? ev : ['no signals'], null, provenance);
+    return out('uncertain', toolGuess, 0.5, ev, toolGuess ? pipelineOf(toolGuess) : null, provenance, elements);
+  if (p.length) return out('uncertain', null, 0.45, ev, 'codegen-style stack (method only)', provenance, elements);
+  return out('uncertain', null, 0.2, ev.length ? ev : ['no signals'], null, provenance, elements);
 }
 
 // production-method family of the identified tool — a pipeline/provenance

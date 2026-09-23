@@ -87,16 +87,16 @@ narrows the prior but remains circumstantial, not a per-item generation record
 | `*.lovable.app`, `*.lovable.dev`, `*.lovableproject.com` (legacy) | Lovable | Lovable-published app | `lovable-badge`/`gpteng.co`/`gpt-engineer-file-uploads` markers ⇒ `ai_confirmed` |
 | `*.bolt.host` | Bolt | Bolt-published app | `bolt.new/badge.js`/`Made in Bolt` ⇒ `ai_confirmed` |
 | `*.blinkusercontent.com` | Blink | Blink-published app | `blink-badge*` classes / `auto-engineer.js?projectId=` / default "Blink App" OG ⇒ `ai_confirmed` |
-| `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI-builder surface | in-artifact markers needed ⇒ `uncertain` w/o them |
+| `*.durable.co`, `*.mixo.io`, `*.polsia.app`/`polsia.io` | Durable / Mixo / Polsia | AI-builder surface | `polsia.com/api/beacon` + `polsia_vid` localStorage = pipeline only; in-artifact generation markers needed ⇒ `uncertain` w/o them |
 | `*.base44.app` | Base44 | Base44-published app | `base44-edit-badge`/`media.base44.com`/`app.base44.com` refs ⇒ `ai_confirmed` |
 | `*.chatgpt.site` | ChatGPT sites | ChatGPT-published site | semantic vanilla-HTML shell is pipeline evidence; generation markers unverified ⇒ `uncertain`+stack note |
-| `*.emergent.host` | Emergent | Emergent-published app | `id="emergent-badge"`/`A product of emergent.sh` meta ⇒ `ai_confirmed` |
+| `*.emergent.host` | Emergent | Emergent-published app | `id="emergent-badge"`/`A product of emergent.sh` meta ⇒ `ai_confirmed`; `assets.emergent.sh/scripts/emergent-main.js` + `ap.emergent.sh/static/*` runtime refs survive on off-platform (Netlify) deploys ⇒ `ai_confirmed` |
 | `*.wegic.net`, `*.wegic.app` | Wegic | Wegic-published surface | `wegic-branding-badge`/`cdn.wegic.ai` ⇒ `ai_confirmed` |
 | `*.grok.me` | Grok | Grok-published app | `grok-project-id` meta (per-item record) ⇒ `ai_confirmed` |
 | `*.replit.app` | Replit | General IDE/host — humans deploy constantly | n/a ⇒ `uncertain` |
 | `*.ai.studio` | AI Studio hosting | Google AI-app hosting (Vite+React+Lucide SPAs, no self-marker) | none known ⇒ `uncertain` (host+stack is provenance, not generation) |
-| `*.butternut.ai` | Butternut | AI site builder | `butternut.ai` refs are pipeline; generation markers unverified ⇒ `uncertain` |
-| `*.trickle.host` | Trickle | AI site builder | `trickle` markers pipeline; unverified ⇒ `uncertain` |
+| `*.butternut.ai` | Butternut | AI site builder | `Built on <span>Butternut AI</span>` badge anchor ⇒ `ai_confirmed`; `media-prod.butternut.ai` S3 CDN refs = pipeline (also covers custom-domain deploys) |
+| `*.trickle.host` | Trickle | AI site builder | `id="proto-trickle-badge-element"` injected div / `Built with Trickle AI` link ⇒ `ai_confirmed` |
 | `*.c.websim.com`, `websim.com/@user/slug` | Websim | Websim artifact/project surface | `__websim_origin`/`__websim_route`/`__websim*` globals in the artifact ⇒ `ai_confirmed`. Bare `websim.com` non-project = tool page. |
 | `presenton.ai/community/presentations/<id>` | Presenton | Public generated-deck gallery | page embeds deck + generation prompt ⇒ `ai_confirmed` when prompt/record visible |
 | `*.webflow.io`, `data-wf-*`/`webflow.css`/`generator=Webflow` markup | Webflow | Webflow pipeline — proves tool, not authorship (eval: 10/10 custom-domain Webflow pages identified as pipeline, all `uncertain`) | none — `uncertain` either way |
@@ -142,6 +142,8 @@ bottom-right). Split by what the badge actually attests:
 | `Built with v0` pill | v0 | Dark pill bottom-right (`v0/v0-ai-food-order-bot*.png`); DOM `v0-built-with-button-<uuid>` fixed div w/ dismiss button (11/13 v0 files); badge href `v0.app/chat/api/open/built-with-v0/...`. |
 | `Made with Emergent` anchor | Emergent | `<a id="emergent-badge" href="https://app.emergent.sh/?utm_source=emergent-badge">`. |
 | `wegic-branding-badge` | Wegic | `<div id="wegic-branding-badge" class="wegic-badge" aria-label="Visit Wegic website">` + `cdn.wegic.ai` logo. |
+| `proto-trickle-badge-element` | Trickle | Injected `<div id="proto-trickle-badge-element">` linking `app.trickle.so`; "Built with Trickle AI" anchor in `TrickleLink()` component. |
+| `Built on Butternut AI` | Butternut | Footer anchor `Built on <span class="underline">Butternut AI</span>` → `butternut.ai`; assets on `s3…/media-prod.butternut.ai` (also on custom domains). |
 | "Made in Framer" / "Create a free website with Framer" | Framer | Boilerplate on `*.framer.ai` published sites. |
 | ⚡️ `Bolt.new + Vite + React` `<title>` | Bolt | Survives on Netlify-deployed Bolt apps (custom domains lose `*.bolt.host` host tell). |
 | "Built with Lovable", Canva/Beautiful.ai credit lines, Genspark logo lockup | various | Expected; verify in-artifact. |
@@ -306,6 +308,27 @@ signature** are present; partial matches degrade to C3.
   white, KPI strip of 4-5 metrics separated by thin dividers
   (`$4.2M · 138% · 82%`), status-dot tables (●●), footnote lines — typeset,
   not illustrated.
+- Claude artifact/deck flourish (2026): an italic-serif flourish appended to
+  a sans headline ("Seventy years, *five waves*"); warm cream paper +
+  terracotta accent + serif display (the "tasteful AI" monoculture models
+  converge to after being told to avoid purple); em-dash-dense polished
+  prose; `claude.site/artifacts` iframe chrome ("Made with Artifacts",
+  "Artifacts are user-generated and may contain unverified or potentially
+  unsafe content" disclaimer, Report/Remix buttons).
+- Nano Banana slide-raster look (NotebookLM/Gemini decks): whole slide is
+  ONE non-editable generated image — no selectable text, no speaker notes;
+  flawless baked type at hero sizes but *subtly wrong microcopy* (swapped
+  words, wrong numbers, awkward phrasing) at small sizes; consistent corner
+  furniture + `NN/NN` footers; Gemini sparkle watermark free/Pro tier
+  (48×48px, ~96px inset bottom-right — removable by alpha-inversion, so
+  absence proves nothing).
+- Manus site chrome (`*.manus.space`): "Made with Manus" badge + literal
+  disclaimer "AI-generated (possibly user-edited) content - please verify
+  carefully..." — an explicit authorship disclosure ⇒ strong G-class.
+- Microcopy-error class (post-gibberish tell): NB Pro/2 + GPT Image 2 era
+  renders *headline* text perfectly — the residual defect moved to dense
+  microcopy: wrong numbers, swapped words, awkward phrasing, off-by-a-bit
+  stats. Gibberish detection alone now under-catches top-tier models.
 - Blink premium-editorial: dark luxe bg, serif-italic display headline,
   numbered eyebrow `01 / THE COLLECTION`, single bold accent color,
   spec/configurator panels (`blink/3d-car-showroom*.png`).
@@ -553,6 +576,19 @@ Field contract:
   (copy), `images` (embedded media); each `ai | human | unknown`. `design:"ai"`
   only when per-item generation evidence covers the artifact design; never
   inferred from the host.
+- `elements`: array of visible element-level AI evidence tags observed in
+  the artifact. This is *where* the AI signal lives — independent of the
+  overall verdict, and the right answer to "which parts look AI":
+  `badge` (builder/AI badge), `hero-img` (AI-rendered hero/illustration),
+  `photo` (AI-looking photograph), `text` (AI-flavored or defective copy),
+  `layout` (signature composition: bento, big-stat, numbered sections),
+  `icons` (AI-drawn/lucide default), `font` (default model font stack),
+  `genrecord` (visible generation log/prompt UI), `corrupt` (assembly
+  defects), `watermark` (visible generator watermark e.g. Gemini sparkle
+  48×48px ~96px inset bottom-right, "Made with NotebookLM" on slide
+  rasters), `none`. An item can be `aiGenerated:null` overall yet still
+  report elements (e.g. a human-made page using one AI hero image — see
+  Mixed authorship).
 - `evidence[]`: concrete observed markers only (never vibes). `A1`/`P` lines
   are provenance; `G` lines are generation evidence; `H` lines are human-side;
   `C1` lines are visual process defects/leaks, `C2`/`C3` are style-tier

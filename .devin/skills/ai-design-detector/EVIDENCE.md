@@ -760,3 +760,90 @@ Production-record verification: Presenton community pages embed literal
 (e.g., #461 "Cinematic aerial photograph of Pune Metro...") — per-asset
 generation records, a solid `genrecord` basis. Live DOM doesn't expose
 them (deck viewer data), so this evidence lives in the captured source.
+
+## Marker additions from corpus mining (2026-09-22 batch②)
+
+Verified in-artifact markers found by scanning collected captures:
+
+- **Trickle (G)**: `id="proto-trickle-badge-element"` injected badge div +
+  `"Built with Trickle AI"` inside `TrickleLink()` component —
+  trickle/*.trickle.host-*.html (multiple). 6/6 test items -> ai_confirmed.
+- **Butternut (G/P)**: `Built on <span class="underline">Butternut AI</span>`
+  footer anchor -> butternut.ai (G); `s3.../media-prod.butternut.ai/` CDN
+  refs = pipeline, also covers custom-domain deploys (besttexasseptic.com).
+- **Emergent (G, off-host)**: `assets.emergent.sh/scripts/emergent-main.js` +
+  `ap.emergent.sh/static/array.js` survive on Netlify deploys where the
+  `*.emergent.host` rule can't fire (emergent/*.netlify.app-*.html).
+- **Websim host**: `*.on.websim.com` is an artifact deploy surface —
+  carries `websim-injected` + `websim.com/v1/project/<id>/revision/<n>`
+  per-item records (mixed/*.on.websim.com-*.html). Added to HOST_RULES.
+- **P-tier only**: `polsia.com/api/beacon`+`polsia_vid` (polsia),
+  `*.lovable.cloud` storage + `*.lovable.app` back-refs in custom-domain
+  HTML (lovable), `blink.new/preview-access` wall (blink),
+  `<meta name="netlify-deploy">`+`netlify.new/?utm_campaign` (deploy
+  pipeline, NOT authorship).
+- **Toolpage domains added** (surface ID, not artifact): manus.im
+  (/share/* stays prov), emergent.sh, blink.new, bolt.new, trickle.so,
+  *.slidesai.io, *.genspark.ai, replit.com, vercel.com, storyd.ai (prov).
+- **LABELS**: +manus/wegic/lovable.app=ai, +6 toolpage dirs, +websim.com/
+  canva/misc-deployed/storyd=skip. Corpus now 45 dirs / 57k html.
+- Confirmed NO in-artifact marker: chatgpt.site, ai.studio — both stay
+  host-only `uncertain` in no-host mode (honest gap).
+
+collector-side fixes: collect-site fingerprints tightened (bare `websim`
+word and `bolt.new`/`zyro` prose matches mis-bucketed github.io/substack
+pages into ai dirs; 57 captures moved to sites-mixed). reddit-harvest
+image regex now excludes styles.redditmedia icon junk.
+
+## v5 SNS-primary collection + contract-v3.1 judge run (2026-10-04)
+
+**Collection** (bulk-freeze lifted by user request, 500+ target, SNS-first):
+- `x-harvest` round 1 (22 phrase queries: share-link + slop-discourse terms):
+  219 tweets, media.jsonl 67 urls -> xmedia-v5 +64 imgs.
+- `x-harvest` round 2 (20 `url:`-operator queries — finds link posts even
+  through t.co wrapping): 208 tweets -> 291 extracted, 187 resolved fresh
+  artifact urls. `url:` recall confirmed strong for share domains.
+- `x-extract.mjs` (new): parses tweet JSONL for artifact/share URLs incl.
+  new 2026 surfaces (claude.site/artifacts|public, manus.im/share,
+  g.co/gemini/share, grok.com/share, notebooklm artifact links,
+  gensparkspace, ok.kimi.link, perplexity pages, chatgpt.com/share,
+  deepseek/kimi/copilot shares).
+- collect-site runs: x5 30/45 OK, x5b ~120/187 OK, backlog-topup 276/400 OK
+  (blink __bpt preview URLs DO still resolve — earlier stub note was about
+  expired tokens only; isStub() filters dead ones. v0.app/chat pages fetch
+  fine as HTML but headless screenshots came out empty/undersized —
+  renderer gap, HTML-only evidence for those ~170 items; ~35 hit fetch
+  rate-limit at tail).
+- **Total new scored items: 607** (ai 393 / unknown 214). Provenance mix:
+  blink 235, xmedia 116, sites-mixed 67 (claude artifacts/notebooklm),
+  chatgpt-dir 48 (incl. manus.im misbucketed pre-fix), replit 26, base44
+  22, bolt 21, v0 19, grok 12, websim 12, emergent 11, lovable 11.
+- New X-landscape findings baked into queries: Claude artifact iframe
+  embeds (`claude.site/public/artifacts/*/embed`) trending in JP; ChatGPT
+  share used for vision maps/policy docs; "AI slop" discourse vocabulary
+  now has catalogued tell-lists (kill-ai-slop etc.).
+
+**Basis verification** (contract v3.1 — marker beats host):
+- 204/393 gen-labeled items carry in-artifact generator markers in saved
+  HTML (blink __bpt/auto-engineer 140/141, base44 7/7, v0 12/12, emergent
+  4/4, grok 3/3, websim 1/1, claude artifacts 11, chatgpt share 21) ->
+  upgraded to `marker` basis. Remaining: gen-surface 141 (deploy-only
+  hosts), genrecord 48 (v0 chat/session pages, share pages w/o captured
+  marker), host-only unknown 98, xmedia unknown 116.
+
+**collect-site fixes**: hostname-first fingerprinting with GENERIC_HOST
+exception (deploy surfaces: netlify/vercel/pages.dev/web.app etc. let HTML
+win — lovable-on-netlify stays lovable); +19 share/deck fingerprints
+(manus/claude/gemini/notebooklm/perplexity/deepseek/kimi/genspark/
+presenton/presentationsai/alai/chronicle/storydoc/slidesai/decktopus/
+beautifulai/pitch/magicslides/gamma); BUILDERS dir list extended.
+Fixed misbuckets observed: manus.im/share->chatgpt (openai-canvas strings
+in share payload), presentations.ai->aistudio (marketing "AI Studio" text).
+
+**Injection test** (`scripts/injection-test.mjs`, 20/20 PASS):
+4 clean human-side HTML (webflow×2, framer×2) × 5 injections:
+- badge div / generator meta+gpteng script / websim globals -> all fire
+  ai_confirmed+true (injected marker detected, element-level)
+- AI-flavored headline copy alone -> stays uncertain+null (style != gen
+  evidence — the v3.1 discipline holds under injection)
+- combo -> ai_confirmed. Baselines stayed null (no FP on clean pages).

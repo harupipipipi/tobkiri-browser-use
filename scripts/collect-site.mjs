@@ -17,9 +17,31 @@ const BROWSER = existsSync(EDGE) ? EDGE : CHROME;
 const TMP = path.join(ROOT, 'dataset', '_tmp', 'profiles');
 
 const FINGERPRINTS = [
+  // Share/artifact surfaces first — their page chrome mentions other tools
+  // (e.g. Manus share pages embed "openai canvas" strings; presentations.ai
+  // marketing HTML contains "AI Studio"), so they must outrank generic rules.
+  [/manus\.(im|space)|Made with Manus/i, 'manus'],
+  [/claude\.site|claude\.ai\/share|Made with Artifacts/i, 'claude'],
+  [/notebooklm\.google\.com|Made with NotebookLM/i, 'notebooklm'],
+  [/g\.co\/gemini|gemini\.google\.com|Made with Gemini|__gemini/i, 'gemini'],
+  [/perplexity\.ai/i, 'perplexity'],
+  [/chat\.deepseek\.com/i, 'deepseek'],
+  [/kimi\.com|ok\.kimi\.link/i, 'kimi'],
+  [/genspark(ai)?\.|gensparkspace\.com|gensparkpublicblob/i, 'genspark'],
+  [/presenton\.ai/i, 'presenton'],
+  [/presentations\.ai/i, 'presentationsai'],
+  [/getalai\.com|alai\.io/i, 'alai'],
+  [/chroniclehq\.com/i, 'chronicle'],
+  [/storydoc\.com/i, 'storydoc'],
+  [/slidesai\.io/i, 'slidesai'],
+  [/decktopus/i, 'decktopus'],
+  [/beautiful\.ai/i, 'beautifulai'],
+  [/pitch\.com/i, 'pitch'],
+  [/magicslides/i, 'magicslides'],
+  [/gamma\.app|gamma\.site|gammahosted|Made with Gamma/i, 'gamma'],
   [/gpteng|lovable\.app|lovable\.dev|Made with Lovable|__lovable/i, 'lovable'],
   [/v0\.dev|v0\.app|v0-vercel|__v0/i, 'v0'],
-  [/bolt\.host|bolt\.new|stackblitz.*bolt|__bolt/i, 'bolt'],
+  [/bolt\.host|stackblitz.*bolt|__bolt|bolt\.new\/badge|Made in Bolt/i, 'bolt'],
   [/blinkusercontent|blink\.new|__bpt/i, 'blink'],
   [/wegic/i, 'wegic'],
   [/durable\.co|durable-generator/i, 'durable'],
@@ -38,7 +60,7 @@ const FINGERPRINTS = [
   [/magicpath/i, 'magicpath'],
   [/builder\.io/i, 'builderio'],
   [/10web/i, 'tenweb'],
-  [/hostinger.*ai|zyro/i, 'hostinger'],
+  [/hostingersite\.com|cdn\.hstgr\.net|\bhostinger\b|\bzyro\b/i, 'hostinger'],
   [/chatgpt\.site|openai.*canvas/i, 'chatgpt'],
   [/grok\.me|xai\.ai|grok\.com/i, 'grok'],
   [/emergent\.host|emergent\.sh/i, 'emergent'],
@@ -46,7 +68,7 @@ const FINGERPRINTS = [
   [/trickle\.host|Built with Trickle|trickle\.so/i, 'trickle'],
   [/butternut\.ai|Built on Butternut/i, 'butternut'],
   [/wegic\.net/i, 'wegic'],
-  [/websim\.(com|ai)|websim/i, 'websim'],
+  [/websim\.(com|ai)|__websim|websim-injected|c\.websim\.com/i, 'websim'],
   [/dora\.run|made (in|with) dora/i, 'dora'],
   [/ai\.studio|aistudio|AI Studio|made with google ai studio/i, 'aistudio'],
 ];
@@ -55,9 +77,16 @@ const EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'im
 const slugify = (s) => s.replace(/[^a-z0-9_.-]/gi, '_').replace(/^_+|_+$/g, '').slice(0, 110) || 'site';
 const nameFor = (u) => { try { const x = new URL(u); return slugify(x.hostname + (x.pathname === '/' ? '' : x.pathname)); } catch { return 'site'; } };
 
+// Deploy surfaces where the builder's HTML fingerprint outranks the host —
+// a Lovable app on Netlify is lovable, not netlify.
+const GENERIC_HOST = /netlify\.app|vercel\.app|pages\.dev|github\.io|surge\.sh|web\.app|firebaseapp\.com|onrender\.com|fly\.dev|railway\.app|render\.com|hat-tip\.cc/i;
+
 function fingerprint(html, url) {
+  let host = '';
+  try { host = new URL(url).hostname; } catch {}
+  if (host && !GENERIC_HOST.test(host)) { for (const [re, name] of FINGERPRINTS) if (re.test(host)) return name; }
   for (const [re, name] of FINGERPRINTS) if (re.test(html)) return name;
-  try { const h = new URL(url).hostname; for (const [re, name] of FINGERPRINTS) if (re.test(h)) return name; } catch {}
+  if (host) { for (const [re, name] of FINGERPRINTS) if (re.test(host)) return name; }
   return null;
 }
 
@@ -143,7 +172,7 @@ async function collect(url, toolHint, worker) {
   }
   if (isStub(html)) return { url, ok: false, why: html.length >= 500 ? 'stub shell (renderer unavailable)' : 'dom ' + html.length + 'B ' + (NORENDER ? 'no-render' : ((r && r.err) || '').slice(0, 120)) };
 
-  const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio', 'trickle', 'butternut', 'websim', 'dora']);
+  const BUILDERS = new Set(['lovable', 'v0', 'bolt', 'blink', 'wegic', 'durable', 'createxyz', 'samenew', 'framer', 'wix', 'webflow', 'replit', 'weweb', 'softr', 'base44', 'tempo', 'magicpath', 'builderio', 'tenweb', 'hostinger', 'chatgpt', 'grok', 'emergent', 'polsia', 'aistudio', 'trickle', 'butternut', 'websim', 'dora', 'manus', 'claude', 'gemini', 'notebooklm', 'perplexity', 'deepseek', 'kimi', 'genspark', 'presenton', 'presentationsai', 'alai', 'chronicle', 'storydoc', 'slidesai', 'decktopus', 'beautifulai', 'pitch', 'magicslides', 'gamma']);
   const detected0 = fingerprint(html, url);
   const tool = (toolHint && toolHint !== 'auto') ? toolHint : (BUILDERS.has(detected0) ? detected0 : 'sites-mixed');
   const outdir = path.join(ROOT, 'dataset', tool);
