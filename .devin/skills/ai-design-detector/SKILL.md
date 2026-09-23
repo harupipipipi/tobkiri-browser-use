@@ -207,7 +207,9 @@ Per-asset metadata is generation evidence about *that asset* (scope it to
 |---|---|
 | `docProps/core.xml` `dc:subject="PptxGenJS Presentation"` in .pptx | Copilot Cowork / Claude Cowork export pipeline (PptxGenJS) — per-file generation marker |
 | Speaker-note text like `"AI-generated" image source` / alt-text declaring AI origin in .pptx | Copilot-injected provenance note |
-| C2PA Content Credentials manifest on an embedded image | Asset-level generation/edit record — check the *claim generator* field for which tool |
+| C2PA Content Credentials manifest on an embedded image | Asset-level generation/edit record — check the *claim generator* field for which tool. Observed in v5 corpus: `softwareAgent "gpt-image v2.0"` via "OpenAI Media Service API" (on blink-hosted game art), `Made with Google AI` claims |
+| PNG `tEXt`/metadata chunk `hf-job-id` | HuggingFace inference job ID embedded at generation time — found on a photorealistic portrait that visual review could not flag. Asset-level genrecord ⇒ `ai_confirmed` at image scope |
+| Screenshot showing the generator's own UI — e.g. NotebookLM "View prompt and N sources" + revise controls, a chat client's answer pane, an `@grok` reply capture | Document-scope genrecord: the *content shown* is generator output (the screenshot wrapper itself may be human-made — scope accordingly) |
 | Visible `NotebookLM` watermark on every slide (free tier) | NotebookLM Slide Decks — slides are non-editable generated images ⇒ `ai_confirmed` at image scope |
 | Gemini sparkle corner watermark on an image (free tier) | Google image-gen output — image scope only |
 | SynthID invisible watermark | Google-AI images (verify only via Gemini app — report as "unverifiable here") |
@@ -859,6 +861,29 @@ to generated output — the outer shell page contains neither, and a
 hand-authored page could theoretically embed the same URLs. G markers are
 generation *records* by platform semantics, kept honest by per-item
 presence, not by a global exclusivity proof.
+
+### v5 — SNS-primary pool, per-artifact scoring (n=347 artifacts)
+
+607 collected files (X-harvested share links + tweet media + resolved
+t.co artifacts + controlled blink/v0 backlog) dedup to 357 unique
+artifacts: truth ai 212 / unknown 125 / toolpage 10. 8 parallel blind
+judge subagents saw screenshots only (no truth labels/URLs).
+
+| Pass | AI catch (n=212) | AI miss | AI abstain | Unknown abstain (n=125) | Unknown overclaim |
+|---|---|---|---|---|---|
+| raw judge output | 210 (99.1%) | 1 | 6 | 19 (15.2%) | 101 (80.8%) |
+| v3.1 correction pass | 210 (99.1%) | 0 | 7 | 50 (40.0%) | 70 (56.0%) |
+
+Corrected overclaim detail: 8 `ai_confirmed` with cited genrecord
+(defensible), 1 unsupported confirmed, 57 hedged `ai_likely`, 4
+`human_likely`. The deterministic detector scores **0 overclaims** on
+the same unknown set by construction (host-only → null; publish badges
+are P-tier). **Judge-layer instruction sensitivity is itself a finding**:
+an early prompt that said "builder badge → ai_confirmed" without
+separating publish badges produced 33 confirmed calls on one batch;
+a strict prompt on the same 76 items yielded uncertain 45 vs 7.
+Visual judging must be treated as hypothesis-generation; HTML/metadata
+is the confirmation layer. Full detail in EVIDENCE.md §v5.
 
 Reproduce (dev set — same-set before/after only):
 

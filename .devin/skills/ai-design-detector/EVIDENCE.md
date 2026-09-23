@@ -847,3 +847,63 @@ in share payload), presentations.ai->aistudio (marketing "AI Studio" text).
 - AI-flavored headline copy alone -> stays uncertain+null (style != gen
   evidence — the v3.1 discipline holds under injection)
 - combo -> ai_confirmed. Baselines stayed null (no FP on clean pages).
+
+## v5 blind judgment round (2025-09-23) — SNS-primary pool, per-artifact
+
+**Pool**: 607 collected files → dedup by artifact URL = 357 unique
+(347 judged + 10 toolpage). Sources: X-harvested share links + tweet
+media, resolved t.co artifacts, controlled blink/v0 backlog top-up.
+Truth by basis (NOT directory): `marker` (in-artifact generator marker
+verified in saved HTML) 180 files, `gen-surface` 141, `genrecord` 71,
+`host-only` unknown 69, `xmedia` unknown 116, `toolpage` 30.
+Per-artifact: ai 212 / unknown 125 / toolpage 10.
+
+**Method**: 8 parallel judge subagents (each `index%8===N` subset),
+blind — no truth labels, no URLs shown. Judges saw screenshots only.
+Strict protocol: pairs of 2 images per read to stay under the
+trailing-image cap; incremental JSONL writes.
+
+**Judge-instruction finding (documented failure mode)**: the first
+judge prompt said "builder badge → ai_confirmed" without separating
+artifact badges (G) from publish/deploy badges (P). Judges then called
+`ai_confirmed` on "Made with Replit" deploy badges and "Made with
+Gamma" publish badges — both appear on human-made items. A strict-prompt
+re-run on one batch moved 17 confirmed calls to uncertain on the SAME
+76 items (uncertain 7→45). Instruction wording alone swings verdicts;
+prompt must name publish badges explicitly.
+
+**Results** (per-artifact, strongest verdict per URL wins):
+
+| Pass | AI caught (n=212) | AI miss | AI abstain | Unknown abstain (n=125) | Unknown overclaim |
+|---|---|---|---|---|---|
+| raw judge output | 210 (99.1%) | 1 | 6 | 19 (15.2%) | 101 (80.8%) |
+| v3.1 correction pass | 210 (99.1%) | 0 | 7 | 50 (40.0%) | 70 (56.0%) |
+
+Corrected overclaim decomposition (70/125): `ai_confirmed` with real
+genrecord evidence cited 8 (defensible — NotebookLM panels, chat-output
+captures, Claude artifact chrome), `ai_confirmed` unsupported 1,
+`ai_likely` hedged 57 (contract-permissible on dense tells; xmedia
+items were harvested under AI queries so base rate is high — still
+unverifiable), `human_likely` w/ author-ish evidence 4.
+
+**Comparison — deterministic detector on the same unknown set**: 0
+overclaims by construction (host-only → `uncertain`/`null`; "Made with
+Replit" and "Made with Gamma" are P-tier in probeHTML). The judge layer
+is far more liberal than the deterministic rules — visual evidence
+should be treated as hypothesis, HTML/metadata as confirmation.
+
+**New evidence classes confirmed in v5** (added to SKILL per-asset
+table): C2PA manifest `softwareAgent "gpt-image v2.0"` on a blink-hosted
+asset, `Made with Google AI` C2PA claim, PNG `tEXt` `hf-job-id`
+(HuggingFace job ID on a photorealistic portrait visual review could
+not flag), visible generation panels in screenshots (NotebookLM "View
+prompt and N sources", v0 "Worked for 1m33s" agent transcripts, Claude
+artifact chrome bar).
+
+**Honest limits**: high AI catch rate is mostly badge/genrecord
+detection (markers present in-pixel), NOT visual discrimination of
+unmarked output. On unmarked unknown items the judge layer overclaims
+heavily even after correction — the detector's real discrimination on
+unmarked artifacts remains `uncertain`-bound. truth=unknown means
+"authorship unverifiable", not "human": many xmedia items plausibly ARE
+AI output, so overclaim counts measure discipline, not accuracy.
