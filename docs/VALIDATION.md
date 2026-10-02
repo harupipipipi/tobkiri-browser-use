@@ -1,3 +1,39 @@
+# Validation record — current branch (0.3.0)
+
+## Brand icon and visible pointer — 2026-10-03
+
+Test host: macOS, Node.js 25.5.0. No production dependencies were installed.
+
+- `npm test`: **45 passing, 0 failing**. The Chrome APIs remain mocks; the real
+  local bridge and stdio MCP are exercised by the existing suite. New coverage
+  includes `browser_move` target validation, isolated-world cursor dispatch,
+  owner/pause/active-tab protection, dropped mouse-event delivery, drag feedback,
+  and empty-string replacement dispatch.
+- **Actual browser DOM rendering:** the local `tests/cursor-preview.html`
+  fixture passed **17 checks in Google Chrome and the Codex in-app browser**.
+  It imports the production page operations, cursor renderer, theme and bundled
+  Lucide icon. Checks cover CSS-coordinate placement, pointer-events passthrough,
+  pressed-state clearing, singleton reuse, resistance to page CSS, snapshot
+  exclusion, input focus, empty DOM replacement, container scrolling, viewport
+  edges, invalid coordinates and idle cleanup.
+- **Visual inspection:** screenshots of the fixture confirm the blue pointer
+  with a white outline on light and dark backgrounds. The popup preview uses the
+  production HTML/CSS/JS with fictional, read-only extension state and displays
+  the supplied artwork in its header. The original image is preserved; packaged
+  PNGs are 16/32/48/128 pixels and are referenced by the manifest.
+- The Lucide SVG is pinned and bundled locally with its license. Rendering uses
+  a Shadow DOM overlay, synchronous CSS-pixel placement and no OS cursor or tab
+  activation. The overlay expires after 2.4 seconds in production. The visual
+  fixture has an optional 60-second hold for screenshot inspection only.
+
+These browser checks validate rendering and DOM helpers, **not** the installed
+MV3 extension, `chrome.debugger` transport, real hidden-tab mouse-event delivery,
+native toolbar icon display or service-worker lifecycle. Those paths were not
+run on this host for this change. `browser_move` verifies delivered mouse events
+and reports `INPUT_NOT_APPLIED` if the host drops them; no synthetic CSS-hover
+fallback is claimed. This change is an icon/cursor improvement, not full feature
+parity with Codex's Browser/Chrome tool.
+
 # Validation record — 0.2.9
 
 ## 0.2.8–0.2.9 changes — mock suite + LIVE verification on Windows Vivaldi (2026-09-21)

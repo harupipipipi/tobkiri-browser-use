@@ -1,4 +1,5 @@
 node_modules/
+.venv-icons/
 __pycache__/
 *.pyc
 .env*

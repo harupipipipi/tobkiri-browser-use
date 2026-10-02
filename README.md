@@ -92,7 +92,7 @@ MCPプロセス起動時、ブリッジが停止していれば自動起動し�
 | ワークスペース | `browser_workspace_create`, `browser_workspace_update`, `browser_workspace_release` |
 | タブ | `browser_tab_open`, `browser_tab_navigate`, `browser_tab_close`, `browser_tab_release`, `browser_tab_regrant` |
 | 読み取り・画像 | `browser_snapshot`, `browser_screenshot`, `browser_pdf` |
-| 操作 | `browser_click`, `browser_type`, `browser_press`, `browser_scroll`, `browser_drag` |
+| 操作 | `browser_move`, `browser_click`, `browser_type`, `browser_press`, `browser_scroll`, `browser_drag` |
 | フォーム・待機 | `browser_select`, `browser_check`, `browser_wait` |
 
 例：
@@ -113,6 +113,25 @@ browser_screenshot({"tabId":返された数値})
 `ref`は次のsnapshotやページ遷移で無効になります。クリック対象はref、単一要素に一致するCSS selector、または座標のどれか1つです。曖昧なselectorや他の要素に覆われたクリック対象は失敗させ、適当な場所をクリックしません。
 
 座標は **CSS viewport pixels** です。Retinaなどでは画像ピクセルと異なるので、スクリーンショットの `cssPerImagePixel` を掛けて変換してください。全ページ画像から操作座標を求める場合は、さらに `viewport.scrollX/scrollY` を引く必要があります。クリックには通常のviewportスクリーンショットを使う方が簡単です。
+
+## アイコンとカーソルの変更
+
+添付画像を `extension/assets/brand.png` に保存し、拡張アイコン・ツールバー・設定画面・設定画面のfaviconで共用しています。別の画像に変えるときは、次のコマンドで元画像と16/32/48/128pxのアイコンをまとめて更新し、拡張を再読み込みしてください。画像全体を残し、縦横比を保ちます。
+
+```sh
+# 初回のみ。Pillowは画像生成用で、拡張やMCPの実行時には不要です。
+python3 -m venv .venv-icons
+.venv-icons/bin/python -m pip install Pillow
+.venv-icons/bin/python scripts/build-icons.py /path/to/new-image.png
+```
+
+WindowsではPythonのパスを `.venv-icons\Scripts\python.exe` に置き換えてください。引数を省略すると、保存済みの元画像から再生成します。
+
+AIの操作位置には、ローカルに同梱したLucide `mouse-pointer-2` を表示します。色・サイズ・表示時間は **`extension/cursor-theme.mjs`** で変更できます。クリック・ドラッグ中は輪を表示し、移動・入力・スクロールにも追従します。OSのマウス位置は変えません。表示は操作後2.4秒で消えます。
+
+`browser_move` はref・selector・CSS座標からポインターを移動するツールです。実際のmouse moveイベントがページへ届いたことを検証し、届かなければ `INPUT_NOT_APPLIED` を返します。CSS hoverを再現できない合成イベントによる代用は行いません。
+
+描画を確認するには `node tests/visual-server.mjs` を実行し、表示されたローカルURLを開いてください。「描画チェックを実行」でDOMチェック、「設定画面のプレビュー」で実際のHTML/CSSを確認できます。このプレビューの接続・タブ情報は架空で、設定や許可は変更しません。インストール済み拡張の通しテストは別途 `tests/browser_e2e.py` です。
 
 ## 重要な制限
 

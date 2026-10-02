@@ -63,7 +63,7 @@ function fakeChrome(config) {
      else if(x.includes(')("wait",'))value={matched:false};
      else if(x.includes(')("scroll",'))value={method:'dom-scroll',before:{x:0,y:0},after:{x:0,y:100}};
      else if(x.includes(')("armInput",'))value={armed:true};
-     else if(x.includes(')("inputProbe",'))value={seen:flags.dropInput?{}:{pointerdown:1,mousedown:1,mouseup:1,click:1,keydown:1,keypress:1,keyup:1,beforeinput:1,input:1}};
+     else if(x.includes(')("inputProbe",'))value={seen:flags.dropInput?{}:{pointermove:1,mousemove:1,pointerdown:1,mousedown:1,mouseup:1,click:1,keydown:1,keypress:1,keyup:1,beforeinput:1,input:1}};
      else if(x.includes(')("domClick",'))value={applied:!flags.domFails,tag:'button'};
      else if(x.includes(')("domType",')){if(flags.domFails)return {exceptionDetails:{text:'NOT_EDITABLE: Target is not editable.'}};value={applied:true};}
      else if(x.includes(')("domKey",'))value={applied:!flags.domFails,inserted:!flags.domFails};
@@ -96,6 +96,35 @@ test('extension permission and dispatch integration (MOCK native Chrome APIs)',a
  await t.test('global pause and workspace pause are not remotely bypassable',async()=>{await ui({type:'settings',enabled:false});await assert.rejects(tool('browser_click',{tabId:w.tabId,selector:'button'}),/PAUSED/);await ui({type:'settings',enabled:true});await ui({type:'workspace-pause',workspaceId:w.workspaceId});await assert.rejects(tool('browser_click',{tabId:w.tabId,selector:'button'}),/WORKSPACE_PAUSED/);await ui({type:'workspace-pause',workspaceId:w.workspaceId});});
  await t.test('click and type dispatch CDP input; no clipboard or focus commands',async()=>{await tool('browser_click',{tabId:w.tabId,selector:'button'});await tool('browser_type',{tabId:w.tabId,selector:'input',text:'test input'});assert.ok(fake.cdpCalls.some(c=>c.method==='Input.insertText'));assert.ok(!fake.cdpCalls.some(c=>c.method==='Page.bringToFront'));await assert.rejects(tool('browser_press',{tabId:w.tabId,key:'Control+V'}),/CLIPBOARD_BLOCKED/);await assert.rejects(tool('browser_press',{tabId:w.tabId,key:'Control+L'}),/BROWSER_SHORTCUT_BLOCKED/);});
  await t.test('scroll uses DOM, not hidden-tab mouseWheel commands',async()=>{const r=await tool('browser_scroll',{tabId:w.tabId,deltaY:100});assert.equal(r.method,'dom-scroll');assert.ok(!fake.cdpCalls.some(c=>c.params.type==='mouseWheel'));});
+ await t.test('empty replacement dispatches input instead of reporting success with the old value intact',async()=>{
+  const start=fake.cdpCalls.length,r=await tool('browser_type',{tabId:w.tabId,selector:'input',text:''});assert.equal(r.characters,0);
+  assert.ok(fake.cdpCalls.slice(start).some(c=>c.method==='Input.insertText'&&c.params.text===''));
+  const before=fake.cdpCalls.length;await tool('browser_type',{tabId:w.tabId,selector:'input',text:'',replace:false});
+  assert.ok(!fake.cdpCalls.slice(before).some(c=>c.method==='Input.insertText'));
+ });
+ await t.test('move draws the locally bundled cursor in the isolated world and dispatches only a mouse move',async()=>{
+  const start=fake.cdpCalls.length,r=await tool('browser_move',{tabId:w.tabId,x:80,y:90});assert.equal(r.moved,true);
+  const calls=fake.cdpCalls.slice(start),input=calls.filter(c=>c.method==='Input.dispatchMouseEvent');
+  assert.deepEqual(input.map(c=>c.params.type),['mouseMoved']);assert.equal(input[0].params.x,80);assert.equal(input[0].params.y,90);
+  const drawing=calls.find(c=>c.method==='Runtime.evaluate'&&c.params.expression.includes(')("cursor",'));
+  assert.ok(drawing.params.contextId);assert.ok(drawing.params.expression.includes('data-tobkiri-cursor'));assert.ok(drawing.params.expression.includes('M4.037 4.688'));
+  assert.equal(fake.activationCalls.length,0);await assert.rejects(tool('browser_move',{tabId:w.tabId,x:1200,y:90}),/OUTSIDE_VIEWPORT/);
+ });
+ await t.test('move retains owner, pause, active-tab protection and delivery checks',async()=>{
+  await assert.rejects(tool('browser_move',{tabId:w.tabId,x:80,y:90},second),/NOT_GRANTED/);
+  fake.tabs.get(w.tabId).active=true;await assert.rejects(tool('browser_move',{tabId:w.tabId,x:80,y:90}),/HUMAN_ACTIVE_TAB/);fake.tabs.get(w.tabId).active=false;
+  await ui({type:'settings',enabled:false});await assert.rejects(tool('browser_move',{tabId:w.tabId,x:80,y:90}),/PAUSED/);await ui({type:'settings',enabled:true});
+  fake.flags.dropInput=true;
+  try{await assert.rejects(tool('browser_move',{tabId:w.tabId,x:80,y:90}),/INPUT_NOT_APPLIED/);assert.ok((await tool('browser_tabs')).tabs.some(t=>t.tabId===w.tabId&&!t.revoked));}
+  finally{fake.flags.dropInput=false;}
+ });
+ await t.test('drag renders each path point and clears the pressed cursor at the final point',async()=>{
+  const start=fake.cdpCalls.length;await tool('browser_drag',{tabId:w.tabId,points:[{x:5,y:6},{x:40,y:60},{x:70,y:90}],durationMs:0});
+  const drawing=fake.cdpCalls.slice(start).filter(c=>c.method==='Runtime.evaluate'&&c.params.expression.includes(')("cursor",'));
+  assert.equal(drawing.length,4);assert.ok(drawing[0].params.expression.includes('"action":"down"'));
+  assert.ok(drawing[1].params.expression.includes('"action":"drag","x":40,"y":60'));
+  assert.ok(drawing.at(-1).params.expression.includes('"action":"move","x":70,"y":90'));
+ });
  await t.test('eval evaluates in the MAIN world (no isolated contextId)',async()=>{const r=await tool('browser_eval',{tabId:w.tabId,expression:'window.answer=42'});assert.equal(r.type,'object');const call=fake.cdpCalls.filter(c=>c.method==='Runtime.evaluate').at(-1);assert.equal(call.params.expression,'window.answer=42');assert.equal(call.params.contextId,undefined,'main-world eval must not pass an isolated-world contextId');assert.equal(call.params.returnByValue,true);});
  await t.test('cdp passes method and params through to the granted tab',async()=>{await tool('browser_cdp',{tabId:w.tabId,method:'Page.captureScreenshot',params:{format:'jpeg'}});assert.ok(fake.cdpCalls.some(c=>c.method==='Page.captureScreenshot'&&c.params.format==='jpeg'));});
  await t.test('screenshot escalates hidden-tab capture: plain -> beyondViewport -> screencast',async()=>{

@@ -1,6 +1,8 @@
 import {AppError,validateArgs,safeUrl,VERSION} from './shared.mjs';
 import {pageOp} from './page-ops.mjs';
 import {imageSize} from './image-size.mjs';
+import {renderCursor} from './cursor-overlay.mjs';
+import {CURSOR_THEME} from './cursor-theme.mjs';
 
 let config={enabled:false,allowCreate:false,protectActive:true,port:17653,token:''};
 let workspaces={},grants={},audit=[],clients=[],connected=false,lastError='',connectionId=null;
@@ -136,7 +138,7 @@ async function page(tabId,op,args,ctx,mutating=true) {
     const world=await raw(tabId,'Page.createIsolatedWorld',{frameId:frameTree.frame.id,worldName:'tobkiri-tabs-isolated'},ctx,mutating);
     contextId=world.executionContextId;worlds.set(tabId,contextId);
   }
-  const result=await raw(tabId,'Runtime.evaluate',{expression:`(${pageOp.toString()})(${JSON.stringify(op)},${JSON.stringify(args||{})})`,contextId,returnByValue:true,awaitPromise:true,timeout:4000},ctx,mutating);
+  const result=await raw(tabId,'Runtime.evaluate',{expression:`(${pageOp.toString()})(${JSON.stringify(op)},${JSON.stringify(args||{})},(action,p)=>(${renderCursor.toString()})(action,p,${JSON.stringify(CURSOR_THEME)}))`,contextId,returnByValue:true,awaitPromise:true,timeout:4000},ctx,mutating);
   if(result.exceptionDetails)throw new AppError('PAGE_ERROR',result.exceptionDetails.exception?.description || result.exceptionDetails.text);
   return result.result?.value;
 }
@@ -247,13 +249,16 @@ async function domFallback(tabId,op,args,ctx,originalError) {
 async function click(tabId,p,a,ctx) {
   const button=a.button||'left',buttons={left:1,right:2,middle:4}[button];
   const verify=await expectInput(tabId,ctx,['pointerdown','mousedown','pointerup','mouseup','click']);
+  await page(tabId,'cursor',{action:'move',...p},ctx);
   await raw(tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'none'},ctx);
   const count=a.clickCount||1;
   for(let n=1;n<=count;n++){
+    await page(tabId,'cursor',{action:'down',...p},ctx);
     await raw(tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button,buttons,clickCount:n},ctx);
     try{await raw(tabId,'Input.dispatchMouseEvent',{type:'mouseReleased',...p,button,buttons:0,clickCount:n},ctx);}
     catch(e){await detach(tabId);throw e;}
   }
+  try{await page(tabId,'cursor',{action:'move',...p},ctx);}catch{}
   try{await verify();}
   catch(e){
     if(e.code!=='INPUT_NOT_APPLIED')throw e;
@@ -336,10 +341,17 @@ async function dispatch(name,a,ctx) {
   const readOnly=['browser_snapshot','browser_screenshot','browser_wait'].includes(name);
   await attach(a.tabId,ctx,!readOnly);
   if(name==='browser_snapshot')return await page(a.tabId,'snapshot',a,ctx,false);
+  if(name==='browser_move'){
+    const p=await point(a.tabId,a,ctx);
+    const verify=await expectInput(a.tabId,ctx,['pointermove','mousemove']);
+    await page(a.tabId,'cursor',{action:'move',...p},ctx);
+    await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'none'},ctx);
+    await verify();return {moved:true,...p};
+  }
   if(name==='browser_click'){const r=await click(a.tabId,await point(a.tabId,a,ctx),a,ctx);return {clicked:true,tabId:a.tabId,...r};}
   if(name==='browser_type'){
     await page(a.tabId,'focus',{...a,edit:true,replace:a.replace!==false},ctx);
-    if(!a.text)return {inserted:true,characters:0};
+    if(!a.text&&a.replace===false)return {inserted:true,characters:0};
     const verify=await expectInput(a.tabId,ctx,['beforeinput','input','textInput']);
     await raw(a.tabId,'Input.insertText',{text:a.text},ctx);
     try{await verify();return {inserted:true,characters:a.text.length};}
@@ -350,11 +362,13 @@ async function dispatch(name,a,ctx) {
   if(name==='browser_drag'){
     const v=await page(a.tabId,'viewport',{},ctx);if(a.points.some(p=>p.x>=v.width||p.y>=v.height))throw new AppError('OUTSIDE_VIEWPORT','Drag path exceeds viewport.');
     const verify=await expectInput(a.tabId,ctx,['pointerdown','mousedown','pointermove','mousemove','pointerup','mouseup']);
-    const p=a.points[0];await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',buttons:1,clickCount:1},ctx);
+    const p=a.points[0];await page(a.tabId,'cursor',{action:'down',...p},ctx);
+    await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',buttons:1,clickCount:1},ctx);
     try{
-      for(const p of a.points.slice(1)){await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'left',buttons:1},ctx);await sleep((a.durationMs??300)/(a.points.length-1));}
+      for(const p of a.points.slice(1)){await page(a.tabId,'cursor',{action:'drag',...p},ctx);await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'left',buttons:1},ctx);await sleep((a.durationMs??300)/(a.points.length-1));}
       await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mouseReleased',...a.points.at(-1),button:'left',buttons:0,clickCount:1},ctx);
     }catch(e){await detach(a.tabId);throw e;}
+    try{await page(a.tabId,'cursor',{action:'move',...a.points.at(-1)},ctx);}catch{}
     await verify();return {dragged:true};
   }
   if(name==='browser_screenshot') {
@@ -470,7 +484,7 @@ chrome.tabs.onRemoved.addListener(tabId=>{delete grants[tabId];attached.delete(t
 // Dev convenience: an unpacked extension's files can change on disk while a packed install's
 // cannot, so a content-hash change means the sources were edited — reload once it stays stable
 // across two alarm polls (~60s) to avoid reloading into a half-written file.
-const devFiles=['manifest.json','background.mjs','page-ops.mjs','shared.mjs','popup.mjs','popup.html'];
+const devFiles=['manifest.json','background.mjs','page-ops.mjs','cursor-overlay.mjs','cursor-theme.mjs','vendor/lucide/mouse-pointer-2.mjs','shared.mjs','popup.mjs','popup.html','popup.css'];
 let devHash='',devPending='',devStable=0;
 async function devHotReload() {
   try{
