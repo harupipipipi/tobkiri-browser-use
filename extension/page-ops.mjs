@@ -1,6 +1,8 @@
 /** This function is serialized into a CDP ISOLATED world. No extension token or privileges enter the page. */
-export function pageOp(op, a={}) {
+export function pageOp(op, a={}, renderFeedback=null) {
   const fail=(code,message)=>{throw new Error(`${code}: ${message}`);};
+  // Rendering is best-effort and must not change the result of an input operation.
+  const feedback=(action,p)=>{try{return renderFeedback?.(action,p);}catch{return {rendered:false};}};
   const store=globalThis.__tobkiri_tabs_refs ??= {refs:new Map(),generation:0};
   const visible=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none';};
   const label=el=>(el.getAttribute('aria-label') || (el.getAttribute('aria-labelledby')||'').split(/\s+/).map(id=>document.getElementById(id)?.textContent||'').join(' ').trim() || el.labels?.[0]?.innerText || el.getAttribute('alt') || el.getAttribute('title') || el.getAttribute('placeholder') || el.innerText || el.getAttribute('name') || '').trim().slice(0,180);
@@ -36,6 +38,7 @@ export function pageOp(op, a={}) {
       const walker=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT);let el;
       while((el=walker.nextNode())) {
         if(++examined>30000){capped=true;break;}
+        if(el.hasAttribute('data-tobkiri-cursor'))continue;
         if(el.shadowRoot)roots.push(el.shadowRoot);
         if(!el.matches('a[href],button,input,textarea,select,summary,[role="button"],[role="link"],[role="checkbox"],[role="radio"],[role="textbox"],[role="combobox"],[contenteditable="true"],[tabindex]') || !visible(el))continue;
         const ref=prefix+elements.length;store.refs.set(ref,el);
@@ -54,19 +57,21 @@ export function pageOp(op, a={}) {
   if(op==='point')return point(target());
   if(op==='checkState'){const el=target();if(!['checkbox','radio'].includes(el.type))fail('WRONG_ELEMENT','Target is not a checkbox/radio.');return {checked:el.checked,type:el.type};}
   if(op==='focus') {
-    const el=target();point(el);
+    const el=target();const p=point(el);
     if(a.edit && !(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el.isContentEditable))fail('NOT_EDITABLE','Target is not an editable control.');
     if(a.edit && (el.readOnly || ['file','checkbox','radio','button','submit','reset','image','range','color','date','time','datetime-local','month','week','hidden'].includes(el.type)))fail('NOT_EDITABLE','This input needs a specialized/manual interaction.');
+    feedback(a.edit?'type':a.feedbackAction||'move',p);
     el.focus({preventScroll:true});
     if(a.replace) {
       if(typeof el.select==='function')el.select();
       else if(el.isContentEditable){const range=document.createRange();range.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(range);}
     }
-    return {focused:true};
+    return {focused:true,empty:a.edit?('value'in el?el.value==='':el.textContent===''):undefined};
   }
   if(op==='select') {
     const el=target();if(!(el instanceof HTMLSelectElement))fail('WRONG_ELEMENT','Expected native select.');point(el);
     const option=[...el.options].find(o=>o.value===a.value);if(!option||option.disabled)fail('BAD_OPTION','Option missing or disabled.');
+    feedback('click',point(el));
     el.value=a.value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return {value:el.value,syntheticEvents:true};
   }
   if(op==='scroll') {
@@ -79,6 +84,9 @@ export function pageOp(op, a={}) {
       el=document.elementFromPoint(x,y);
       for(let i=0;i<10&&el?.shadowRoot;i++){const next=el.shadowRoot.elementFromPoint(x,y);if(!next||next===el)break;el=next;}
     }
+    const scrollAction=dy<0||(!dy&&dx<0)?'scroll_up':'scroll';
+    if(a.ref||a.selector){const r=el.getBoundingClientRect();feedback(scrollAction,{x:(Math.max(0,r.left)+Math.min(innerWidth,r.right))/2,y:(Math.max(0,r.top)+Math.min(innerHeight,r.bottom))/2});}
+    else feedback(scrollAction,{x:a.x??innerWidth/2,y:a.y??innerHeight/2});
     const root=document.scrollingElement;
     const canMove=(position,size,view,delta)=>delta<0?position>0:delta>0?position+view<size:false;
     while(el && el!==root) {
@@ -101,21 +109,16 @@ export function pageOp(op, a={}) {
   if(op==='armInput') {
     const prev=globalThis.__tbkInput;
     if(prev)for(const t of prev.types)document.removeEventListener(t,prev.h,true);
-    const seen={};const h=e=>{seen[e.type]=1;};const types=a.types||[];
+    const seen={};const h=e=>{if(e.isTrusted)seen[e.type]=(seen[e.type]||0)+1;};const types=a.types||[];
     for(const t of types)document.addEventListener(t,h,true);
     globalThis.__tbkInput={seen,h,types};
     return {armed:true};
   }
   if(op==='inputProbe')return {seen:globalThis.__tbkInput?.seen||{}};
-  // Visual action indicators: DOM overlays showing where an action landed. They live inside the
-  // page (so they appear in screenshots and to the user viewing the tab), use pointer-events:none,
-  // and remove themselves. This is not an OS cursor — just an in-page ripple/highlight.
+  // The locally bundled Lucide cursor is injected as an explicit isolated-world callback.
+  if(op==='cursor')return feedback(a.action,a)||{rendered:false};
   function mark(x,y){
-    const host=document.documentElement||document.body;if(!host)return;
-    const d=document.createElement('div');
-    d.style.cssText=`position:fixed;left:${Math.round(x)-14}px;top:${Math.round(y)-14}px;width:28px;height:28px;border:3px solid #2f81f7;border-radius:50%;z-index:2147483647;pointer-events:none;box-sizing:border-box;background:rgba(47,129,247,.15)`;
-    host.appendChild(d);
-    try{d.animate([{transform:'scale(.4)',opacity:'1'},{transform:'scale(1)',opacity:'1',offset:.25},{transform:'scale(1.6)',opacity:'0'}],{duration:1800,easing:'ease-out'}).onfinish=()=>d.remove();}catch{setTimeout(()=>d.remove(),1900);}
+    feedback('click',{x,y});
   }
   function flash(el){
     const r=el.getBoundingClientRect();if(!r.width&&!r.height)return;
@@ -126,14 +129,13 @@ export function pageOp(op, a={}) {
     try{d.animate([{opacity:'1'},{opacity:'1',offset:.5},{opacity:'0'}],{duration:1800,easing:'ease-out'}).onfinish=()=>d.remove();}catch{setTimeout(()=>d.remove(),1900);}
   }
   if(op==='mark'){mark(a.x,a.y);return {marked:true};}
-  // DOM-level fallbacks, used ONLY after the input probe proves the host dropped the trusted
-  // events. These emit isTrusted:false events and cannot run browser default actions such as
+  // Explicit DOM input. These emit isTrusted:false events and cannot run browser default actions such as
   // focus traversal; callers must surface `trusted:false` rather than hiding the distinction.
   if(op==='domClick') {
     let hit=document.elementFromPoint(a.x,a.y);
     for(let i=0;i<10&&hit?.shadowRoot;i++){const next=hit.shadowRoot.elementFromPoint(a.x,a.y);if(!next||next===hit)break;hit=next;}
     if(!hit)return {applied:false};
-    const hr=hit.getBoundingClientRect();mark(hr.left+hr.width/2,hr.top+hr.height/2);flash(hit);
+    mark(a.x,a.y);flash(hit);
     const PE=globalThis.PointerEvent||MouseEvent;
     // Full pointer/mouse sequence with real coordinates, detail and pointer identity —
     // el.click() alone emits click with detail:0 and no coords, which delegated handlers
@@ -156,7 +158,7 @@ export function pageOp(op, a={}) {
       let s,e;try{s=el.selectionStart??el.value.length;e=el.selectionEnd??s;}catch{s=e=el.value.length;}
       const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
       const setter=Object.getOwnPropertyDescriptor(proto,'value')?.set;
-      const next=el.value.slice(0,s)+a.text+el.value.slice(e);
+      const next=a.replace!==false?a.text:el.value.slice(0,s)+a.text+el.value.slice(e);
       if(setter)setter.call(el,next);else el.value=next;
       try{el.setSelectionRange(s+a.text.length,s+a.text.length);}catch{}
       el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:a.text}));
@@ -164,6 +166,7 @@ export function pageOp(op, a={}) {
       return {applied:true};
     }
     if(el.isContentEditable){
+      if(a.replace!==false){const range=document.createRange();range.selectNodeContents(el);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);}
       let done=false;try{done=document.execCommand('insertText',false,a.text);}catch{}
       if(!done){
         const sel=getSelection();

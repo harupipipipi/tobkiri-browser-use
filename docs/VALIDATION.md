@@ -1,3 +1,94 @@
+# Validation record
+
+## Standalone Browser MCP — 2026-10-08
+
+Baseline: Browser Use PR #1, commit `fbc67807a57b54d88a28925dcc4091d21c48981d`.
+This repository runs its own `browser_*` MCP and bridge. Acceptance tests do not
+launch a Computer backend, native driver, Electron Studio or neighboring checkout.
+
+Host: Windows, Node.js 22.23.1, optional Python Playwright 1.63.0,
+installed Chrome 154.0.8037.98 and Edge 154.0.4258.62, disposable headless profiles.
+
+- `npm test`: **62 passed**. These include owner/grant/pause/deadline guards,
+  explicit DOM input, partial-input refusal, bounded network capture/rules,
+  cursor-pack loading and renderer parity. Chrome API mocks are unit evidence.
+- `npm run test:browser`: **17 installed-extension checks per browser**, plus
+  **23 DOM/canvas checks**. The real MV3 extension pairs through its popup and
+  receives operations through the standalone production MCP. Basic trusted
+  move/click/type must be delivered; they cannot pass through a refusal.
+- Extended inputs include trusted drag, double/right click, Unicode trusted/DOM
+  contenteditable replacement and clearing, empty replacement, native select,
+  open Shadow DOM, stale/ambiguous/out-of-viewport refusal, navigation, page eval,
+  DOM scroll, exact cursor coordinates, settings reload and pet-only mode.
+- `browser_press` selected the background input with `Control+a`. A local page
+  shortcut received Control+Shift modifiers once for trusted and explicit DOM
+  routes. Browser-address-bar and shared-clipboard shortcuts were refused.
+- **Middle click remains a known partial-input limitation:** press/release arrived
+  without auxclick on both browsers. It returns `INPUT_OUTCOME_UNKNOWN`, without
+  a DOM replay. The 17 checks include that refusal; they are not 17 successful
+  input operations. Raw reports list `refusedInput` separately.
+- During background work the granted tab stayed `active:false`, with **zero
+  activation events**, and the separate human fixture kept its focused field/text.
+  `document.hidden=false` on this headless/debugger setup. Natural headed hidden
+  rAF throttling is not established. The separate canvas test explicitly simulates
+  hidden/suspended rAF lifecycle, expiry and resize invalidation.
+- `npm run test:network`: **14 checks per browser** on the fictional loopback SNS.
+  Two follows/two likes, eight persisted UI changes and reload agree with server
+  data. Page-main-world JS changes text, color and attributes. Network metadata
+  and response body are read; block/UTF-8 fulfill/URL-header-method-body modify,
+  six concurrent paused requests, lease expiry and stop agree with server receipts.
+  Those operations also produce zero tab activations and preserve human focus.
+- Cursor settings are ordinary local JSON presentation data. Browser reads them
+  with its own versioned renderer; no Computer backend is loaded at runtime.
+  Electron export is tested separately in the Computer repository.
+
+Branded-browser extension loading uses test-only `Extensions.loadUnpacked` and
+`--enable-unsafe-extension-debugging` in disposable profiles. Neither flag is a
+production setup requirement. Normal installation uses the extension manager.
+Test browser drivers come from optional Python Playwright, not npm runtime deps.
+Generated reports/screenshots/profiles are ignored under `test-results/`.
+
+Not established here: headed user profiles, arbitrary real websites, browser/OS
+dialogs, cross-origin iframe DOM, closed Shadow DOM, worker/OOPIF network capture,
+indefinite MV3 lifetime, macOS native input or general Windows-app JS injection.
+The records below retain their original dates, hosts and scope.
+
+## Historical validation — PR #1 baseline
+
+## Brand icon and visible pointer — 2026-10-03
+
+Test host: macOS, Node.js 25.5.0. No production dependencies were installed.
+
+- `npm test`: **45 passing, 0 failing**. The Chrome APIs remain mocks; the real
+  local bridge and stdio MCP are exercised by the existing suite. New coverage
+  includes `browser_move` target validation, isolated-world cursor dispatch,
+  owner/pause/active-tab protection, dropped mouse-event delivery, drag feedback,
+  and empty-string replacement dispatch.
+- **Actual browser DOM rendering:** the local `tests/cursor-preview.html`
+  fixture passed **17 checks in Google Chrome and the Codex in-app browser**.
+  It imports the production page operations, cursor renderer, theme and bundled
+  Lucide icon. Checks cover CSS-coordinate placement, pointer-events passthrough,
+  pressed-state clearing, singleton reuse, resistance to page CSS, snapshot
+  exclusion, input focus, empty DOM replacement, container scrolling, viewport
+  edges, invalid coordinates and idle cleanup.
+- **Visual inspection:** screenshots of the fixture confirm the blue pointer
+  with a white outline on light and dark backgrounds. The popup preview uses the
+  production HTML/CSS/JS with fictional, read-only extension state and displays
+  the supplied artwork in its header. The original image is preserved; packaged
+  PNGs are 16/32/48/128 pixels and are referenced by the manifest.
+- The Lucide SVG is pinned and bundled locally with its license. Rendering uses
+  a Shadow DOM overlay, synchronous CSS-pixel placement and no OS cursor or tab
+  activation. The overlay expires after 2.4 seconds in production. The visual
+  fixture has an optional 60-second hold for screenshot inspection only.
+
+These browser checks validate rendering and DOM helpers, **not** the installed
+MV3 extension, `chrome.debugger` transport, real hidden-tab mouse-event delivery,
+native toolbar icon display or service-worker lifecycle. Those paths were not
+run on this host for this change. `browser_move` verifies delivered mouse events
+and reports `INPUT_NOT_APPLIED` if the host drops them; no synthetic CSS-hover
+fallback is claimed. This change is an icon/cursor improvement, not full feature
+parity with Codex's Browser/Chrome tool.
+
 # Validation record — 0.2.9
 
 ## 0.2.8–0.2.9 changes — mock suite + LIVE verification on Windows Vivaldi (2026-09-21)

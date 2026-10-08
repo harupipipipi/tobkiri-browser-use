@@ -22,6 +22,10 @@ async function register(c){return (await request(c,'/session/register',{name:'un
 test('tool names are unique and schemas reject unknown fields',()=>{assert.equal(new Set(TOOLS.map(t=>t.name)).size,TOOLS.length);for(const t of TOOLS)assert.equal(t.inputSchema.additionalProperties,false);assert.throws(()=>validateArgs('browser_tabs',{all:true}));});
 test('URL policy rejects browser internals, files, scripts and embedded credentials',()=>{for(const u of ['javascript:alert(1)','file:///etc/passwd','chrome://settings','data:text/html,test','https://a:b@example.org','https://chromewebstore.google.com/detail/a'])assert.throws(()=>safeUrl(u));assert.equal(safeUrl('https://example.org'),'https://example.org/');assert.equal(safeUrl('about:blank'),'about:blank');});
 test('click must have exactly one target; coordinates bounded',()=>{assert.throws(()=>validateArgs('browser_click',{tabId:1}));assert.throws(()=>validateArgs('browser_click',{tabId:1,ref:'r1',x:1,y:2}));assert.throws(()=>validateArgs('browser_click',{tabId:1,x:1}));assert.throws(()=>validateArgs('browser_click',{tabId:1,x:-1,y:1}));assert.deepEqual(validateArgs('browser_click',{tabId:1,x:2,y:2}),{tabId:1,x:2,y:2});});
+test('move requires one unambiguous target and valid CSS coordinates',()=>{
+ for(const args of [{tabId:1},{tabId:1,x:1},{tabId:1,x:-1,y:0},{tabId:1,ref:'r1',selector:'button'},{tabId:1,selector:'button',x:0,y:0}])assert.throws(()=>validateArgs('browser_move',args));
+ assert.deepEqual(validateArgs('browser_move',{tabId:1,x:0,y:0}),{tabId:1,x:0,y:0});
+});
 test('nested drag paths and timeouts are validated',()=>{assert.throws(()=>validateArgs('browser_drag',{tabId:1,points:[{x:0,y:0}]}));assert.throws(()=>validateArgs('browser_drag',{tabId:1,points:[{x:0,y:0},{x:2,y:3,evil:true}]}));assert.throws(()=>validateArgs('browser_wait',{tabId:1,text:'x',timeoutMs:99999}));assert.throws(()=>validateArgs('browser_wait',{tabId:1,text:'x',selector:'x'}));});
 test('eval and cdp schemas bound their inputs',()=>{assert.throws(()=>validateArgs('browser_eval',{tabId:1}));assert.throws(()=>validateArgs('browser_eval',{tabId:1,expression:''}));assert.throws(()=>validateArgs('browser_eval',{tabId:1,expression:'1',extra:1}));assert.deepEqual(validateArgs('browser_eval',{tabId:1,expression:'1+1'}),{tabId:1,expression:'1+1'});assert.throws(()=>validateArgs('browser_cdp',{tabId:1}));assert.throws(()=>validateArgs('browser_cdp',{tabId:1,method:'Page.reload',params:'x'}));assert.deepEqual(validateArgs('browser_cdp',{tabId:1,method:'Page.reload'}),{tabId:1,method:'Page.reload'});assert.deepEqual(validateArgs('browser_cdp',{tabId:1,method:'Network.setCookie',params:{name:'a',value:'b',nested:{x:[1,2]}}}).params,{name:'a',value:'b',nested:{x:[1,2]}});});
 test('loopback bridge authenticates and rejects web Origin / rebinding Host',async t=>{
@@ -32,6 +36,14 @@ test('loopback bridge authenticates and rejects web Origin / rebinding Host',asy
  assert.equal((await request(c,'/status')).product,'tobkiri-tabs');
 });
 test('extension Origin cannot access the internal RPC or admin API',async t=>{const c=await fixture(t);const r=await fetch(`http://127.0.0.1:${c.port}/shutdown`,{method:'POST',headers:{Authorization:`Bearer ${c.token}`,Origin:`chrome-extension://${'a'.repeat(32)}`,'Content-Type':'application/json'},body:'{}'});assert.equal(r.status,403);});
+
+test('shared cursor configuration is a trusted local endpoint, never an extension grant',async t=>{
+ const c=await fixture(t);
+ const blocked=await fetch(`http://127.0.0.1:${c.port}/cursor/configure`,{method:'POST',headers:{Authorization:`Bearer ${c.token}`,Origin:`chrome-extension://${'a'.repeat(32)}`,'Content-Type':'application/json'},body:JSON.stringify({path:join(tmpdir(),'cursor.json')})});
+ assert.equal(blocked.status,403);
+ await assert.rejects(request(c,'/cursor/configure',{path:'relative.json'}),/Absolute/);
+ assert.equal((await request(c,'/cursor/configure',{path:join(tmpdir(),'cursor.json')})).ok,true);
+});
 test('offline operations fail explicitly; status remains available',async t=>{const c=await fixture(t),sessionId=await register(c);assert.equal((await request(c,'/rpc',{sessionId,name:'browser_status',args:{}})).result.connected,false);await assert.rejects(request(c,'/rpc',{sessionId,name:'browser_workspace_create',args:{name:'test'}}),/EXTENSION_OFFLINE/);});
 test('bridge routes commands by generated session owner and returns results',async t=>{
  const c=await fixture(t),sessionId=await register(c),{connectionId}=await pair(c);
