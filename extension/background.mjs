@@ -3,10 +3,23 @@ import {pageOp} from './page-ops.mjs';
 import {imageSize} from './image-size.mjs';
 import {renderCursor} from './cursor-overlay.mjs';
 import {CURSOR_THEME} from './cursor-theme.mjs';
+import {cursorRuntime} from './character-runtime.mjs';
+import {renderSharedCursor} from './shared-cursor-overlay.mjs';
+import {createNetworkController} from './network.mjs';
 
 let config={enabled:false,allowCreate:false,protectActive:true,port:17653,token:''};
 let workspaces={},grants={},audit=[],clients=[],connected=false,lastError='',connectionId=null;
 let epoch=0,loopRunning=false,reconnectTimer=null;const attached=new Set(),worlds=new Map(),locks=new Map(),canceled=new Set(),intentionalDetach=new Set(),screencastWaiters=new Map();
+const network=createNetworkController({send:sendNetwork,
+  active:tabId=>attached.has(tabId),
+  authorize:(tabId,owner,mutating)=>guard(tabId,{owner,epoch,id:'network-event',deadline:Date.now()+5000},mutating),
+  abort:async(tabId,e)=>{if(grants[tabId])grants[tabId].revoked=true;record('network-stopped',tabId,e.code||'error');await detach(tabId);}});
+async function sendNetwork(tabId,method,params){
+  if(!attached.has(tabId))throw new AppError('DEBUGGER_DETACHED','Network session detached; no command was retried.');
+  let timer;
+  try{return await Promise.race([chrome.debugger.sendCommand({tabId},method,params),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new AppError('CDP_TIMEOUT','Network command did not acknowledge; no command was retried.')),5000);})]);}
+  finally{clearTimeout(timer);}
+}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const boot=(async()=>{
   await chrome.storage.local.setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'});
@@ -14,7 +27,11 @@ const boot=(async()=>{
   if(!config.instanceId){config.instanceId=crypto.randomUUID();await chrome.storage.local.set({config});}
   const s=await chrome.storage.session.get(['workspaces','grants','audit']);workspaces=s.workspaces||{};grants=s.grants||{};audit=s.audit||[];
   // If Chrome killed the worker, adopt only debugger targets that are ALSO in our explicit grant ledger.
-  try{const targets=await chrome.debugger.getTargets();for(const t of targets)if(t.attached && grants[t.tabId] && !grants[t.tabId].revoked)attached.add(t.tabId);}catch{}
+  try{const targets=await chrome.debugger.getTargets();for(const t of targets)if(t.attached && grants[t.tabId] && !grants[t.tabId].revoked){
+    attached.add(t.tabId);
+    // Memory-only routes cannot survive a worker restart. Release orphan pauses.
+    try{await sendNetwork(t.tabId,'Fetch.disable',{});await sendNetwork(t.tabId,'Network.disable',{});}catch{await detach(t.tabId);}
+  }}catch{}
   await chrome.alarms.create('bridge-reconnect',{periodInMinutes:0.5});await badge();
 })();
 function record(name,tabId,status) {audit.unshift({at:new Date().toISOString(),name,tabId:tabId??null,status});audit=audit.slice(0,120);void persist();}
@@ -69,6 +86,7 @@ async function guard(tabId,ctx,mutating=true) {
   checkpoint(ctx);return tab;
 }
 async function detach(tabId) {
+  network.forget(tabId);
   worlds.delete(tabId);
   if(!attached.has(tabId))return;attached.delete(tabId);intentionalDetach.add(tabId);
   try{await chrome.debugger.detach({tabId});}catch{}finally{setTimeout(()=>intentionalDetach.delete(tabId),1000);}
@@ -127,6 +145,14 @@ async function raw(tabId,method,params,ctx,mutating=true,opts) {
     ]);
   } catch(e) {
     if(e.code==='CDP_TIMEOUT'){if(revokeOnTimeout&&grants[tabId])grants[tabId].revoked=true;await detach(tabId);record('cdp-timeout',tabId,revokeOnTimeout?'revoked':'timeout');}
+    // Chrome does not emit onDetach for every explicit/late detach. A stale
+    // attachment cache must never silently reconnect and replay an action.
+    if(/debugger is not attached|not attached to (?:the )?tab/i.test(e.message)){
+      if(grants[tabId])grants[tabId].revoked=true;
+      attached.delete(tabId);worlds.delete(tabId);await persist();
+      record('debugger-detached',tabId,'revoked');
+      throw new AppError('DEBUGGER_DETACHED','Debugger disconnected. Grant revoked; inspect the tab before explicitly re-granting it. Input was not retried.');
+    }
     throw e;
   } finally {clearTimeout(timer);}
 }
@@ -138,7 +164,11 @@ async function page(tabId,op,args,ctx,mutating=true) {
     const world=await raw(tabId,'Page.createIsolatedWorld',{frameId:frameTree.frame.id,worldName:'tobkiri-tabs-isolated'},ctx,mutating);
     contextId=world.executionContextId;worlds.set(tabId,contextId);
   }
-  const result=await raw(tabId,'Runtime.evaluate',{expression:`(${pageOp.toString()})(${JSON.stringify(op)},${JSON.stringify(args||{})},(action,p)=>(${renderCursor.toString()})(action,p,${JSON.stringify(CURSOR_THEME)}))`,contextId,returnByValue:true,awaitPromise:true,timeout:4000},ctx,mutating);
+  const pack=ctx.cursor?.pack;
+  const feedback=pack
+    ? `(action,p)=>{(${renderCursor.toString()})('hide',p,${JSON.stringify(CURSOR_THEME)});return (${renderSharedCursor.toString()})(action,p,${JSON.stringify(pack)},globalThis.__tobkiriCharacterRuntime ??= (${cursorRuntime.toString()})());}`
+    : `(action,p)=>{(${renderSharedCursor.toString()})('hide',p,null,null);return (${renderCursor.toString()})(action,p,${JSON.stringify(CURSOR_THEME)});}`;
+  const result=await raw(tabId,'Runtime.evaluate',{expression:`(${pageOp.toString()})(${JSON.stringify(op)},${JSON.stringify(args||{})},${feedback})`,contextId,returnByValue:true,awaitPromise:true,timeout:4000},ctx,mutating);
   if(result.exceptionDetails)throw new AppError('PAGE_ERROR',result.exceptionDetails.exception?.description || result.exceptionDetails.text);
   return result.result?.value;
 }
@@ -192,17 +222,8 @@ async function newTab(owner,workspaceId,url,ctx) {
 }
 async function navigate(tabId,url,ctx,timeoutMs=15000) {
   safeUrl(url);await attach(tabId,ctx);
-  let nav;
-  try {
-    nav=await raw(tabId,'Page.navigate',{url},ctx,{revokeOnTimeout:false});
-  } catch(e) {
-    if(e.code!=='CDP_TIMEOUT')throw e;
-    // The command may or may not have applied; re-issuing the same GET navigation is harmless.
-    // Re-attach once on a fresh debugger session before giving up.
-    record('navigate-retry',tabId,'retry');
-    await waitTabReady(tabId,ctx);await attach(tabId,ctx);
-    nav=await raw(tabId,'Page.navigate',{url},ctx);
-  }
+  // A navigation can trigger page side effects. Never replay an unacknowledged one.
+  const nav=await raw(tabId,'Page.navigate',{url},ctx);
   if(nav.errorText)throw new AppError('NAVIGATION_FAILED',nav.errorText);
   worlds.delete(tabId);const until=Date.now()+timeoutMs;
   while(Date.now()<until) {
@@ -229,29 +250,38 @@ async function point(tabId,a,ctx) {
 // Some hosts silently drop trusted input on hidden tabs while still acknowledging the CDP
 // command. Arm capture-phase listeners in the isolated world before dispatch, then verify
 // delivery afterwards so callers never receive a false success.
-async function expectInput(tabId,ctx,types) {
+async function expectInput(tabId,ctx,types,counts={}) {
   await page(tabId,'armInput',{types},ctx);
   return async()=>{
     await sleep(120);
     let probe;
     try{probe=await page(tabId,'inputProbe',{},ctx);}
-    catch(e){if(!/context|navigat|frame|document/i.test(e.message))throw e;return;}
-    if(!types.some(t=>probe?.seen?.[t]))throw new AppError('INPUT_NOT_APPLIED','No input events were observed in the page (some hosts drop or defer input on hidden tabs). Do not assume the action applied; verify page state before retrying. The grant is intact.');
+    catch(e){
+      if(!/context|navigat|frame|document/i.test(e.message))throw e;
+      throw new AppError('INPUT_OUTCOME_UNKNOWN','Page context changed before delivery could be verified. The input may have applied; inspect the current page before retrying.');
+    }
+    if(!types.some(t=>probe?.seen?.[t]))throw new AppError('INPUT_NOT_APPLIED','Required input events were not observed in the page (some hosts drop or defer input on hidden tabs). Do not assume the action applied; verify page state before retrying. The grant is intact.');
+    if(Object.entries(counts).some(([type,count])=>(probe?.seen?.[type]||0)<count))throw new AppError('INPUT_OUTCOME_UNKNOWN','Only part of the input gesture was observed. It may have affected the page or browser UI; inspect the current state before retrying. Input was not replayed.');
   };
 }
-// The probe proves the trusted events never reached the page, so a DOM-level retry cannot
-// double-apply; it is a different mechanism, not a blind retry of an uncertain command.
-async function domFallback(tabId,op,args,ctx,originalError) {
+// DOM delivery is an explicit choice, never a retry inferred from missing events.
+async function domInput(tabId,op,args,ctx) {
   const r=await page(tabId,op,args,ctx);
-  if(r&&!r.applied&&op==='domClick')throw originalError;
-  return r||{};
+  if(!r?.applied)throw new AppError('INPUT_NOT_APPLIED','DOM input was not applied. Inspect the page before retrying.');
+  return r;
 }
 async function click(tabId,p,a,ctx) {
+  if(a.inputRoute==='dom'){
+    if((a.button&&a.button!=='left')||(a.clickCount&&a.clickCount!==1))throw new AppError('UNSUPPORTED_DOM_CLICK','DOM input supports one left click only.');
+    const r=await domInput(tabId,'domClick',{x:p.x,y:p.y},ctx);
+    return {trusted:false,via:'dom-click',tag:r.tag};
+  }
   const button=a.button||'left',buttons={left:1,right:2,middle:4}[button];
-  const verify=await expectInput(tabId,ctx,['pointerdown','mousedown','pointerup','mouseup','click']);
+  const clickEvent=button==='right'?'contextmenu':button==='middle'?'auxclick':'click';
+  const count=a.clickCount||1;
+  const verify=await expectInput(tabId,ctx,['mousedown','mouseup',clickEvent],{mousedown:count,mouseup:count,[clickEvent]:count});
   await page(tabId,'cursor',{action:'move',...p},ctx);
   await raw(tabId,'Input.dispatchMouseEvent',{type:'mouseMoved',...p,button:'none'},ctx);
-  const count=a.clickCount||1;
   for(let n=1;n<=count;n++){
     await page(tabId,'cursor',{action:'down',...p},ctx);
     await raw(tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button,buttons,clickCount:n},ctx);
@@ -259,16 +289,11 @@ async function click(tabId,p,a,ctx) {
     catch(e){await detach(tabId);throw e;}
   }
   try{await page(tabId,'cursor',{action:'move',...p},ctx);}catch{}
-  try{await verify();}
-  catch(e){
-    if(e.code!=='INPUT_NOT_APPLIED')throw e;
-    const r=await domFallback(tabId,'domClick',{x:p.x,y:p.y},ctx,e);
-    return {trusted:false,via:'dom-click',tag:r.tag};
-  }
+  await verify();
   try{await page(tabId,'mark',{x:p.x,y:p.y},ctx);}catch{}
   return {};
 }
-async function press(tabId,key,ctx) {
+async function press(tabId,key,ctx,inputRoute) {
   const parts=key.split('+');let last=parts.pop();let modifiers=0;
   for(const p of parts){const n={Alt:1,Control:2,Ctrl:2,Meta:4,Cmd:4,Shift:8}[p];if(!n)throw new AppError('BAD_KEY','Unknown modifier.');modifiers|=n;}
   const table={Enter:['Enter',13,'\r'],Tab:['Tab',9,'\t'],Escape:['Escape',27],Backspace:['Backspace',8],Delete:['Delete',46],ArrowLeft:['ArrowLeft',37],ArrowUp:['ArrowUp',38],ArrowRight:['ArrowRight',39],ArrowDown:['ArrowDown',40],Home:['Home',36],End:['End',35],PageUp:['PageUp',33],PageDown:['PageDown',34],Space:['Space',32,' ']};
@@ -278,19 +303,18 @@ async function press(tabId,key,ctx) {
   const text=modifiers&7?undefined:(known?.[2]??(!known?last:undefined));
   const params={key:last==='Space'?' ':last,code:known?.[0]||( /[a-z]/i.test(last)?`Key${last.toUpperCase()}`:''),windowsVirtualKeyCode:known?.[1]||last.toUpperCase().charCodeAt(0),modifiers};
   if((modifiers&6)&&last.toLowerCase()==='a')params.commands=['selectAll'];
-  const verify=await expectInput(tabId,ctx,['keydown','keypress','keyup','beforeinput','input']);
-  await raw(tabId,'Input.dispatchKeyEvent',{...params,type:text?'keyDown':'rawKeyDown',...(text?{text,unmodifiedText:text}:{})},ctx);
-  try{await raw(tabId,'Input.dispatchKeyEvent',{...params,type:'keyUp'},ctx);}catch(e){await detach(tabId);throw e;}
-  try{await verify();return {};}
-  catch(e){
-    if(e.code!=='INPUT_NOT_APPLIED')throw e;
-    const r=await domFallback(tabId,'domKey',{key:last,code:params.code,modifiers,text},ctx,e);
+  if(inputRoute==='dom'){
+    const r=await domInput(tabId,'domKey',{key:last,code:params.code,modifiers,text},ctx);
     return {trusted:false,via:'dom-key',inserted:r.inserted,submitted:r.submitted};
   }
+  const verify=await expectInput(tabId,ctx,['keydown','keypress','keyup','beforeinput','input'],{keydown:1,keyup:1});
+  await raw(tabId,'Input.dispatchKeyEvent',{...params,type:text?'keyDown':'rawKeyDown',...(text?{text,unmodifiedText:text}:{})},ctx);
+  try{await raw(tabId,'Input.dispatchKeyEvent',{...params,type:'keyUp'},ctx);}catch(e){await detach(tabId);throw e;}
+  await verify();return {};
 }
 async function dispatch(name,a,ctx) {
   const owner=ctx.owner;
-  if(name==='browser_status')return {connected,version:VERSION,enabled:config.enabled,allowCreate:config.allowCreate,protectActive:config.protectActive,sessionId:owner,grantedTabs:(await listTabs(owner)).length,limitations:['Main-world eval and raw CDP are exposed on granted tabs','No OS input/cookie export','Cross-origin iframe DOM and native dialogs are not supported','Page-initiated popups can still interrupt focus']};
+  if(name==='browser_status')return {connected,version:VERSION,enabled:config.enabled,allowCreate:config.allowCreate,protectActive:config.protectActive,sessionId:owner,grantedTabs:(await listTabs(owner)).length,cursor:{renderer:ctx.cursor?.pack?'cursor-studio':'lucide',error:ctx.cursor?.error||null,coordinateSystem:'css_viewport_pixels',desktopProjection:false},limitations:['Main-world eval and raw CDP are exposed on granted tabs','No OS input/cookie export','Cross-origin iframe DOM and native dialogs are not supported','Page-initiated popups can still interrupt focus']};
   if(name==='browser_workspaces')return {workspaces:Object.entries(workspaces).filter(([,w])=>w.owner===owner).map(([workspaceId,w])=>({workspaceId,...w})),tabs:await listTabs(owner)};
   if(name==='browser_tabs'){if(a.workspaceId)await getWorkspace(a.workspaceId,owner);return {tabs:await listTabs(owner,a.workspaceId)};}
   if(name==='browser_workspace_release'){await getWorkspace(a.workspaceId,owner);await releaseWorkspace(a.workspaceId);return {released:true,tabsClosed:false};}
@@ -338,8 +362,13 @@ async function dispatch(name,a,ctx) {
   }
   if(name==='browser_tab_open')return await newTab(owner,a.workspaceId,a.url,ctx);
   if(name==='browser_tab_navigate')return await navigate(a.tabId,a.url,ctx,a.timeoutMs);
-  const readOnly=['browser_snapshot','browser_screenshot','browser_wait'].includes(name);
+  const readOnly=['browser_snapshot','browser_screenshot','browser_wait','browser_network_read','browser_network_body'].includes(name);
   await attach(a.tabId,ctx,!readOnly);
+  if(name==='browser_network_start')return await network.start(a.tabId,owner,a);
+  if(name==='browser_network_read')return network.read(a.tabId,owner,a);
+  if(name==='browser_network_body')return await network.body(a.tabId,owner,a);
+  if(name==='browser_network_routes')return await network.routes(a.tabId,owner,a);
+  if(name==='browser_network_stop')return await network.stop(a.tabId,owner);
   if(name==='browser_snapshot')return await page(a.tabId,'snapshot',a,ctx,false);
   if(name==='browser_move'){
     const p=await point(a.tabId,a,ctx);
@@ -350,18 +379,23 @@ async function dispatch(name,a,ctx) {
   }
   if(name==='browser_click'){const r=await click(a.tabId,await point(a.tabId,a,ctx),a,ctx);return {clicked:true,tabId:a.tabId,...r};}
   if(name==='browser_type'){
-    await page(a.tabId,'focus',{...a,edit:true,replace:a.replace!==false},ctx);
+    const focused=await page(a.tabId,'focus',{...a,edit:true,replace:a.replace!==false},ctx);
     if(!a.text&&a.replace===false)return {inserted:true,characters:0};
-    const verify=await expectInput(a.tabId,ctx,['beforeinput','input','textInput']);
-    await raw(a.tabId,'Input.insertText',{text:a.text},ctx);
-    try{await verify();return {inserted:true,characters:a.text.length};}
-    catch(e){if(e.code!=='INPUT_NOT_APPLIED')throw e;await domFallback(a.tabId,'domType',{...a,text:a.text},ctx,e);return {inserted:true,characters:a.text.length,trusted:false,via:'dom-type'};}
+    if(!a.text&&focused?.empty)return {inserted:true,characters:0,changed:false};
+    if(a.inputRoute==='dom'){
+      await domInput(a.tabId,'domType',{...a,text:a.text},ctx);
+      return {inserted:true,characters:a.text.length,trusted:false,via:'dom-type'};
+    }
+    const verify=await expectInput(a.tabId,ctx,['beforeinput','input','textInput'],{input:1});
+    if(a.text)await raw(a.tabId,'Input.insertText',{text:a.text},ctx);
+    else await press(a.tabId,'Backspace',ctx);
+    await verify();return {inserted:true,characters:a.text.length};
   }
-  if(name==='browser_press'){if(a.ref||a.selector)await page(a.tabId,'focus',a,ctx);const r=await press(a.tabId,a.key,ctx);return {pressed:true,...r};}
+  if(name==='browser_press'){if(a.ref||a.selector)await page(a.tabId,'focus',{...a,feedbackAction:'key'},ctx);const r=await press(a.tabId,a.key,ctx,a.inputRoute);return {pressed:true,...r};}
   if(name==='browser_scroll')return await page(a.tabId,'scroll',a,ctx);
   if(name==='browser_drag'){
     const v=await page(a.tabId,'viewport',{},ctx);if(a.points.some(p=>p.x>=v.width||p.y>=v.height))throw new AppError('OUTSIDE_VIEWPORT','Drag path exceeds viewport.');
-    const verify=await expectInput(a.tabId,ctx,['pointerdown','mousedown','pointermove','mousemove','pointerup','mouseup']);
+    const verify=await expectInput(a.tabId,ctx,['pointerdown','mousedown','pointermove','mousemove','pointerup','mouseup'],{mousedown:1,mousemove:1,mouseup:1});
     const p=a.points[0];await page(a.tabId,'cursor',{action:'down',...p},ctx);
     await raw(a.tabId,'Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',buttons:1,clickCount:1},ctx);
     try{
@@ -442,7 +476,7 @@ async function dispatch(name,a,ctx) {
     return {tabId:a.tabId,pdf:{data:r.data,mimeType:'application/pdf'}};
   }
   if(name==='browser_cdp')return await raw(a.tabId,a.method,a.params||{},ctx);
-  if(name==='browser_check'){const s=await page(a.tabId,'checkState',a,ctx);if(s.type==='radio'&&!a.checked)throw new AppError('RADIO_UNCHECK','Select another radio button instead.');let r;if(s.checked!==a.checked)r=await click(a.tabId,await page(a.tabId,'point',a,ctx),{},ctx);const after=await page(a.tabId,'checkState',a,ctx);if(after.checked!==a.checked)throw new AppError('CHECK_NOT_APPLIED','The page did not keep the requested state. Inspect the element; do not blindly repeat the click.');return {checked:after.checked,changed:s.checked!==a.checked,...r};}
+  if(name==='browser_check'){const s=await page(a.tabId,'checkState',a,ctx);if(s.type==='radio'&&!a.checked)throw new AppError('RADIO_UNCHECK','Select another radio button instead.');let r;if(s.checked!==a.checked)r=await click(a.tabId,await page(a.tabId,'point',a,ctx),{inputRoute:a.inputRoute},ctx);const after=await page(a.tabId,'checkState',a,ctx);if(after.checked!==a.checked)throw new AppError('CHECK_NOT_APPLIED','The page did not keep the requested state. Inspect the element; do not blindly repeat the click.');return {checked:after.checked,changed:s.checked!==a.checked,...r};}
   throw new AppError('UNKNOWN_TOOL','Not implemented.');
 }
 async function runCommand(message,cid) {
@@ -461,12 +495,14 @@ async function runCommand(message,cid) {
   });locks.set(key,job);await job;if(locks.get(key)===job)locks.delete(key);
 }
 chrome.debugger.onDetach.addListener((source,reason)=>{
+  network.forget(source.tabId);
   attached.delete(source.tabId);worlds.delete(source.tabId);
   if(!intentionalDetach.has(source.tabId) && grants[source.tabId] && reason==='canceled_by_user'){
     grants[source.tabId].revoked=true;record('debugger-detached',source.tabId,'revoked');void persist();
   }
 });
 chrome.debugger.onEvent.addListener((source,method,params)=>{
+  void network.event(source,method,params).catch(e=>record('network-event',source.tabId,e.code||'error'));
   const tabId=source.tabId;
   if(method==='Page.frameNavigated' && !params.frame.parentId)worlds.delete(tabId);
   if(method==='Runtime.executionContextsCleared')worlds.delete(tabId);
@@ -479,12 +515,16 @@ chrome.debugger.onEvent.addListener((source,method,params)=>{
     if(w){clearTimeout(w.timer);screencastWaiters.delete(tabId);w.resolve(params);}
   }
 });
+chrome.tabs.onActivated.addListener(({tabId})=>{
+  // Detaching cancels interception before an active user tab continues to be used.
+  if(config.protectActive && network.has(tabId))void detach(tabId);
+});
 chrome.tabGroups.onRemoved.addListener(group=>{for(const w of Object.values(workspaces))if(w.groupId===group.id)w.groupId=null;void persist();});
 chrome.tabs.onRemoved.addListener(tabId=>{delete grants[tabId];attached.delete(tabId);worlds.delete(tabId);void persist();});
 // Dev convenience: an unpacked extension's files can change on disk while a packed install's
 // cannot, so a content-hash change means the sources were edited — reload once it stays stable
 // across two alarm polls (~60s) to avoid reloading into a half-written file.
-const devFiles=['manifest.json','background.mjs','page-ops.mjs','cursor-overlay.mjs','cursor-theme.mjs','vendor/lucide/mouse-pointer-2.mjs','shared.mjs','popup.mjs','popup.html','popup.css'];
+const devFiles=['manifest.json','background.mjs','network.mjs','page-ops.mjs','cursor-overlay.mjs','cursor-theme.mjs','character-runtime.mjs','shared-cursor-overlay.mjs','vendor/lucide/mouse-pointer-2.mjs','shared.mjs','popup.mjs','popup.html','popup.css'];
 let devHash='',devPending='',devStable=0;
 async function devHotReload() {
   try{

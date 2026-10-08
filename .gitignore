@@ -9,3 +9,9 @@ bridge.log
 coverage/
 dataset/
 test-results/
+
+/extension/character-runtime.mjs
+/extension/character-runtime.mjs.*.tmp
+
+.venv-tests/
+artifacts/

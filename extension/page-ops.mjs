@@ -60,13 +60,13 @@ export function pageOp(op, a={}, renderFeedback=null) {
     const el=target();const p=point(el);
     if(a.edit && !(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el.isContentEditable))fail('NOT_EDITABLE','Target is not an editable control.');
     if(a.edit && (el.readOnly || ['file','checkbox','radio','button','submit','reset','image','range','color','date','time','datetime-local','month','week','hidden'].includes(el.type)))fail('NOT_EDITABLE','This input needs a specialized/manual interaction.');
-    feedback(a.edit?'type':'move',p);
+    feedback(a.edit?'type':a.feedbackAction||'move',p);
     el.focus({preventScroll:true});
     if(a.replace) {
       if(typeof el.select==='function')el.select();
       else if(el.isContentEditable){const range=document.createRange();range.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(range);}
     }
-    return {focused:true};
+    return {focused:true,empty:a.edit?('value'in el?el.value==='':el.textContent===''):undefined};
   }
   if(op==='select') {
     const el=target();if(!(el instanceof HTMLSelectElement))fail('WRONG_ELEMENT','Expected native select.');point(el);
@@ -84,8 +84,9 @@ export function pageOp(op, a={}, renderFeedback=null) {
       el=document.elementFromPoint(x,y);
       for(let i=0;i<10&&el?.shadowRoot;i++){const next=el.shadowRoot.elementFromPoint(x,y);if(!next||next===el)break;el=next;}
     }
-    if(a.ref||a.selector){const r=el.getBoundingClientRect();feedback('scroll',{x:(Math.max(0,r.left)+Math.min(innerWidth,r.right))/2,y:(Math.max(0,r.top)+Math.min(innerHeight,r.bottom))/2});}
-    else feedback('scroll',{x:a.x??innerWidth/2,y:a.y??innerHeight/2});
+    const scrollAction=dy<0||(!dy&&dx<0)?'scroll_up':'scroll';
+    if(a.ref||a.selector){const r=el.getBoundingClientRect();feedback(scrollAction,{x:(Math.max(0,r.left)+Math.min(innerWidth,r.right))/2,y:(Math.max(0,r.top)+Math.min(innerHeight,r.bottom))/2});}
+    else feedback(scrollAction,{x:a.x??innerWidth/2,y:a.y??innerHeight/2});
     const root=document.scrollingElement;
     const canMove=(position,size,view,delta)=>delta<0?position>0:delta>0?position+view<size:false;
     while(el && el!==root) {
@@ -108,7 +109,7 @@ export function pageOp(op, a={}, renderFeedback=null) {
   if(op==='armInput') {
     const prev=globalThis.__tbkInput;
     if(prev)for(const t of prev.types)document.removeEventListener(t,prev.h,true);
-    const seen={};const h=e=>{seen[e.type]=1;};const types=a.types||[];
+    const seen={};const h=e=>{if(e.isTrusted)seen[e.type]=(seen[e.type]||0)+1;};const types=a.types||[];
     for(const t of types)document.addEventListener(t,h,true);
     globalThis.__tbkInput={seen,h,types};
     return {armed:true};
@@ -128,8 +129,7 @@ export function pageOp(op, a={}, renderFeedback=null) {
     try{d.animate([{opacity:'1'},{opacity:'1',offset:.5},{opacity:'0'}],{duration:1800,easing:'ease-out'}).onfinish=()=>d.remove();}catch{setTimeout(()=>d.remove(),1900);}
   }
   if(op==='mark'){mark(a.x,a.y);return {marked:true};}
-  // DOM-level fallbacks, used ONLY after the input probe proves the host dropped the trusted
-  // events. These emit isTrusted:false events and cannot run browser default actions such as
+  // Explicit DOM input. These emit isTrusted:false events and cannot run browser default actions such as
   // focus traversal; callers must surface `trusted:false` rather than hiding the distinction.
   if(op==='domClick') {
     let hit=document.elementFromPoint(a.x,a.y);
@@ -158,7 +158,7 @@ export function pageOp(op, a={}, renderFeedback=null) {
       let s,e;try{s=el.selectionStart??el.value.length;e=el.selectionEnd??s;}catch{s=e=el.value.length;}
       const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
       const setter=Object.getOwnPropertyDescriptor(proto,'value')?.set;
-      const next=el.value.slice(0,s)+a.text+el.value.slice(e);
+      const next=a.replace!==false?a.text:el.value.slice(0,s)+a.text+el.value.slice(e);
       if(setter)setter.call(el,next);else el.value=next;
       try{el.setSelectionRange(s+a.text.length,s+a.text.length);}catch{}
       el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:a.text}));
@@ -166,6 +166,7 @@ export function pageOp(op, a={}, renderFeedback=null) {
       return {applied:true};
     }
     if(el.isContentEditable){
+      if(a.replace!==false){const range=document.createRange();range.selectNodeContents(el);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);}
       let done=false;try{done=document.execCommand('insertText',false,a.text);}catch{}
       if(!done){
         const sel=getSelection();

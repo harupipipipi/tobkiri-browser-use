@@ -1,0 +1,2 @@
+# Optional only: production MCP and extension are dependency-free.
+playwright>=1.50,<2

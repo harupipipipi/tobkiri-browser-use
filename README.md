@@ -2,7 +2,7 @@
 
 AI専用のタブを色付きグループにまとめ、別のタブを人間が使っている間も、対象タブをバックグラウンドで操作するための **Chrome拡張 + ローカルstdio MCPサーバー**です。MITライセンス、実行時のnpm依存はありません。
 
-> **v0.3.0 / 検証範囲は変更・ホストごとに記録しています。** サーバー・権限制御の自動テストに加え、今回のカーソル描画はmacOSのChromeとCodexのブラウザでDOM検証ページを使って確認しました。**今回の変更をインストール済み拡張まで通したテストは未実施**です。過去のWindows Vivaldiでの実拡張チェックを含む、実施内容と未検証の範囲は [検証記録](docs/VALIDATION.md) を参照してください。
+> **v0.3.0 / Browser専用MCPとして動作します。** Windowsの使い捨てChrome / Edgeプロファイルで、実MV3拡張・背景タブ入力・カーソル・架空SNS・DOM変更・通信操作を検証しました。Computer Useのインストールや起動は不要です。過去の試験を含む実施内容と未検証の範囲は [検証記録](docs/VALIDATION.md) を参照してください。
 
 ## なにができる？
 
@@ -16,6 +16,9 @@ AI専用のタブを色付きグループにまとめ、別のタブを人間が
 | スクロール | 一番近いスクロール可能なDOM要素を直接スクロール |
 | スクリーンショット | 対象タブの `Page.captureScreenshot`。通常/全ページ、PNG/JPEG、MCP image応答 |
 | フォーム | checkbox/radio、native select、条件待ち |
+| DOM・コンソール相当のJS | `browser_eval` で対象ページのMAIN worldを実行 |
+| 通信記録・本文取得 | 対象タブのCDP Networkイベントを件数・容量制限付きで保存 |
+| 通信ブロック・書き換え・模擬応答 | CDP FetchのURL条件ルール。期限付きで自動処理 |
 | 人間優先 | 前面タブへの変更操作を標準で拒否。読み取りは可能 |
 | 複数MCPクライアント | MCPプロセスごとに別セッション。別セッションの許可タブは取得・操作不可 |
 
@@ -44,7 +47,7 @@ Chromeの `chrome://extensions` を開き、デベロッパーモードを有効
 
 拡張アイコンを開いてペアリングコードを入力します。「AI専用タブの新規作成を許可する」を選び、「接続して、AI用の作業場所を用意」を押します。許可しなくても、人間が個別に渡した既存タブの操作はできます。
 
-Chrome 120以上を対象にしています。Edge / Brave等のChromium系で利用できる可能性はありますが、この版では実機未検証です。Firefox / Safari向けではありません。組織のポリシーが拡張やdebuggerを禁止している場合、その制限を回避せず管理者に確認してください。
+Chrome 120以上を対象にしています。Windowsの通常版Chrome / Edgeは専用ヘッドレスプロフィールで実拡張を検証しています。Braveや画面表示した通常プロフィールは未検証です。Firefox / Safari向けではありません。組織のポリシーが拡張やdebuggerを禁止している場合、その制限を回避せず管理者に確認してください。
 
 ### 3. MCPホストに登録する
 
@@ -85,6 +88,7 @@ MCPプロセス起動時、ブリッジが停止していれば自動起動し�
 ## MCPツール
 
 ツールのJSON Schemaと詳しい説明は `extension/shared.mjs` にあります。
+通信操作の手順・範囲・期限は [DOM・通信操作](docs/NETWORK.md) を参照してください。
 
 | 用途 | ツール |
 |---|---|
@@ -94,6 +98,8 @@ MCPプロセス起動時、ブリッジが停止していれば自動起動し�
 | 読み取り・画像 | `browser_snapshot`, `browser_screenshot`, `browser_pdf` |
 | 操作 | `browser_move`, `browser_click`, `browser_type`, `browser_press`, `browser_scroll`, `browser_drag` |
 | フォーム・待機 | `browser_select`, `browser_check`, `browser_wait` |
+| JS・生CDP | `browser_eval`, `browser_cdp` |
+| 通信 | `browser_network_start`, `browser_network_read`, `browser_network_body`, `browser_network_routes`, `browser_network_stop` |
 
 例：
 
@@ -129,7 +135,17 @@ WindowsではPythonのパスを `.venv-icons\Scripts\python.exe` に置き換え
 
 AIの操作位置には、ローカルに同梱したLucide `mouse-pointer-2` を表示します。色・サイズ・表示時間は **`extension/cursor-theme.mjs`** で変更できます。クリック・ドラッグ中は輪を表示し、移動・入力・スクロールにも追従します。OSのマウス位置は変えません。表示は操作後2.4秒で消えます。
 
+Cursor Studio形式のJSONを使う場合は、MCPの環境変数 `TOBKIRI_CURSOR_PACK` に
+そのファイルの絶対パスを指定します。省略時は設定フォルダ内の `cursor-pack.json` を
+読みます。Computerと同じJSONで同じ見た目を使えますが、Browserは自前の描画ソースを
+持ち、Computerプロセスを起動しません。JSONは見た目だけで、入力命令を実行しません。
+変更は次の操作で読み直します。不正なJSONは既定のLucideカーソルに戻します。
+
 `browser_move` はref・selector・CSS座標からポインターを移動するツールです。実際のmouse moveイベントがページへ届いたことを検証し、届かなければ `INPUT_NOT_APPLIED` を返します。CSS hoverを再現できない合成イベントによる代用は行いません。
+
+`browser_press` はページ内のEnter、矢印キー、`Control+a` など対応した組み合わせを
+送れます。OS全体のショートカットやブラウザのアドレスバー操作は対象外で、
+`Control+l` と共有クリップボードの `Control+c/v/x` は拒否します。
 
 描画を確認するには `node tests/visual-server.mjs` を実行し、表示されたローカルURLを開いてください。「描画チェックを実行」でDOMチェック、「設定画面のプレビュー」で実際のHTML/CSSを確認できます。このプレビューの接続・タブ情報は架空で、設定や許可は変更しません。インストール済み拡張の通しテストは別途 `tests/browser_e2e.py` です。
 
@@ -167,6 +183,23 @@ npm test          # Nodeのサーバー・権限制御テスト
 
 ## 開発・検証
 
+`npm test` は依存のインストールなしで動作します。描画コードはこのリポジトリ内の
+ソースからsetup/MCP起動/試験時に生成します。実ブラウザの試験だけは、導入済みの
+Chrome / Edgeと任意のPython仮想環境に入れたPlaywrightが必要です。
+
+```powershell
+python -m venv .venv-tests
+.venv-tests\Scripts\python.exe -m pip install -r tests/requirements.txt
+$env:TOBKIRI_TEST_PYTHON=(Resolve-Path .venv-tests\Scripts\python.exe).Path
+npm run test:browser  # 実拡張、入力、描画、権限と前面タブ保護
+npm run test:social   # 架空SNSのフォロー・いいね
+npm run test:network  # 架空SNSとDOM・通信の記録/変更
+```
+
+これらは使い捨てのヘッドレスプロファイルだけで実行し、OS入力や既存タブを使いません。
+Python版Playwrightに同梱されたJSドライバーを試験用に読み込みます。npmの実行時依存は
+増やしていません。元のPython試験も利用できます。
+
 ```sh
 npm test
 
@@ -179,7 +212,7 @@ python tests/browser_e2e.py --chromium /path/to/chromium
 
 LinuxのGUIなし環境では別途Xvfb等が必要です。テスト用依存は通常の拡張/MCP実行には不要です。`browser_e2e.py` は管理ポリシーが全拡張を禁止している環境では回避せず終了コード77と理由を返します。
 
-`test-results` に今回の実測レポートを同梱しています。画像はテスト用の架空ページです。`docs/ui-preview.png` がある場合はポップアップのテストデータによる描画プレビューであり、インストール成功の証拠ではありません。
+実測レポートと画像はローカルの `test-results` に保存し、Gitには同梱しません。画像はテスト用の架空ページです。`docs/ui-preview.png` がある場合はポップアップのテストデータによる描画プレビューであり、インストール成功の証拠ではありません。
 
 ## 構成
 
@@ -199,6 +232,8 @@ long-pollは15秒ごとにしか操作しないという意味ではありませ
 
 既存OSSでは `hangwin/mcp-chrome` が近い設計です。本プロジェクトはそのコードのコピーではなく、タブ別許可と人間の前面操作を優先する小さい独立実装です。参照した仕様は [REFERENCES.md](docs/REFERENCES.md)。
 
-## AIデザインデータセット
+## ソースと独立性
 
-AI生成スライド/サイト/デザインを公開ソースから継続収集するスクリプト群(`scripts/fetch-asset.mjs`, `collect-site.mjs`, `blink-enrich.mjs`, `blink-index.mjs`, `blink-feed.mjs`, `social-harvest.mjs`, `github-readme-dig.mjs`, `x-harvest.mjs`, `mcp-rescue.mjs`)と、成果物がAI製かを判定するスキル(`.devin/skills/ai-design-detector/`、実測評価ハーネス `scripts/detector-eval.mjs`、視覚盲検セット `scripts/blindset-build.mjs` / `blindset-build2.mjs` / `blindset-build2b.mjs` / `blindset-build3.mjs` + `scripts/blindset-score.mjs`（判定済みデータ `eval/blindset/`）と、出力契約の検証 `scripts/detector-contract.mjs`（`aiGenerated` は true/false/null の三値 — `uncertain` は人間判定と誤読しない。ホスト/バッジは来歴(provenance)の特定のみで、生成証拠は成果物内の個別マーカーが必須))を同梱しています。隠しタブのスクショ/PDF収集とログイン済みX検索の収穫にはこの拡張自身を使います。詳しくは [DATASET.md](docs/DATASET.md)。
+既存PR #1を基に、このBrowserリポジトリ内だけで機能を追加しています。
+Cursor Studio描画ソースの由来は [SOURCE.md](extension/vendor/cursor-studio/SOURCE.md)、
+変更の範囲は [UPSTREAM.md](UPSTREAM.md) を参照してください。

@@ -1,6 +1,26 @@
 {
-  "name": "tobkiri-tabs", "version": "0.3.0", "private": true,
+  "name": "tobkiri-tabs",
+  "version": "0.3.0",
+  "private": true,
   "description": "Focus-preserving browser-tab automation: a local MCP server and Chrome MV3 extension.",
-  "type": "module", "license": "MIT", "engines": {"node": ">=22"},
-  "scripts": {"setup": "node src/cli.mjs setup", "start": "node src/cli.mjs bridge", "mcp": "node src/cli.mjs mcp", "doctor": "node src/cli.mjs doctor", "stop": "node src/cli.mjs stop", "test": "node --test tests/*.test.mjs"}
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "sync:cursor": "node scripts/sync-cursor.mjs",
+    "check:cursor": "node scripts/sync-cursor.mjs --check",
+    "pretest": "node scripts/sync-cursor.mjs",
+    "setup": "node src/cli.mjs setup",
+    "start": "node src/cli.mjs bridge",
+    "mcp": "node src/cli.mjs mcp",
+    "doctor": "node src/cli.mjs doctor",
+    "stop": "node src/cli.mjs stop",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node scripts/sync-cursor.mjs && node tests/cursor-dom.mjs && node tests/browser-live.mjs --browser chrome --extended --require-trusted && node tests/browser-live.mjs --browser msedge --extended --require-trusted",
+    "test:social": "node scripts/sync-cursor.mjs && node demos/social/acceptance.mjs --browser chrome && node demos/social/acceptance.mjs --browser msedge",
+    "test:network": "node scripts/sync-cursor.mjs && node demos/social/acceptance.mjs --browser chrome --network && node demos/social/acceptance.mjs --browser msedge --network",
+    "demo:social": "node demos/social/server.mjs"
+  }
 }

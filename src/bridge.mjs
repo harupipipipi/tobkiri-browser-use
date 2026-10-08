@@ -2,6 +2,8 @@ import http from 'node:http';
 import {randomUUID} from 'node:crypto';
 import {secureEqual} from './config.mjs';
 import {VERSION, validateArgs} from '../extension/shared.mjs';
+import {packReader} from './cursor-pack.mjs';
+import {isAbsolute} from 'node:path';
 
 const reply=(res,code,data)=>{ if (!res.writableEnded && !res.destroyed) { res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}); res.end(JSON.stringify(data)); } };
 async function body(req, limit=256*1024) {
@@ -12,6 +14,7 @@ async function body(req, limit=256*1024) {
   if(!b || typeof b!=='object' || Array.isArray(b)) throw new Error('Object body required.'); return b;
 }
 export async function startBridge(config) {
+  let readPack=packReader(config);
   const sessions=new Map(), pending=new Map(); let extension=null, closing=false;
   const clientList=()=>[...sessions.values()].map(({id,name})=>({id,name}));
   const connected=()=>extension && Date.now()-extension.lastSeen<45000;
@@ -65,6 +68,13 @@ export async function startBridge(config) {
     if(origin && !path.startsWith('/extension/')) return reply(res,403,{error:'Extension endpoint only.'});
     try {
       if(req.method==='GET' && path==='/status') return reply(res,200,{product:'tobkiri-tabs',version:VERSION,connected:Boolean(connected()),sessions:sessions.size});
+      if(req.method==='POST' && path==='/cursor/configure') {
+        // Trusted local launcher only, never an MCP/page/extension operation.
+        const b=await body(req);
+        if(typeof b.path!=='string'||!isAbsolute(b.path))throw new Error('Absolute cursor-pack path required.');
+        readPack=packReader({...config,cursorPackPath:b.path});
+        return reply(res,200,{ok:true});
+      }
       if(req.method==='POST' && path==='/session/register') {
         const b=await body(req); if(sessions.size>=16) throw new Error('Too many MCP sessions.');
         const id=randomUUID(); sessions.set(id,{id,name:String(b.name || 'MCP client').slice(0,80),lastSeen:Date.now()});
@@ -110,7 +120,9 @@ export async function startBridge(config) {
         pending.set(id,{res,timer,sessionId:session.id});
         // Internal HTTP, not MCP Streamable HTTP: transport abort explicitly cancels this queued command.
         res.on('close',()=>{if(!res.writableEnded) cancel(id,'Client canceled the operation.');});
-        enqueue({kind:'command',id,owner:session.id,name:b.name,args:b.args ?? {},deadline:Date.now()+duration}); return;
+        const cursor=await readPack();
+        if(!pending.has(id))return; // Canceled while reading presentation data.
+        enqueue({kind:'command',id,owner:session.id,name:b.name,args:b.args ?? {},cursor,deadline:Date.now()+duration}); return;
       }
       if(req.method==='POST' && path==='/shutdown') {
         await body(req); reply(res,200,{ok:true}); setTimeout(()=>stop(),30); return;
