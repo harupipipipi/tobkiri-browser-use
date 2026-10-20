@@ -1,4 +1,4 @@
-const $=id=>document.getElementById(id);let state=null,busy=false;
+const $=id=>document.getElementById(id);let state=null,busy=false,wasPaired=null;
 async function send(message){const r=await chrome.runtime.sendMessage(message);if(r.error)throw new Error(r.error);return r.result;}
 function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;}
 function notify(message){$('message').textContent=message;$('message').hidden=!message;}
@@ -11,7 +11,16 @@ async function refresh(){
   $('connection-detail').textContent=s.connected?`${s.clients.length} MCPクライアント · ${s.tabs.length} 許可済みタブ`:(s.lastError || 'ペアリングコードでローカル接続');
   $('toggle').disabled=!s.config.paired;$('toggle').textContent=s.config.enabled?'一時停止':'再開';$('toggle').className=s.config.enabled?'primary':'danger';
   $('protect').checked=s.config.protectActive;$('allow-create').checked=s.config.allowCreate;
-  if(s.config.paired){$('pairing').open=false;$('pair-code').value='';}else $('pairing').open=true;
+  // ペアリング状態の「遷移」時のみ open を自動制御する。
+  // 毎回の refresh で上書きすると、ユーザーの手動トグルが無視される。
+  if(wasPaired===null){
+    $('pairing').open=!s.config.paired;
+    wasPaired=s.config.paired;
+  }else if(wasPaired!==s.config.paired){
+    if(s.config.paired){$('pairing').open=false;$('pair-code').value='';}
+    else $('pairing').open=true;
+    wasPaired=s.config.paired;
+  }
   const current=$('client').value;$('client').replaceChildren();
   if(!s.clients.length)$('client').append(node('option','MCPクライアント未接続'));
   for(const c of s.clients){const o=node('option',c.name);o.value=c.id;$('client').append(o);}
